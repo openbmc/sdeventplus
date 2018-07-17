@@ -44,7 +44,7 @@ Event Event::get_default(const internal::SdEvent* sdevent)
     return Event(event, std::false_type(), sdevent);
 }
 
-int Event::loop()
+int Event::loop() const
 {
     int r = sdevent->sd_event_loop(event.get());
     if (r < 0)
@@ -54,7 +54,7 @@ int Event::loop()
     return r;
 }
 
-int Event::get_watchdog()
+int Event::get_watchdog() const
 {
     int r = sdevent->sd_event_get_watchdog(event.get());
     if (r < 0)
@@ -64,7 +64,7 @@ int Event::get_watchdog()
     return r;
 }
 
-int Event::set_watchdog(int b)
+int Event::set_watchdog(int b) const
 {
     int r = sdevent->sd_event_set_watchdog(event.get(), b);
     if (r < 0)

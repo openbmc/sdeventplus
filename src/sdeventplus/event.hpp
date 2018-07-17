@@ -20,9 +20,9 @@ class Event
     static Event
         get_default(const internal::SdEvent* sdevent = &internal::sdevent_impl);
 
-    int loop();
-    int get_watchdog();
-    int set_watchdog(int b);
+    int loop() const;
+    int get_watchdog() const;
+    int set_watchdog(int b) const;
 
   private:
     const internal::SdEvent* sdevent;
