@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <sdeventplus/sdevent.hpp>
-#include <sdeventplus/sdref.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/sdref.hpp>
 #include <systemd/sd-event.h>
 
 namespace sdeventplus

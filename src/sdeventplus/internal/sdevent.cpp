@@ -1,4 +1,4 @@
-#include <sdeventplus/sdevent.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
 
 namespace sdeventplus
 {

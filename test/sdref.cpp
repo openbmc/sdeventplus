@@ -1,7 +1,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <sdeventplus/sdevent.hpp>
-#include <sdeventplus/sdref.hpp>
+#include <sdeventplus/internal/sdref.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <systemd/sd-event.h>
 #include <type_traits>

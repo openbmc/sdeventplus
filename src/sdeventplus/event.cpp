@@ -1,6 +1,7 @@
 #include <functional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
+#include <systemd/sd-event.h>
 
 namespace sdeventplus
 {

@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <memory>
-#include <sdeventplus/sdevent.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
 #include <type_traits>
 
 namespace sdeventplus
