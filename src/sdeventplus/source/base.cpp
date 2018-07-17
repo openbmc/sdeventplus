@@ -61,7 +61,8 @@ static int prepare_callback(sd_event_source*, void* userdata)
         return -EINVAL;
     }
     Base* base = reinterpret_cast<Base*>(userdata);
-    return internal::performCallback(base->get_prepare(), std::ref(*base));
+    return internal::performCallback("prepare_callback", base->get_prepare(),
+                                     std::ref(*base));
 }
 
 void Base::set_prepare(Callback&& callback)

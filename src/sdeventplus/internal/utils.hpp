@@ -19,7 +19,7 @@ namespace internal
 
 // Helpers for sd_event callbacks to handle exceptions gracefully
 template <typename Func, typename... Args>
-static int performCallback(Func func, Args... args)
+static int performCallback(const char* name, Func func, Args... args)
 {
     try
     {
@@ -28,17 +28,17 @@ static int performCallback(Func func, Args... args)
     }
     catch (const std::system_error& e)
     {
-        fprintf(stderr, "sdeventplus: callback: %s\n", e.what());
+        fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
         return -e.code().value();
     }
     catch (const std::exception& e)
     {
-        fprintf(stderr, "sdeventplus: callback: %s\n", e.what());
+        fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
         return -ENOSYS;
     }
     catch (...)
     {
-        fprintf(stderr, "sdeventplus: callback: Unknown error\n");
+        fprintf(stderr, "sdeventplus: %s: Unknown error\n", name);
         return -ENOSYS;
     }
 }
