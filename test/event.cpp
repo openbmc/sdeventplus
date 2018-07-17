@@ -27,6 +27,8 @@ TEST_F(EventTest, NewEventRef)
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
     Event event(expected_event, &mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
@@ -34,6 +36,8 @@ TEST_F(EventTest, NewEventRef)
 TEST_F(EventTest, NewEventNoRef)
 {
     Event event(expected_event, std::false_type(), &mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
@@ -43,6 +47,8 @@ TEST_F(EventTest, GetNewEvent)
     EXPECT_CALL(mock, sd_event_new(testing::_))
         .WillOnce(DoAll(SetArgPointee<0>(expected_event), Return(0)));
     Event event = Event::get_new(&mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
@@ -58,6 +64,8 @@ TEST_F(EventTest, GetDefaultEvent)
     EXPECT_CALL(mock, sd_event_default(testing::_))
         .WillOnce(DoAll(SetArgPointee<0>(expected_event), Return(0)));
     Event event = Event::get_default(&mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }

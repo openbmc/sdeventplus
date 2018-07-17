@@ -44,6 +44,16 @@ Event Event::get_default(const internal::SdEvent* sdevent)
     return Event(event, std::false_type(), sdevent);
 }
 
+sd_event* Event::get() const
+{
+    return event.get();
+}
+
+const internal::SdEvent* Event::getSdEvent() const
+{
+    return sdevent;
+}
+
 int Event::loop() const
 {
     int r = sdevent->sd_event_loop(event.get());
