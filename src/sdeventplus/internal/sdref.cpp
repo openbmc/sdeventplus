@@ -8,7 +8,8 @@ namespace internal
 {
 
 template <typename T>
-SdRef<T>::SdRef(T* ref, Func take_ref, Func release_ref, SdEvent* sdevent) :
+SdRef<T>::SdRef(T* ref, Func take_ref, Func release_ref,
+                const SdEvent* sdevent) :
     SdRef(take_ref(sdevent, ref), take_ref, release_ref, std::false_type(),
           sdevent)
 {
@@ -16,7 +17,7 @@ SdRef<T>::SdRef(T* ref, Func take_ref, Func release_ref, SdEvent* sdevent) :
 
 template <typename T>
 SdRef<T>::SdRef(T* ref, Func take_ref, Func release_ref, std::false_type,
-                SdEvent* sdevent) :
+                const SdEvent* sdevent) :
     sdevent(sdevent),
     take_ref(take_ref), release_ref(release_ref), ref(ref)
 {

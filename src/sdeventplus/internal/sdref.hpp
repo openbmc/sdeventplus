@@ -13,12 +13,12 @@ template <typename T>
 class SdRef
 {
   public:
-    using Func = std::function<T*(SdEvent*, T*)>;
+    using Func = std::function<T*(const SdEvent*, T*)>;
 
     SdRef(T* ref, Func take_ref, Func release_ref,
-          SdEvent* sdevent = &sdevent_impl);
+          const SdEvent* sdevent = &sdevent_impl);
     SdRef(T* ref, Func take_ref, Func release_ref, std::false_type,
-          SdEvent* sdevent = &sdevent_impl);
+          const SdEvent* sdevent = &sdevent_impl);
     virtual ~SdRef();
 
     SdRef(const SdRef& other);
@@ -29,7 +29,7 @@ class SdRef
     T* get() const;
 
   private:
-    SdEvent* sdevent;
+    const SdEvent* sdevent;
     Func take_ref;
     Func release_ref;
     T* ref;
