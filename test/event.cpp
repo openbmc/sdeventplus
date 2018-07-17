@@ -94,6 +94,94 @@ class EventMethodTest : public EventTest
     }
 };
 
+TEST_F(EventMethodTest, PrepareSuccessNone)
+{
+    EXPECT_CALL(mock, sd_event_prepare(expected_event)).WillOnce(Return(0));
+    EXPECT_EQ(0, event->prepare());
+}
+
+TEST_F(EventMethodTest, PrepareSuccessReady)
+{
+    const int events_ready = 10;
+    EXPECT_CALL(mock, sd_event_prepare(expected_event))
+        .WillOnce(Return(events_ready));
+    EXPECT_EQ(events_ready, event->prepare());
+}
+
+TEST_F(EventMethodTest, PrepareInternalError)
+{
+    EXPECT_CALL(mock, sd_event_prepare(expected_event))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->prepare(), SdEventError);
+}
+
+TEST_F(EventMethodTest, WaitSuccessNone)
+{
+    const std::chrono::microseconds timeout{20};
+    EXPECT_CALL(mock, sd_event_wait(expected_event, timeout.count()))
+        .WillOnce(Return(0));
+    EXPECT_EQ(0, event->wait(timeout));
+}
+
+TEST_F(EventMethodTest, WaitSuccessReady)
+{
+    const int events_ready = 10;
+    EXPECT_CALL(mock, sd_event_wait(expected_event, static_cast<uint64_t>(-1)))
+        .WillOnce(Return(events_ready));
+    EXPECT_EQ(events_ready, event->wait(std::experimental::nullopt));
+}
+
+TEST_F(EventMethodTest, WaitInternalError)
+{
+    EXPECT_CALL(mock, sd_event_wait(expected_event, static_cast<uint64_t>(-1)))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->wait(std::experimental::nullopt), SdEventError);
+}
+
+TEST_F(EventMethodTest, DispatchInitial)
+{
+    EXPECT_CALL(mock, sd_event_dispatch(expected_event)).WillOnce(Return(0));
+    EXPECT_EQ(0, event->dispatch());
+}
+
+TEST_F(EventMethodTest, DispatchDone)
+{
+    const int done_code = 10;
+    EXPECT_CALL(mock, sd_event_dispatch(expected_event))
+        .WillOnce(Return(done_code));
+    EXPECT_EQ(done_code, event->dispatch());
+}
+
+TEST_F(EventMethodTest, DispatchInternalError)
+{
+    EXPECT_CALL(mock, sd_event_dispatch(expected_event))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->dispatch(), SdEventError);
+}
+
+TEST_F(EventMethodTest, RunSuccessNone)
+{
+    const std::chrono::microseconds timeout{20};
+    EXPECT_CALL(mock, sd_event_run(expected_event, timeout.count()))
+        .WillOnce(Return(0));
+    EXPECT_EQ(0, event->run(timeout));
+}
+
+TEST_F(EventMethodTest, RunSuccessReady)
+{
+    const int events_ready = 10;
+    EXPECT_CALL(mock, sd_event_run(expected_event, static_cast<uint64_t>(-1)))
+        .WillOnce(Return(events_ready));
+    EXPECT_EQ(events_ready, event->run(std::experimental::nullopt));
+}
+
+TEST_F(EventMethodTest, RunInternalError)
+{
+    EXPECT_CALL(mock, sd_event_run(expected_event, static_cast<uint64_t>(-1)))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->run(std::experimental::nullopt), SdEventError);
+}
+
 TEST_F(EventMethodTest, LoopSuccess)
 {
     EXPECT_CALL(mock, sd_event_loop(expected_event)).WillOnce(Return(0));
@@ -112,6 +200,45 @@ TEST_F(EventMethodTest, LoopInternalError)
 {
     EXPECT_CALL(mock, sd_event_loop(expected_event)).WillOnce(Return(-EINVAL));
     EXPECT_THROW(event->loop(), SdEventError);
+}
+
+TEST_F(EventMethodTest, ExitSuccess)
+{
+    EXPECT_CALL(mock, sd_event_exit(expected_event, 0)).WillOnce(Return(2));
+    EXPECT_EQ(2, event->exit(0));
+}
+
+TEST_F(EventMethodTest, ExitUserError)
+{
+    const int user_error = 10;
+    EXPECT_CALL(mock, sd_event_exit(expected_event, user_error))
+        .WillOnce(Return(user_error));
+    EXPECT_EQ(user_error, event->exit(user_error));
+}
+
+TEST_F(EventMethodTest, ExitInternalError)
+{
+    EXPECT_CALL(mock, sd_event_exit(expected_event, 5))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->exit(5), SdEventError);
+}
+
+TEST_F(EventMethodTest, GetExitCodeSuccess)
+{
+    EXPECT_CALL(mock, sd_event_get_exit_code(expected_event, testing::_))
+        .WillOnce(DoAll(SetArgPointee<1>(1), Return(0)));
+    EXPECT_EQ(1, event->get_exit_code());
+
+    EXPECT_CALL(mock, sd_event_get_exit_code(expected_event, testing::_))
+        .WillOnce(DoAll(SetArgPointee<1>(0), Return(2)));
+    EXPECT_EQ(0, event->get_exit_code());
+}
+
+TEST_F(EventMethodTest, GetExitCodeError)
+{
+    EXPECT_CALL(mock, sd_event_get_exit_code(expected_event, testing::_))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(event->get_exit_code(), SdEventError);
 }
 
 TEST_F(EventMethodTest, GetWatchdogSuccess)

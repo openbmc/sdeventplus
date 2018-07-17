@@ -17,11 +17,17 @@ class SdEvent
     virtual sd_event* sd_event_ref(sd_event* event) const = 0;
     virtual sd_event* sd_event_unref(sd_event* event) const = 0;
 
+    virtual int sd_event_prepare(sd_event* event) const = 0;
+    virtual int sd_event_wait(sd_event* event, uint64_t usec) const = 0;
+    virtual int sd_event_dispatch(sd_event* event) const = 0;
+    virtual int sd_event_run(sd_event* event, uint64_t usec) const = 0;
     virtual int sd_event_loop(sd_event* event) const = 0;
+    virtual int sd_event_exit(sd_event* event, int code) const = 0;
 
     virtual int sd_event_now(sd_event* event, clockid_t clock,
                              uint64_t* usec) const = 0;
 
+    virtual int sd_event_get_exit_code(sd_event* event, int* code) const = 0;
     virtual int sd_event_get_watchdog(sd_event* event) const = 0;
     virtual int sd_event_set_watchdog(sd_event* event, int b) const = 0;
 
@@ -73,15 +79,45 @@ class SdEventImpl : public SdEvent
         return ::sd_event_unref(event);
     }
 
+    int sd_event_prepare(sd_event* event) const override
+    {
+        return ::sd_event_prepare(event);
+    }
+
+    int sd_event_wait(sd_event* event, uint64_t usec) const override
+    {
+        return ::sd_event_wait(event, usec);
+    }
+
+    int sd_event_dispatch(sd_event* event) const override
+    {
+        return ::sd_event_dispatch(event);
+    }
+
+    int sd_event_run(sd_event* event, uint64_t usec) const override
+    {
+        return ::sd_event_run(event, usec);
+    }
+
     int sd_event_loop(sd_event* event) const override
     {
         return ::sd_event_loop(event);
+    }
+
+    int sd_event_exit(sd_event* event, int code) const override
+    {
+        return ::sd_event_exit(event, code);
     }
 
     int sd_event_now(sd_event* event, clockid_t clock,
                      uint64_t* usec) const override
     {
         return ::sd_event_now(event, clock, usec);
+    }
+
+    int sd_event_get_exit_code(sd_event* event, int* code) const override
+    {
+        return ::sd_event_get_exit_code(event, code);
     }
 
     int sd_event_get_watchdog(sd_event* event) const override
