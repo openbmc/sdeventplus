@@ -24,3 +24,7 @@ exception_LDADD = $(gtest_ldadd)
 check_PROGRAMS += sdref
 sdref_SOURCES = sdref.cpp
 sdref_LDADD = $(gtest_ldadd)
+
+check_PROGRAMS += source
+source_SOURCES = source.cpp
+source_LDADD = $(gtest_ldadd)

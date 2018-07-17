@@ -16,6 +16,11 @@ class SdEventInterface
     virtual sd_event *sd_event_unref(sd_event *event) const = 0;
 
     virtual int sd_event_loop(sd_event *event) const = 0;
+
+    virtual sd_event_source *
+        sd_event_source_ref(sd_event_source *source) const = 0;
+    virtual sd_event_source *
+        sd_event_source_unref(sd_event_source *source) const = 0;
 };
 
 class SdEventImpl : public SdEventInterface
@@ -44,6 +49,16 @@ class SdEventImpl : public SdEventInterface
     int sd_event_loop(sd_event *event) const override
     {
         return ::sd_event_loop(event);
+    }
+
+    sd_event_source *sd_event_source_ref(sd_event_source *source) const override
+    {
+        return ::sd_event_source_ref(source);
+    }
+    sd_event_source *
+        sd_event_source_unref(sd_event_source *source) const override
+    {
+        return ::sd_event_source_unref(source);
     }
 };
 

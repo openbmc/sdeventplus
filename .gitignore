@@ -45,3 +45,4 @@ Makefile.in
 /test/event
 /test/exception
 /test/sdref
+/test/source
