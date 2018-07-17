@@ -1,12 +1,8 @@
-AM_CPPFLAGS = $(SYSTEMD_CFLAGS) $(CODE_COVERAGE_CPPFLAGS)
-AM_CFLAGS = $(CODE_COVERAGE_CFLAGS)
-AM_CXXFLAGS = $(CODE_COVERAGE_CXXFLAGS)
-
 nobase_include_HEADERS =
 pkgconfig_DATA = sdeventplus.pc
 lib_LTLIBRARIES = libsdeventplus.la
 libsdeventplus_la_SOURCES =
-libsdeventplus_la_LIBADD = $(SYSTEMD_LIBS) $(CODE_COVERAGE_LIBS)
+libsdeventplus_la_LIBADD = $(COMMON_LIBS)
 
 nobase_include_HEADERS += sdeventplus/event.hpp
 libsdeventplus_la_SOURCES += sdeventplus/event.cpp
