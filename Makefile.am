@@ -6,6 +6,10 @@ CODE_COVERAGE_IGNORE_PATTERN = '/include/*' '/usr/include/*' '$(includedir)/*'
 CODE_COVERAGE_IGNORE_PATTERN += \
     '$(abs_builddir)/src/sdeventplus/internal/sdevent.*'
 export CODE_COVERAGE_IGNORE_PATTERN
+CODE_COVERAGE_GENHTML_OPTIONS = $(CODE_COVERAGE_GENHTML_OPTIONS_DEFAULT)
+# Don't generate the absolute path for each file in the HTML output
+CODE_COVERAGE_GENHTML_OPTIONS += --prefix $(abs_srcdir) --prefix $(abs_builddir)
+export CODE_COVERAGE_GENHTML_OPTIONS
 
 export AM_CPPFLAGS = -I$(abs_builddir)/src -I$(abs_srcdir)/src \
                      $(SYSTEMD_CFLAGS) $(CODE_COVERAGE_CPPFLAGS)
