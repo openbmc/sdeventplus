@@ -54,6 +54,11 @@ AC_CHECK_LIB([systemd], [sd_event_default], [], [
 ])
 AX_RESTORE_FLAGS_WITH_PREFIX(OLD, [LDFLAGS])
 
+# Make it possible for users to choose to disable examples
+AC_ARG_ENABLE([examples], AC_HELP_STRING([--disable-examples],
+                                         [Build example programs]))
+AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$enable_examples" != "xno"])
+
 # Make it possible for users to choose if they want test support
 # explicitly or not at all
 AC_ARG_ENABLE([tests], AC_HELP_STRING([--disable-tests],
