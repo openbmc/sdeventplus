@@ -36,7 +36,9 @@ SdRef<T>& SdRef<T>::operator=(const SdRef& other)
     {
         // release_ref will be invalid if moved
         if (release_ref)
+        {
             release_ref(sdevent, ref);
+        }
 
         sdevent = other.sdevent;
         take_ref = other.take_ref;
@@ -53,7 +55,9 @@ SdRef<T>& SdRef<T>::operator=(SdRef&& other)
     {
         // release_ref will be invalid if move
         if (release_ref)
+        {
             release_ref(sdevent, ref);
+        }
 
         sdevent = std::move(other.sdevent);
         take_ref = std::move(other.take_ref);
