@@ -33,6 +33,7 @@ class Base
     const char* get_description() const;
     void set_description(const char* description) const;
     void set_prepare(Callback&& callback);
+    const Callback& get_prepare() const;
     int get_pending() const;
     int64_t get_priority() const;
     void set_priority(int64_t priority) const;

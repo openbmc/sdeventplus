@@ -99,6 +99,11 @@ void Base::set_prepare(Callback&& callback)
     prepare = std::move(callback);
 }
 
+const Base::Callback& Base::get_prepare() const
+{
+    return prepare;
+}
+
 int Base::get_pending() const
 {
     int r = event.getSdEvent()->sd_event_source_get_pending(source.get());

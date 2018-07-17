@@ -67,6 +67,7 @@ TEST_F(BaseTest, NewBaseRef)
     EXPECT_EQ(expected_source, source.get());
     EXPECT_NE(event.get(), &source.get_event());
     EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
 
     {
         testing::InSequence seq;
@@ -87,6 +88,7 @@ TEST_F(BaseTest, NewBaseNoRef)
     EXPECT_EQ(expected_source, source.get());
     EXPECT_NE(event.get(), &source.get_event());
     EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
 
     {
         testing::InSequence seq;
@@ -107,6 +109,7 @@ TEST_F(BaseTest, NoSource)
     EXPECT_EQ(nullptr, source.get());
     EXPECT_NE(event.get(), &source.get_event());
     EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
 
     EXPECT_CALL(mock, sd_event_source_unref(nullptr)).WillOnce(Return(nullptr));
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
@@ -189,6 +192,7 @@ TEST_F(BaseMethodTest, SetPrepareCallback)
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(DoAll(SaveArg<1>(&event_handler), Return(0)));
     base->set_prepare(std::move(callback));
+    EXPECT_TRUE(base->get_prepare());
     EXPECT_FALSE(callback);
     EXPECT_FALSE(completed);
 
@@ -203,6 +207,7 @@ TEST_F(BaseMethodTest, SetPrepareCallbackNoUserdata)
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(DoAll(SaveArg<1>(&event_handler), Return(0)));
     base->set_prepare(std::move(callback));
+    EXPECT_TRUE(base->get_prepare());
     EXPECT_FALSE(callback);
 
     EXPECT_EQ(-EINVAL, event_handler(nullptr, nullptr));
@@ -224,6 +229,7 @@ TEST_F(BaseMethodTest, SetPrepareSystemError)
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(0));
     base->set_prepare(std::move(callback));
+    EXPECT_TRUE(base->get_prepare());
     EXPECT_FALSE(callback);
     EXPECT_EQ(-EBUSY, base->prepareCallback());
 }
@@ -234,6 +240,7 @@ TEST_F(BaseMethodTest, SetPrepareUnknownException)
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(0));
     base->set_prepare(std::move(callback));
+    EXPECT_TRUE(base->get_prepare());
     EXPECT_FALSE(callback);
     EXPECT_EQ(-ENOSYS, base->prepareCallback());
 }
@@ -244,6 +251,7 @@ TEST_F(BaseMethodTest, SetPrepareError)
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(-EINVAL));
     EXPECT_THROW(base->set_prepare(std::move(callback)), SdEventError);
+    EXPECT_FALSE(base->get_prepare());
     EXPECT_TRUE(callback);
     EXPECT_EQ(-ENOSYS, base->prepareCallback());
 }
