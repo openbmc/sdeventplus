@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/sdref.hpp>
 #include <systemd/sd-event.h>
