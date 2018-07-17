@@ -10,19 +10,21 @@ namespace sdeventplus
 class Event
 {
   public:
-    Event(sd_event* event, SdEventInterface* intf = &sdevent_impl);
+    Event(sd_event* event,
+          internal::SdEvent* sdevent = &internal::sdevent_impl);
     Event(sd_event* event, std::false_type,
-          SdEventInterface* intf = &sdevent_impl);
-    static Event get_new(SdEventInterface* intf = &sdevent_impl);
-    static Event get_default(SdEventInterface* intf = &sdevent_impl);
+          internal::SdEvent* sdevent = &internal::sdevent_impl);
+    static Event get_new(internal::SdEvent* sdevent = &internal::sdevent_impl);
+    static Event
+        get_default(internal::SdEvent* sdevent = &internal::sdevent_impl);
 
     int loop();
     int get_watchdog();
     int set_watchdog(int b);
 
   private:
-    SdEventInterface* intf;
-    SdRef<sd_event> event;
+    internal::SdEvent* sdevent;
+    internal::SdRef<sd_event> event;
 };
 
 } // namespace sdeventplus

@@ -44,5 +44,5 @@ Makefile.in
 /example/follow
 /test/event
 /test/exception
-/test/sdref
-/test/source
+/test/internal_sdref
+/test/source_base

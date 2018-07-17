@@ -17,12 +17,12 @@ exception_SOURCES = exception.cpp
 exception_CPPFLAGS = $(gtest_cppflags)
 exception_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += sdref
-sdref_SOURCES = sdref.cpp
-sdref_CPPFLAGS = $(gtest_cppflags)
-sdref_LDADD = $(gtest_ldadd)
+check_PROGRAMS += internal_sdref
+internal_sdref_SOURCES = internal/sdref.cpp
+internal_sdref_CPPFLAGS = $(gtest_cppflags)
+internal_sdref_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source
-source_SOURCES = source.cpp
-source_CPPFLAGS = $(gtest_cppflags)
-source_LDADD = $(gtest_ldadd)
+check_PROGRAMS += source_base
+source_base_SOURCES = source/base.cpp
+source_base_CPPFLAGS = $(gtest_cppflags)
+source_base_LDADD = $(gtest_ldadd)

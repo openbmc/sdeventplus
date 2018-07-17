@@ -2,5 +2,10 @@
 
 namespace sdeventplus
 {
+namespace internal
+{
+
 SdEventImpl sdevent_impl;
-}
+
+} // namespace internal
+} // namespace sdeventplus

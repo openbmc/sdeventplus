@@ -1,89 +1,38 @@
 #pragma once
 
 #include <functional>
-#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <type_traits>
 
 namespace sdeventplus
 {
+namespace internal
+{
 
 template <typename T> class SdRef
 {
   public:
-    using Func = std::function<T*(SdEventInterface*, T*)>;
+    using Func = std::function<T*(SdEvent*, T*)>;
 
     SdRef(T* ref, Func take_ref, Func release_ref,
-          SdEventInterface* intf = sdevent_impl) :
-        SdRef(take_ref(intf, ref), take_ref, release_ref, std::false_type(),
-              intf)
-    {
-    }
-
+          SdEvent* sdevent = &sdevent_impl);
     SdRef(T* ref, Func take_ref, Func release_ref, std::false_type,
-          SdEventInterface* intf = sdevent_impl) :
-        intf(intf),
-        take_ref(take_ref), release_ref(release_ref), ref(ref)
-    {
-    }
+          SdEvent* sdevent = &sdevent_impl);
+    virtual ~SdRef();
 
-    SdRef(const SdRef& other) :
-        intf(other.intf), take_ref(other.take_ref),
-        release_ref(other.release_ref), ref(take_ref(intf, other.ref))
-    {
-    }
-
-    SdRef& operator=(const SdRef& other)
-    {
-        if (this != &other)
-        {
-            // release_ref will be invalid if moved
-            if (release_ref)
-                release_ref(intf, ref);
-
-            intf = other.intf;
-            take_ref = other.take_ref;
-            release_ref = other.release_ref;
-            ref = take_ref(intf, other.ref);
-        }
-        return *this;
-    }
-
+    SdRef(const SdRef& other);
+    SdRef& operator=(const SdRef& other);
     SdRef(SdRef&& other) = default;
+    SdRef& operator=(SdRef&& other);
 
-    SdRef& operator=(SdRef&& other)
-    {
-        if (this != &other)
-        {
-            // release_ref will be invalid if move
-            if (release_ref)
-                release_ref(intf, ref);
-
-            intf = std::move(other.intf);
-            take_ref = std::move(other.take_ref);
-            release_ref = std::move(other.release_ref);
-            ref = std::move(other.ref);
-        }
-        return *this;
-    }
-
-    virtual ~SdRef()
-    {
-        // release_ref will be invalid after a move
-        if (release_ref)
-            release_ref(intf, ref);
-    }
-
-    T* get() const
-    {
-        return ref;
-    }
+    T* get() const;
 
   private:
-    SdEventInterface* intf;
+    SdEvent* sdevent;
     Func take_ref;
     Func release_ref;
     T* ref;
 };
 
+} // namespace internal
 } // namespace sdeventplus

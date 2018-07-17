@@ -8,7 +8,7 @@ namespace sdeventplus
 class SdEventError final : public std::system_error
 {
   public:
-    SdEventError(int r, const char *prefix);
+    SdEventError(int r, const char* prefix);
 };
 
 } // namespace sdeventplus

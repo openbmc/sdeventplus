@@ -11,7 +11,7 @@ namespace
 TEST(ExceptionTest, Construct)
 {
     const int code = EINTR;
-    const char *const prefix = "construct_test";
+    const char* const prefix = "construct_test";
 
     std::system_error expected(code, std::generic_category(), prefix);
     SdEventError err(code, prefix);

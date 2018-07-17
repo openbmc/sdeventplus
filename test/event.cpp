@@ -18,8 +18,8 @@ using testing::SetArgPointee;
 class EventTest : public testing::Test
 {
   protected:
-    testing::StrictMock<SdEventMock> mock;
-    sd_event *const expected_event = reinterpret_cast<sd_event *>(1234);
+    testing::StrictMock<test::SdEventMock> mock;
+    sd_event* const expected_event = reinterpret_cast<sd_event*>(1234);
 };
 
 TEST_F(EventTest, NewEventRef)
