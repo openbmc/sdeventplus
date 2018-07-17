@@ -172,5 +172,23 @@ Base::Base(const Event& event, sd_event_source* source, std::false_type) :
 {
 }
 
+Base& Base::operator=(Base&& other)
+{
+    if (this != &other)
+    {
+        // We need to make sure our current event is not triggered
+        // after it gets deleted in the move
+        if (source)
+        {
+            set_enabled(SD_EVENT_OFF);
+        }
+
+        event = std::move(other.event);
+        source = std::move(other.source);
+        prepare = std::move(other.prepare);
+    }
+    return *this;
+}
+
 } // namespace source
 } // namespace sdeventplus

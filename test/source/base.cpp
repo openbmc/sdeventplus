@@ -11,6 +11,7 @@
 #include <system_error>
 #include <systemd/sd-event.h>
 #include <type_traits>
+#include <utility>
 
 namespace sdeventplus
 {
@@ -113,6 +114,167 @@ TEST_F(BaseTest, NoSource)
 
     EXPECT_CALL(mock, sd_event_source_unref(nullptr)).WillOnce(Return(nullptr));
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+}
+
+TEST_F(BaseTest, MoveConstruct)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    source.set_prepare([](Base&) {});
+    EXPECT_TRUE(source.get_prepare());
+
+    BaseImpl source2(std::move(source));
+    EXPECT_EQ(nullptr, source.get());
+    EXPECT_EQ(nullptr, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
+    EXPECT_EQ(expected_source, source2.get());
+    EXPECT_EQ(expected_event, source2.get_event().get());
+    EXPECT_TRUE(source2.get_prepare());
+
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_enabled(expected_source, SD_EVENT_OFF))
+            .WillOnce(Return(0));
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
+    }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+}
+
+TEST_F(BaseTest, MoveAssignSelf)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    source.set_prepare([](Base&) {});
+    EXPECT_TRUE(source.get_prepare());
+
+    source = std::move(source);
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_TRUE(source.get_prepare());
+
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_enabled(expected_source, SD_EVENT_OFF))
+            .WillOnce(Return(0));
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
+    }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+}
+
+TEST_F(BaseTest, MoveAssignEmpty)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    source.set_prepare([](Base&) {});
+    EXPECT_TRUE(source.get_prepare());
+
+    sd_event* const expected_event2 = reinterpret_cast<sd_event*>(1);
+    Event event2(expected_event2, std::false_type(), &mock);
+    EXPECT_CALL(mock, sd_event_ref(expected_event2))
+        .WillOnce(Return(expected_event2));
+    BaseImpl source2(event2, nullptr, std::false_type());
+    EXPECT_EQ(nullptr, source2.get());
+    EXPECT_EQ(expected_event2, source2.get_event().get());
+    EXPECT_FALSE(source2.get_prepare());
+
+    EXPECT_CALL(mock, sd_event_unref(expected_event2))
+        .WillOnce(Return(nullptr));
+    EXPECT_CALL(mock, sd_event_source_unref(nullptr)).WillOnce(Return(nullptr));
+    source2 = std::move(source);
+    EXPECT_EQ(nullptr, source.get());
+    EXPECT_EQ(nullptr, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
+    EXPECT_EQ(expected_source, source2.get());
+    EXPECT_EQ(expected_event, source2.get_event().get());
+    EXPECT_TRUE(source2.get_prepare());
+
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_enabled(expected_source, SD_EVENT_OFF))
+            .WillOnce(Return(0));
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
+    }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+    EXPECT_CALL(mock, sd_event_unref(expected_event2))
+        .WillOnce(Return(nullptr));
+}
+
+TEST_F(BaseTest, MoveAssignExisting)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_EQ(expected_event, source.get_event().get());
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    source.set_prepare([](Base&) {});
+    EXPECT_TRUE(source.get_prepare());
+
+    sd_event* const expected_event2 = reinterpret_cast<sd_event*>(1);
+    sd_event_source* const expected_source2 =
+        reinterpret_cast<sd_event_source*>(2);
+    Event event2(expected_event2, std::false_type(), &mock);
+    EXPECT_CALL(mock, sd_event_ref(expected_event2))
+        .WillOnce(Return(expected_event2));
+    BaseImpl source2(event2, expected_source2, std::false_type());
+    EXPECT_EQ(expected_source2, source2.get());
+    EXPECT_EQ(expected_event2, source2.get_event().get());
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source2, testing::_))
+        .WillOnce(Return(0));
+    source2.set_prepare([](Base&) {});
+    EXPECT_TRUE(source2.get_prepare());
+
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_enabled(expected_source2, SD_EVENT_OFF))
+            .WillOnce(Return(0));
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source2))
+            .WillOnce(Return(nullptr));
+    }
+    EXPECT_CALL(mock, sd_event_unref(expected_event2))
+        .WillOnce(Return(nullptr));
+    source2 = std::move(source);
+    EXPECT_EQ(nullptr, source.get());
+    EXPECT_EQ(nullptr, source.get_event().get());
+    EXPECT_FALSE(source.get_prepare());
+    EXPECT_EQ(expected_source, source2.get());
+    EXPECT_EQ(expected_event, source2.get_event().get());
+    EXPECT_TRUE(source2.get_prepare());
+
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_enabled(expected_source, SD_EVENT_OFF))
+            .WillOnce(Return(0));
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
+    }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+    EXPECT_CALL(mock, sd_event_unref(expected_event2))
+        .WillOnce(Return(nullptr));
 }
 
 class BaseMethodTest : public BaseTest

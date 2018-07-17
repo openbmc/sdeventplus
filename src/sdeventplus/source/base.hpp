@@ -19,12 +19,6 @@ class Base
 
     virtual ~Base();
 
-    // We don't want to allow any kind of slicing.
-    Base(const Base& source) = delete;
-    Base& operator=(const Base& source) = delete;
-    Base(Base&& source) = delete;
-    Base& operator=(Base&& source) = delete;
-
     int prepareCallback();
 
     sd_event_source* get() const;
@@ -41,12 +35,20 @@ class Base
     void set_enabled(int enabled) const;
 
   protected:
-    const Event event;
-    const internal::SdRef<sd_event_source> source;
+    Event event;
+    internal::SdRef<sd_event_source> source;
 
     // Base sources cannot be directly constructed.
     Base(const Event& event, sd_event_source* source);
     Base(const Event& event, sd_event_source* source, std::false_type);
+
+    // We can't ever copy an event_source because the callback
+    // data has to be unique.
+    Base(const Base& other) = delete;
+    Base& operator=(const Base& other) = delete;
+    // We don't want to allow any kind of slicing.
+    Base(Base&& other) = default;
+    Base& operator=(Base&& other);
 
   private:
     Callback prepare;
