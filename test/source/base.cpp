@@ -1,12 +1,15 @@
 #include <cerrno>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <memory>
+#include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <string>
 #include <system_error>
+#include <systemd/sd-event.h>
 #include <type_traits>
 
 namespace sdeventplus
@@ -24,13 +27,11 @@ using testing::SetArgPointee;
 class BaseImpl : public Base
 {
   public:
-    BaseImpl(sd_event_source* source, internal::SdEvent* sdevent) :
-        Base(source, sdevent)
+    BaseImpl(const Event& event, sd_event_source* source) : Base(event, source)
     {
     }
-    BaseImpl(sd_event_source* source, std::false_type,
-             internal::SdEvent* sdevent) :
-        Base(source, std::false_type(), sdevent)
+    BaseImpl(const Event& event, sd_event_source* source, std::false_type) :
+        Base(event, source, std::false_type())
     {
     }
 };
@@ -39,15 +40,30 @@ class BaseTest : public testing::Test
 {
   protected:
     testing::StrictMock<test::SdEventMock> mock;
-    sd_event_source* const expected_source =
-        reinterpret_cast<sd_event_source*>(1234);
+    sd_event_source* expected_source = reinterpret_cast<sd_event_source*>(1234);
+    sd_event* expected_event = reinterpret_cast<sd_event*>(2345);
+    std::unique_ptr<Event> event;
+
+    virtual void SetUp()
+    {
+        event =
+            std::make_unique<Event>(expected_event, std::false_type(), &mock);
+    }
+    virtual void TearDown()
+    {
+        EXPECT_CALL(mock, sd_event_unref(expected_event))
+            .WillOnce(Return(nullptr));
+        event.reset();
+    }
 };
 
 TEST_F(BaseTest, NewBaseRef)
 {
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
     EXPECT_CALL(mock, sd_event_source_ref(expected_source))
         .WillOnce(Return(expected_source));
-    BaseImpl source(expected_source, &mock);
+    BaseImpl source(*event, expected_source);
 
     {
         testing::InSequence seq;
@@ -57,11 +73,14 @@ TEST_F(BaseTest, NewBaseRef)
         EXPECT_CALL(mock, sd_event_source_unref(expected_source))
             .WillOnce(Return(nullptr));
     }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
 
 TEST_F(BaseTest, NewBaseNoRef)
 {
-    BaseImpl source(expected_source, std::false_type(), &mock);
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, expected_source, std::false_type());
 
     {
         testing::InSequence seq;
@@ -71,6 +90,7 @@ TEST_F(BaseTest, NewBaseNoRef)
         EXPECT_CALL(mock, sd_event_source_unref(expected_source))
             .WillOnce(Return(nullptr));
     }
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
 
 class BaseMethodTest : public BaseTest
@@ -78,13 +98,16 @@ class BaseMethodTest : public BaseTest
   protected:
     std::unique_ptr<BaseImpl> base;
 
-    void SetUp()
+    void SetUp() override
     {
-        base = std::make_unique<BaseImpl>(expected_source, std::false_type(),
-                                          &mock);
+        BaseTest::SetUp();
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        base = std::make_unique<BaseImpl>(*event, expected_source,
+                                          std::false_type());
     }
 
-    void TearDown()
+    void TearDown() override
     {
         {
             testing::InSequence seq;
@@ -94,8 +117,18 @@ class BaseMethodTest : public BaseTest
             EXPECT_CALL(mock, sd_event_source_unref(expected_source))
                 .WillOnce(Return(nullptr));
         }
+        EXPECT_CALL(mock, sd_event_unref(expected_event))
+            .WillOnce(Return(nullptr));
+        base.reset();
+        BaseTest::TearDown();
     }
 };
+
+TEST_F(BaseMethodTest, GetEvent)
+{
+    EXPECT_NE(event.get(), &base->get_event());
+    EXPECT_EQ(event->get(), base->get_event().get());
+}
 
 TEST_F(BaseMethodTest, GetDescriptionSuccess)
 {

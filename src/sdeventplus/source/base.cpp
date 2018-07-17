@@ -42,11 +42,16 @@ int Base::prepareCallback()
     }
 }
 
+const Event& Base::get_event() const
+{
+    return event;
+}
+
 const char* Base::get_description() const
 {
     const char* description;
-    int r =
-        sdevent->sd_event_source_get_description(source.get(), &description);
+    int r = event.getSdEvent()->sd_event_source_get_description(source.get(),
+                                                                &description);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_description");
@@ -56,7 +61,8 @@ const char* Base::get_description() const
 
 void Base::set_description(const char* description) const
 {
-    int r = sdevent->sd_event_source_set_description(source.get(), description);
+    int r = event.getSdEvent()->sd_event_source_set_description(source.get(),
+                                                                description);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_description");
@@ -75,7 +81,7 @@ static int prepare_callback(sd_event_source*, void* userdata)
 
 void Base::set_prepare(Callback&& callback)
 {
-    int r = sdevent->sd_event_source_set_prepare(
+    int r = event.getSdEvent()->sd_event_source_set_prepare(
         source.get(), callback ? prepare_callback : nullptr);
     if (r < 0)
     {
@@ -87,7 +93,7 @@ void Base::set_prepare(Callback&& callback)
 
 int Base::get_pending() const
 {
-    int r = sdevent->sd_event_source_get_pending(source.get());
+    int r = event.getSdEvent()->sd_event_source_get_pending(source.get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_pending");
@@ -98,7 +104,8 @@ int Base::get_pending() const
 int64_t Base::get_priority() const
 {
     int64_t priority;
-    int r = sdevent->sd_event_source_get_priority(source.get(), &priority);
+    int r = event.getSdEvent()->sd_event_source_get_priority(source.get(),
+                                                             &priority);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_priority");
@@ -108,7 +115,8 @@ int64_t Base::get_priority() const
 
 void Base::set_priority(int64_t priority) const
 {
-    int r = sdevent->sd_event_source_set_priority(source.get(), priority);
+    int r = event.getSdEvent()->sd_event_source_set_priority(source.get(),
+                                                             priority);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_priority");
@@ -118,7 +126,8 @@ void Base::set_priority(int64_t priority) const
 int Base::get_enabled() const
 {
     int enabled;
-    int r = sdevent->sd_event_source_get_enabled(source.get(), &enabled);
+    int r =
+        event.getSdEvent()->sd_event_source_get_enabled(source.get(), &enabled);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_enabled");
@@ -128,25 +137,25 @@ int Base::get_enabled() const
 
 void Base::set_enabled(int enabled) const
 {
-    int r = sdevent->sd_event_source_set_enabled(source.get(), enabled);
+    int r =
+        event.getSdEvent()->sd_event_source_set_enabled(source.get(), enabled);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_enabled");
     }
 }
 
-Base::Base(sd_event_source* source, internal::SdEvent* sdevent) :
-    sdevent(sdevent), source(source, &internal::SdEvent::sd_event_source_ref,
-                             &internal::SdEvent::sd_event_source_unref, sdevent)
+Base::Base(const Event& event, sd_event_source* source) :
+    event(event),
+    source(source, &internal::SdEvent::sd_event_source_ref,
+           &internal::SdEvent::sd_event_source_unref, event.getSdEvent())
 {
 }
 
-Base::Base(sd_event_source* source, std::false_type,
-           internal::SdEvent* sdevent) :
-    sdevent(sdevent),
-    source(source, &internal::SdEvent::sd_event_source_ref,
-           &internal::SdEvent::sd_event_source_unref, std::false_type(),
-           sdevent)
+Base::Base(const Event& event, sd_event_source* source, std::false_type) :
+    event(event), source(source, &internal::SdEvent::sd_event_source_ref,
+                         &internal::SdEvent::sd_event_source_unref,
+                         std::false_type(), event.getSdEvent())
 {
 }
 
