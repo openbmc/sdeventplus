@@ -48,3 +48,4 @@ Makefile.in
 /test/internal_sdref
 /test/internal_utils
 /test/source_base
+/test/source_time

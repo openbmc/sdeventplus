@@ -36,3 +36,8 @@ check_PROGRAMS += source_base
 source_base_SOURCES = source/base.cpp
 source_base_CPPFLAGS = $(gtest_cppflags)
 source_base_LDADD = $(gtest_ldadd)
+
+check_PROGRAMS += source_time
+source_time_SOURCES = source/time.cpp
+source_time_CPPFLAGS = $(gtest_cppflags)
+source_time_LDADD = $(gtest_ldadd)

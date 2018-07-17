@@ -17,6 +17,12 @@ class SdEvent
     virtual sd_event* sd_event_ref(sd_event* event) const = 0;
     virtual sd_event* sd_event_unref(sd_event* event) const = 0;
 
+    virtual int sd_event_add_time(sd_event* event, sd_event_source** source,
+                                  clockid_t clock, uint64_t usec,
+                                  uint64_t accuracy,
+                                  sd_event_time_handler_t callback,
+                                  void* userdata) const = 0;
+
     virtual int sd_event_prepare(sd_event* event) const = 0;
     virtual int sd_event_wait(sd_event* event, uint64_t usec) const = 0;
     virtual int sd_event_dispatch(sd_event* event) const = 0;
@@ -57,6 +63,14 @@ class SdEvent
                                             int* enabled) const = 0;
     virtual int sd_event_source_set_enabled(sd_event_source* source,
                                             int enabled) const = 0;
+    virtual int sd_event_source_get_time(sd_event_source* source,
+                                         uint64_t* usec) const = 0;
+    virtual int sd_event_source_set_time(sd_event_source* source,
+                                         uint64_t usec) const = 0;
+    virtual int sd_event_source_get_time_accuracy(sd_event_source* source,
+                                                  uint64_t* usec) const = 0;
+    virtual int sd_event_source_set_time_accuracy(sd_event_source* source,
+                                                  uint64_t usec) const = 0;
 };
 
 class SdEventImpl : public SdEvent
@@ -80,6 +94,15 @@ class SdEventImpl : public SdEvent
     sd_event* sd_event_unref(sd_event* event) const override
     {
         return ::sd_event_unref(event);
+    }
+
+    int sd_event_add_time(sd_event* event, sd_event_source** source,
+                          clockid_t clock, uint64_t usec, uint64_t accuracy,
+                          sd_event_time_handler_t callback,
+                          void* userdata) const override
+    {
+        return ::sd_event_add_time(event, source, clock, usec, accuracy,
+                                   callback, userdata);
     }
 
     int sd_event_prepare(sd_event* event) const override
@@ -195,6 +218,30 @@ class SdEventImpl : public SdEvent
                                     int enabled) const override
     {
         return ::sd_event_source_set_enabled(source, enabled);
+    }
+
+    int sd_event_source_get_time(sd_event_source* source,
+                                 uint64_t* usec) const override
+    {
+        return ::sd_event_source_get_time(source, usec);
+    }
+
+    int sd_event_source_set_time(sd_event_source* source,
+                                 uint64_t usec) const override
+    {
+        return ::sd_event_source_set_time(source, usec);
+    }
+
+    int sd_event_source_get_time_accuracy(sd_event_source* source,
+                                          uint64_t* usec) const override
+    {
+        return ::sd_event_source_get_time_accuracy(source, usec);
+    }
+
+    int sd_event_source_set_time_accuracy(sd_event_source* source,
+                                          uint64_t usec) const override
+    {
+        return ::sd_event_source_set_time_accuracy(source, usec);
     }
 };
 

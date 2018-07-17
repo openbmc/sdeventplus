@@ -24,4 +24,7 @@ nobase_include_HEADERS += sdeventplus/internal/utils.hpp
 nobase_include_HEADERS += sdeventplus/source/base.hpp
 libsdeventplus_la_SOURCES += sdeventplus/source/base.cpp
 
+nobase_include_HEADERS += sdeventplus/source/time.hpp
+libsdeventplus_la_SOURCES += sdeventplus/source/time.cpp
+
 nobase_include_HEADERS += sdeventplus/test/sdevent.hpp
