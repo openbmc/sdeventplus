@@ -9,7 +9,8 @@ namespace sdeventplus
 namespace internal
 {
 
-template <typename T> class SdRef
+template <typename T>
+class SdRef
 {
   public:
     using Func = std::function<T*(SdEvent*, T*)>;

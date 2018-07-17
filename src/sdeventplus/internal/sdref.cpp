@@ -28,7 +28,8 @@ SdRef<T>::SdRef(const SdRef& other) :
 {
 }
 
-template <typename T> SdRef<T>& SdRef<T>::operator=(const SdRef& other)
+template <typename T>
+SdRef<T>& SdRef<T>::operator=(const SdRef& other)
 {
     if (this != &other)
     {
@@ -44,7 +45,8 @@ template <typename T> SdRef<T>& SdRef<T>::operator=(const SdRef& other)
     return *this;
 }
 
-template <typename T> SdRef<T>& SdRef<T>::operator=(SdRef&& other)
+template <typename T>
+SdRef<T>& SdRef<T>::operator=(SdRef&& other)
 {
     if (this != &other)
     {
@@ -60,14 +62,16 @@ template <typename T> SdRef<T>& SdRef<T>::operator=(SdRef&& other)
     return *this;
 }
 
-template <typename T> SdRef<T>::~SdRef()
+template <typename T>
+SdRef<T>::~SdRef()
 {
     // release_ref will be invalid after a move
     if (release_ref)
         release_ref(sdevent, ref);
 }
 
-template <typename T> T* SdRef<T>::get() const
+template <typename T>
+T* SdRef<T>::get() const
 {
     return ref;
 }
