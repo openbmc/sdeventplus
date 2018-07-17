@@ -97,9 +97,7 @@ TEST_F(EventMethodTest, LoopUserError)
     const int user_error = 10;
     EXPECT_CALL(mock, sd_event_loop(expected_event))
         .WillOnce(Return(user_error));
-    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
-    EXPECT_EQ(user_error,
-              Event(expected_event, std::false_type(), &mock).loop());
+    EXPECT_EQ(user_error, event->loop());
 }
 
 TEST_F(EventMethodTest, LoopInternalError)
