@@ -8,7 +8,6 @@
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <string>
-#include <system_error>
 #include <systemd/sd-event.h>
 #include <type_traits>
 #include <utility>
@@ -322,47 +321,32 @@ TEST_F(BaseMethodTest, SetPrepareCallbackNoUserdata)
     EXPECT_EQ(-EINVAL, event_handler(nullptr, nullptr));
 }
 
-TEST_F(BaseMethodTest, SetPrepareNull)
-{
-    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, nullptr))
-        .WillOnce(Return(0));
-    base->set_prepare(nullptr);
-    EXPECT_EQ(-ENOSYS, base->prepareCallback());
-}
-
-TEST_F(BaseMethodTest, SetPrepareSystemError)
-{
-    Base::Callback callback = [](Base&) {
-        throw std::system_error(EBUSY, std::generic_category());
-    };
-    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
-        .WillOnce(Return(0));
-    base->set_prepare(std::move(callback));
-    EXPECT_TRUE(base->get_prepare());
-    EXPECT_FALSE(callback);
-    EXPECT_EQ(-EBUSY, base->prepareCallback());
-}
-
-TEST_F(BaseMethodTest, SetPrepareUnknownException)
-{
-    Base::Callback callback = [](Base&) { throw static_cast<int>(1); };
-    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
-        .WillOnce(Return(0));
-    base->set_prepare(std::move(callback));
-    EXPECT_TRUE(base->get_prepare());
-    EXPECT_FALSE(callback);
-    EXPECT_EQ(-ENOSYS, base->prepareCallback());
-}
-
 TEST_F(BaseMethodTest, SetPrepareError)
 {
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    base->set_prepare(std::move([](Base&) {}));
+    EXPECT_TRUE(base->get_prepare());
+
     Base::Callback callback = [](Base&) {};
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(-EINVAL));
     EXPECT_THROW(base->set_prepare(std::move(callback)), SdEventError);
     EXPECT_FALSE(base->get_prepare());
     EXPECT_TRUE(callback);
-    EXPECT_EQ(-ENOSYS, base->prepareCallback());
+}
+
+TEST_F(BaseMethodTest, SetPrepareNull)
+{
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
+        .WillOnce(Return(0));
+    base->set_prepare(std::move([](Base&) {}));
+    EXPECT_TRUE(base->get_prepare());
+
+    EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, nullptr))
+        .WillOnce(Return(0));
+    base->set_prepare(nullptr);
+    EXPECT_FALSE(base->get_prepare());
 }
 
 TEST_F(BaseMethodTest, GetPendingSuccess)

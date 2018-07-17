@@ -46,4 +46,5 @@ Makefile.in
 /test/event
 /test/exception
 /test/internal_sdref
+/test/internal_utils
 /test/source_base

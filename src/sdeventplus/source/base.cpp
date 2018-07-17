@@ -1,10 +1,10 @@
 #include <cerrno>
 #include <cstdio>
-#include <exception>
+#include <functional>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
-#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -18,30 +18,6 @@ Base::~Base()
     if (source)
     {
         set_enabled(SD_EVENT_OFF);
-    }
-}
-
-int Base::prepareCallback()
-{
-    try
-    {
-        prepare(*this);
-        return 0;
-    }
-    catch (const std::system_error& e)
-    {
-        fprintf(stderr, "sdeventplus: prepareCallback: %s\n", e.what());
-        return -e.code().value();
-    }
-    catch (const std::exception& e)
-    {
-        fprintf(stderr, "sdeventplus: prepareCallback: %s\n", e.what());
-        return -ENOSYS;
-    }
-    catch (...)
-    {
-        fprintf(stderr, "sdeventplus: prepareCallback: Unknown error\n");
-        return -ENOSYS;
     }
 }
 
@@ -84,7 +60,8 @@ static int prepare_callback(sd_event_source*, void* userdata)
         fprintf(stderr, "sdeventplus: prepare_callback: Missing userdata\n");
         return -EINVAL;
     }
-    return reinterpret_cast<Base*>(userdata)->prepareCallback();
+    Base* base = reinterpret_cast<Base*>(userdata);
+    return internal::performCallback(base->get_prepare(), std::ref(*base));
 }
 
 void Base::set_prepare(Callback&& callback)
