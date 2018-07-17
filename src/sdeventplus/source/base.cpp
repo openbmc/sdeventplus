@@ -15,7 +15,10 @@ namespace source
 
 Base::~Base()
 {
-    set_enabled(SD_EVENT_OFF);
+    if (source)
+    {
+        set_enabled(SD_EVENT_OFF);
+    }
 }
 
 int Base::prepareCallback()

@@ -93,6 +93,16 @@ TEST_F(BaseTest, NewBaseNoRef)
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
 
+TEST_F(BaseTest, NoSource)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    BaseImpl source(*event, nullptr, std::false_type());
+
+    EXPECT_CALL(mock, sd_event_source_unref(nullptr)).WillOnce(Return(nullptr));
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+}
+
 class BaseMethodTest : public BaseTest
 {
   protected:
