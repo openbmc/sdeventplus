@@ -16,6 +16,8 @@ class SdEventMock : public SdEventInterface
     MOCK_CONST_METHOD1(sd_event_unref, sd_event *(sd_event *));
 
     MOCK_CONST_METHOD1(sd_event_loop, int(sd_event *));
+    MOCK_CONST_METHOD1(sd_event_get_watchdog, int(sd_event *));
+    MOCK_CONST_METHOD2(sd_event_set_watchdog, int(sd_event *, int b));
 
     MOCK_CONST_METHOD1(sd_event_source_ref,
                        sd_event_source *(sd_event_source *));

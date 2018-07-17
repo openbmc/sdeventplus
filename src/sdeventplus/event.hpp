@@ -17,6 +17,8 @@ class Event
     static Event get_default(SdEventInterface* intf = &sdevent_impl);
 
     int loop();
+    int get_watchdog();
+    int set_watchdog(int b);
 
   private:
     SdEventInterface* intf;

@@ -16,6 +16,8 @@ class SdEventInterface
     virtual sd_event *sd_event_unref(sd_event *event) const = 0;
 
     virtual int sd_event_loop(sd_event *event) const = 0;
+    virtual int sd_event_get_watchdog(sd_event *event) const = 0;
+    virtual int sd_event_set_watchdog(sd_event *event, int b) const = 0;
 
     virtual sd_event_source *
         sd_event_source_ref(sd_event_source *source) const = 0;
@@ -49,6 +51,16 @@ class SdEventImpl : public SdEventInterface
     int sd_event_loop(sd_event *event) const override
     {
         return ::sd_event_loop(event);
+    }
+
+    int sd_event_get_watchdog(sd_event *event) const override
+    {
+        return ::sd_event_get_watchdog(event);
+    }
+
+    int sd_event_set_watchdog(sd_event *event, int b) const override
+    {
+        return ::sd_event_set_watchdog(event, b);
     }
 
     sd_event_source *sd_event_source_ref(sd_event_source *source) const override

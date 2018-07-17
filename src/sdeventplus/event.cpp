@@ -51,4 +51,24 @@ int Event::loop()
     return r;
 }
 
+int Event::get_watchdog()
+{
+    int r = intf->sd_event_get_watchdog(event.get());
+    if (r < 0)
+    {
+        throw SdEventError(-r, "sd_event_get_watchdog");
+    }
+    return r;
+}
+
+int Event::set_watchdog(int b)
+{
+    int r = intf->sd_event_set_watchdog(event.get(), b);
+    if (r < 0)
+    {
+        throw SdEventError(-r, "sd_event_set_watchdog");
+    }
+    return r;
+}
+
 } // namespace sdeventplus
