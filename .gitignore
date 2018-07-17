@@ -24,6 +24,7 @@
 /aclocal.m4
 /autom4te.cache
 /build-aux
+/confdefs.h
 /config.h
 /config.h.in
 /config.h.in~
