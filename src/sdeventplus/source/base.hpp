@@ -47,11 +47,13 @@ class Base
     Base(const Base& other) = delete;
     Base& operator=(const Base& other) = delete;
     // We don't want to allow any kind of slicing.
-    Base(Base&& other) = default;
+    Base(Base&& other);
     Base& operator=(Base&& other);
 
   private:
     Callback prepare;
+
+    void set_userdata();
 };
 
 } // namespace source

@@ -163,6 +163,7 @@ Base::Base(const Event& event, sd_event_source* source) :
     source(source, &internal::SdEvent::sd_event_source_ref,
            &internal::SdEvent::sd_event_source_unref, event.getSdEvent())
 {
+    set_userdata();
 }
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
@@ -170,6 +171,14 @@ Base::Base(const Event& event, sd_event_source* source, std::false_type) :
                          &internal::SdEvent::sd_event_source_unref,
                          std::false_type(), event.getSdEvent())
 {
+    set_userdata();
+}
+
+Base::Base(Base&& other) :
+    event(std::move(other.event)), source(std::move(other.source)),
+    prepare(std::move(other.prepare))
+{
+    set_userdata();
 }
 
 Base& Base::operator=(Base&& other)
@@ -186,8 +195,15 @@ Base& Base::operator=(Base&& other)
         event = std::move(other.event);
         source = std::move(other.source);
         prepare = std::move(other.prepare);
+
+        set_userdata();
     }
     return *this;
+}
+
+void Base::set_userdata()
+{
+    event.getSdEvent()->sd_event_source_set_userdata(source.get(), this);
 }
 
 } // namespace source

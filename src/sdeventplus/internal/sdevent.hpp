@@ -36,6 +36,9 @@ class SdEvent
     virtual sd_event_source*
         sd_event_source_unref(sd_event_source* source) const = 0;
 
+    virtual void* sd_event_source_set_userdata(sd_event_source* source,
+                                               void* userdata) const = 0;
+
     virtual int
         sd_event_source_get_description(sd_event_source* source,
                                         const char** description) const = 0;
@@ -139,6 +142,12 @@ class SdEventImpl : public SdEvent
         sd_event_source_unref(sd_event_source* source) const override
     {
         return ::sd_event_source_unref(source);
+    }
+
+    void* sd_event_source_set_userdata(sd_event_source* source,
+                                       void* userdata) const override
+    {
+        return ::sd_event_source_set_userdata(source, userdata);
     }
 
     int sd_event_source_get_description(sd_event_source* source,

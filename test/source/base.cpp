@@ -65,7 +65,11 @@ class BaseTest : public testing::Test
     {
         EXPECT_CALL(mock, sd_event_ref(event.get()))
             .WillOnce(Return(event.get()));
+        void* userdata;
+        EXPECT_CALL(mock, sd_event_source_set_userdata(source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
         auto ret = std::make_unique<BaseImpl>(event, source, std::false_type());
+        EXPECT_EQ(ret.get(), userdata);
         EXPECT_EQ(source, ret->get());
         EXPECT_NE(&event, &ret->get_event());
         EXPECT_EQ(event.get(), ret->get_event().get());
@@ -83,7 +87,11 @@ class BaseTest : public testing::Test
 
     void empty_base(BaseImpl&& other)
     {
+        void* userdata;
+        EXPECT_CALL(mock, sd_event_source_set_userdata(other.get(), testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
         BaseImpl mover(std::move(other));
+        EXPECT_EQ(&mover, userdata);
         EXPECT_EQ(nullptr, other.get());
         EXPECT_EQ(nullptr, other.get_event().get());
         EXPECT_FALSE(other.get_prepare());
@@ -111,7 +119,11 @@ TEST_F(BaseTest, NewBaseRef)
         .WillOnce(Return(expected_event));
     EXPECT_CALL(mock, sd_event_source_ref(expected_source))
         .WillOnce(Return(expected_source));
+    void* userdata;
+    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
+        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     BaseImpl source(*event, expected_source);
+    EXPECT_EQ(&source, userdata);
     EXPECT_EQ(expected_source, source.get());
     EXPECT_NE(event.get(), &source.get_event());
     EXPECT_EQ(expected_event, source.get_event().get());
@@ -124,7 +136,11 @@ TEST_F(BaseTest, NewBaseNoRef)
 {
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
+    void* userdata;
+    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
+        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(&source, userdata);
     EXPECT_EQ(expected_source, source.get());
     EXPECT_NE(event.get(), &source.get_event());
     EXPECT_EQ(expected_event, source.get_event().get());
@@ -138,7 +154,11 @@ TEST_F(BaseTest, MoveConstruct)
     std::unique_ptr<BaseImpl> source1 = make_base(*event, expected_source);
     set_prepare_placeholder(*source1);
 
+    void* userdata;
+    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
+        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     BaseImpl source2(std::move(*source1));
+    EXPECT_EQ(&source2, userdata);
     EXPECT_EQ(nullptr, source1->get());
     EXPECT_EQ(nullptr, source1->get_event().get());
     EXPECT_FALSE(source1->get_prepare());
@@ -171,8 +191,12 @@ TEST_F(BaseTest, MoveAssignEmpty)
     empty_base(std::move(*source2));
 
     {
-        testing::InSequence seq;
+        void* userdata;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
         *source2 = std::move(*source1);
+        EXPECT_EQ(source2.get(), userdata);
     }
     EXPECT_EQ(nullptr, source1->get());
     EXPECT_EQ(nullptr, source1->get_event().get());
@@ -200,7 +224,12 @@ TEST_F(BaseTest, MoveAssignExisting)
 
     {
         expect_base_destruct(*event2, expected_source2);
+        void* userdata;
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
         *source2 = std::move(*source1);
+        EXPECT_EQ(source2.get(), userdata);
     }
     EXPECT_EQ(nullptr, source1->get());
     EXPECT_EQ(nullptr, source1->get_event().get());

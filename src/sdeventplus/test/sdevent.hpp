@@ -34,6 +34,9 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD1(sd_event_source_unref,
                        sd_event_source*(sd_event_source*));
 
+    MOCK_CONST_METHOD2(sd_event_source_set_userdata,
+                       void*(sd_event_source*, void*));
+
     MOCK_CONST_METHOD2(sd_event_source_get_description,
                        int(sd_event_source*, const char**));
     MOCK_CONST_METHOD2(sd_event_source_set_description,
