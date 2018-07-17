@@ -64,6 +64,9 @@ TEST_F(BaseTest, NewBaseRef)
     EXPECT_CALL(mock, sd_event_source_ref(expected_source))
         .WillOnce(Return(expected_source));
     BaseImpl source(*event, expected_source);
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_NE(event.get(), &source.get_event());
+    EXPECT_EQ(expected_event, source.get_event().get());
 
     {
         testing::InSequence seq;
@@ -81,6 +84,9 @@ TEST_F(BaseTest, NewBaseNoRef)
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
     BaseImpl source(*event, expected_source, std::false_type());
+    EXPECT_EQ(expected_source, source.get());
+    EXPECT_NE(event.get(), &source.get_event());
+    EXPECT_EQ(expected_event, source.get_event().get());
 
     {
         testing::InSequence seq;
@@ -98,6 +104,9 @@ TEST_F(BaseTest, NoSource)
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
     BaseImpl source(*event, nullptr, std::false_type());
+    EXPECT_EQ(nullptr, source.get());
+    EXPECT_NE(event.get(), &source.get_event());
+    EXPECT_EQ(expected_event, source.get_event().get());
 
     EXPECT_CALL(mock, sd_event_source_unref(nullptr)).WillOnce(Return(nullptr));
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
@@ -133,12 +142,6 @@ class BaseMethodTest : public BaseTest
         BaseTest::TearDown();
     }
 };
-
-TEST_F(BaseMethodTest, GetEvent)
-{
-    EXPECT_NE(event.get(), &base->get_event());
-    EXPECT_EQ(event->get(), base->get_event().get());
-}
 
 TEST_F(BaseMethodTest, GetDescriptionSuccess)
 {

@@ -27,6 +27,7 @@ class Base
 
     int prepareCallback();
 
+    sd_event_source* get() const;
     const Event& get_event() const;
 
     const char* get_description() const;

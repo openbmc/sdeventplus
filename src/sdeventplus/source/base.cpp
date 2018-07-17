@@ -45,6 +45,11 @@ int Base::prepareCallback()
     }
 }
 
+sd_event_source* Base::get() const
+{
+    return source.get();
+}
+
 const Event& Base::get_event() const
 {
     return event;
