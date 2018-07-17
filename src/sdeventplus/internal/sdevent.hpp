@@ -88,6 +88,7 @@ class SdEventImpl : public SdEvent
     {
         return ::sd_event_source_ref(source);
     }
+
     sd_event_source*
         sd_event_source_unref(sd_event_source* source) const override
     {
@@ -99,35 +100,42 @@ class SdEventImpl : public SdEvent
     {
         return ::sd_event_source_get_description(source, description);
     }
+
     int sd_event_source_set_description(sd_event_source* source,
                                         const char* description) const override
     {
         return ::sd_event_source_set_description(source, description);
     }
+
     int sd_event_source_set_prepare(sd_event_source* source,
                                     sd_event_handler_t callback) const override
     {
         return ::sd_event_source_set_prepare(source, callback);
     }
+
     int sd_event_source_get_pending(sd_event_source* source) const override
     {
         return ::sd_event_source_get_pending(source);
     }
+
     int sd_event_source_get_priority(sd_event_source* source,
                                      int64_t* priority) const override
     {
         return ::sd_event_source_get_priority(source, priority);
     }
+
     int sd_event_source_set_priority(sd_event_source* source,
                                      int64_t priority) const override
     {
         return ::sd_event_source_set_priority(source, priority);
     }
+
     int sd_event_source_get_enabled(sd_event_source* source,
                                     int* enabled) const override
     {
         return ::sd_event_source_get_enabled(source, enabled);
     }
+
     int sd_event_source_set_enabled(sd_event_source* source,
                                     int enabled) const override
     {
