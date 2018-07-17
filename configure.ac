@@ -56,7 +56,8 @@ AX_RESTORE_FLAGS_WITH_PREFIX(OLD, [LDFLAGS])
 
 # Make it possible for users to choose if they want test support
 # explicitly or not at all
-AC_ARG_ENABLE([tests], [Whether we should build test cases])
+AC_ARG_ENABLE([tests], AC_HELP_STRING([--disable-tests],
+                                      [Build test cases]))
 
 # Check/set gtest specific functions.
 AS_IF([test "x$enable_tests" != "xno"], [
@@ -142,7 +143,7 @@ AS_IF([test "x$enable_tests" != "xno"], [
 # Append -Werror after doing autoconf compiler checks
 # Otherwise some perfectly valid checks can fail and cause our
 # final configuratin to be broken.
-AC_ARG_ENABLE([werror], [Whether to automatically add -Werror CFLAGS])
+AC_ARG_ENABLE([werror], AC_HELP_STRING([--disable-werror], [Whether to automatically add -Werror CFLAGS]))
 AS_IF([test "x$enable_tests" != "xno"], [
     AX_APPEND_COMPILE_FLAGS([-Werror], [CFLAGS])
     AX_APPEND_COMPILE_FLAGS([-Werror], [CXXFLAGS])
