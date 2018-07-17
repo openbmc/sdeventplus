@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/sdref.hpp>
 #include <systemd/sd-bus.h>
@@ -14,6 +15,8 @@ namespace source
 class Base
 {
   public:
+    using Callback = std::function<void(Base& source)>;
+
     virtual ~Base();
 
     // We don't want to allow any kind of slicing.
@@ -22,8 +25,11 @@ class Base
     Base(Base&& source) = delete;
     Base& operator=(Base&& source) = delete;
 
+    int prepareCallback();
+
     const char* get_description();
     void set_description(const char* description);
+    void set_prepare(Callback&& callback);
     int get_pending();
     int64_t get_priority();
     void set_priority(int64_t priority);
@@ -39,6 +45,9 @@ class Base
          internal::SdEvent* sdevent = &internal::sdevent_impl);
     Base(sd_event_source* source, std::false_type,
          internal::SdEvent* sdevent = &internal::sdevent_impl);
+
+  private:
+    Callback prepare;
 };
 
 } // namespace source

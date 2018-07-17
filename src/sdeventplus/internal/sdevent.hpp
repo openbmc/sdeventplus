@@ -32,6 +32,9 @@ class SdEvent
     virtual int
         sd_event_source_set_description(sd_event_source* source,
                                         const char* description) const = 0;
+    virtual int
+        sd_event_source_set_prepare(sd_event_source* source,
+                                    sd_event_handler_t callback) const = 0;
     virtual int sd_event_source_get_pending(sd_event_source* source) const = 0;
     virtual int sd_event_source_get_priority(sd_event_source* source,
                                              int64_t* priority) const = 0;
@@ -100,6 +103,11 @@ class SdEventImpl : public SdEvent
                                         const char* description) const override
     {
         return ::sd_event_source_set_description(source, description);
+    }
+    int sd_event_source_set_prepare(sd_event_source* source,
+                                    sd_event_handler_t callback) const override
+    {
+        return ::sd_event_source_set_prepare(source, callback);
     }
     int sd_event_source_get_pending(sd_event_source* source) const override
     {

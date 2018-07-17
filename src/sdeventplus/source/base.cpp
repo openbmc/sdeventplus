@@ -1,4 +1,5 @@
 #include <cerrno>
+#include <cstdio>
 #include <exception>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
@@ -15,6 +16,30 @@ namespace source
 Base::~Base()
 {
     set_enabled(SD_EVENT_OFF);
+}
+
+int Base::prepareCallback()
+{
+    try
+    {
+        prepare(*this);
+        return 0;
+    }
+    catch (const std::system_error& e)
+    {
+        fprintf(stderr, "sdeventplus: prepareCallback: %s\n", e.what());
+        return -e.code().value();
+    }
+    catch (const std::exception& e)
+    {
+        fprintf(stderr, "sdeventplus: prepareCallback: %s\n", e.what());
+        return -ENOSYS;
+    }
+    catch (...)
+    {
+        fprintf(stderr, "sdeventplus: prepareCallback: Unknown error\n");
+        return -ENOSYS;
+    }
 }
 
 const char* Base::get_description()
@@ -36,6 +61,28 @@ void Base::set_description(const char* description)
     {
         throw SdEventError(-r, "sd_event_source_set_description");
     }
+}
+
+static int prepare_callback(sd_event_source*, void* userdata)
+{
+    if (userdata == nullptr)
+    {
+        fprintf(stderr, "sdeventplus: prepare_callback: Missing userdata\n");
+        return -EINVAL;
+    }
+    return reinterpret_cast<Base*>(userdata)->prepareCallback();
+}
+
+void Base::set_prepare(Callback&& callback)
+{
+    int r = sdevent->sd_event_source_set_prepare(
+        source.get(), callback ? prepare_callback : nullptr);
+    if (r < 0)
+    {
+        prepare = nullptr;
+        throw SdEventError(-r, "sd_event_source_set_prepare");
+    }
+    prepare = std::move(callback);
 }
 
 int Base::get_pending()
