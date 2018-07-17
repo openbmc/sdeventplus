@@ -3,24 +3,26 @@
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
 
-Event::Event(sd_event* event, internal::SdEvent* sdevent) :
+Event::Event(sd_event* event, const internal::SdEvent* sdevent) :
     sdevent(sdevent), event(event, &internal::SdEvent::sd_event_ref,
                             &internal::SdEvent::sd_event_unref, sdevent)
 {
 }
 
-Event::Event(sd_event* event, std::false_type, internal::SdEvent* sdevent) :
+Event::Event(sd_event* event, std::false_type,
+             const internal::SdEvent* sdevent) :
     sdevent(sdevent),
     event(event, &internal::SdEvent::sd_event_ref,
           &internal::SdEvent::sd_event_unref, std::false_type(), sdevent)
 {
 }
 
-Event Event::get_new(internal::SdEvent* sdevent)
+Event Event::get_new(const internal::SdEvent* sdevent)
 {
     sd_event* event = nullptr;
     int r = sdevent->sd_event_new(&event);
@@ -31,7 +33,7 @@ Event Event::get_new(internal::SdEvent* sdevent)
     return Event(event, std::false_type(), sdevent);
 }
 
-Event Event::get_default(internal::SdEvent* sdevent)
+Event Event::get_default(const internal::SdEvent* sdevent)
 {
     sd_event* event = nullptr;
     int r = sdevent->sd_event_default(&event);

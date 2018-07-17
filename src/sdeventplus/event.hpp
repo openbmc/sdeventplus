@@ -11,19 +11,21 @@ class Event
 {
   public:
     Event(sd_event* event,
-          internal::SdEvent* sdevent = &internal::sdevent_impl);
+          const internal::SdEvent* sdevent = &internal::sdevent_impl);
     Event(sd_event* event, std::false_type,
-          internal::SdEvent* sdevent = &internal::sdevent_impl);
-    static Event get_new(internal::SdEvent* sdevent = &internal::sdevent_impl);
+          const internal::SdEvent* sdevent = &internal::sdevent_impl);
+
     static Event
-        get_default(internal::SdEvent* sdevent = &internal::sdevent_impl);
+        get_new(const internal::SdEvent* sdevent = &internal::sdevent_impl);
+    static Event
+        get_default(const internal::SdEvent* sdevent = &internal::sdevent_impl);
 
     int loop();
     int get_watchdog();
     int set_watchdog(int b);
 
   private:
-    internal::SdEvent* sdevent;
+    const internal::SdEvent* sdevent;
     internal::SdRef<sd_event> event;
 };
 
