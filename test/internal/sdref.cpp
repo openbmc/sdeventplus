@@ -28,6 +28,7 @@ TEST_F(SdRefTest, ConstructRef)
         .WillOnce(testing::Return(expected_event));
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -38,6 +39,7 @@ TEST_F(SdRefTest, ConstructNoRef)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -48,11 +50,15 @@ TEST_F(SdRefTest, CopyConstruct)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(testing::Return(expected_event));
     SdRef<sd_event> event2(event);
+    EXPECT_TRUE(event);
+    EXPECT_EQ(expected_event, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -64,9 +70,13 @@ TEST_F(SdRefTest, MoveConstruct)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
     SdRef<sd_event> event2(std::move(event));
+    EXPECT_FALSE(event);
+    EXPECT_EQ(nullptr, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -77,9 +87,11 @@ TEST_F(SdRefTest, CopyAssignOverValid)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
     SdRef<sd_event> event2(expected_event2, &SdEvent::sd_event_ref,
                            &SdEvent::sd_event_unref, std::false_type(), &mock2);
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event2, event2.get());
 
     EXPECT_CALL(mock2, sd_event_unref(expected_event2))
@@ -87,6 +99,9 @@ TEST_F(SdRefTest, CopyAssignOverValid)
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(testing::Return(expected_event));
     event2 = event;
+    EXPECT_TRUE(event);
+    EXPECT_EQ(expected_event, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -98,12 +113,17 @@ TEST_F(SdRefTest, CopyAssignOverMoved)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
     SdRef<sd_event> event2(expected_event2, &SdEvent::sd_event_ref,
                            &SdEvent::sd_event_unref, std::false_type(), &mock2);
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event2, event2.get());
     {
         SdRef<sd_event> event_mover(std::move(event2));
+        EXPECT_FALSE(event2);
+        EXPECT_EQ(nullptr, event2.get());
+        EXPECT_TRUE(event_mover);
         EXPECT_EQ(expected_event2, event_mover.get());
 
         EXPECT_CALL(mock2, sd_event_unref(expected_event2))
@@ -113,6 +133,9 @@ TEST_F(SdRefTest, CopyAssignOverMoved)
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(testing::Return(expected_event));
     event2 = event;
+    EXPECT_TRUE(event);
+    EXPECT_EQ(expected_event, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -124,9 +147,12 @@ TEST_F(SdRefTest, CopySelf)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
     event = event;
+    EXPECT_TRUE(event);
+    EXPECT_EQ(expected_event, event.get());
     EXPECT_CALL(mock, sd_event_unref(expected_event))
         .WillOnce(testing::Return(nullptr));
 }
@@ -135,14 +161,19 @@ TEST_F(SdRefTest, MoveAssignOverValid)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
     SdRef<sd_event> event2(expected_event2, &SdEvent::sd_event_ref,
                            &SdEvent::sd_event_unref, std::false_type(), &mock2);
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event2, event2.get());
 
     EXPECT_CALL(mock2, sd_event_unref(expected_event2))
         .WillOnce(testing::Return(nullptr));
     event2 = std::move(event);
+    EXPECT_FALSE(event);
+    EXPECT_EQ(nullptr, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -159,6 +190,9 @@ TEST_F(SdRefTest, MoveAssignOverMoved)
     EXPECT_EQ(expected_event2, event2.get());
     {
         SdRef<sd_event> event_mover(std::move(event2));
+        EXPECT_FALSE(event2);
+        EXPECT_EQ(nullptr, event2.get());
+        EXPECT_TRUE(event_mover);
         EXPECT_EQ(expected_event2, event_mover.get());
 
         EXPECT_CALL(mock2, sd_event_unref(expected_event2))
@@ -166,6 +200,9 @@ TEST_F(SdRefTest, MoveAssignOverMoved)
     }
 
     event2 = std::move(event);
+    EXPECT_FALSE(event);
+    EXPECT_EQ(nullptr, event.get());
+    EXPECT_TRUE(event2);
     EXPECT_EQ(expected_event, event2.get());
 
     EXPECT_CALL(mock, sd_event_unref(expected_event))
@@ -176,8 +213,12 @@ TEST_F(SdRefTest, MoveSelf)
 {
     SdRef<sd_event> event(expected_event, &SdEvent::sd_event_ref,
                           &SdEvent::sd_event_unref, std::false_type(), &mock);
+    EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
+
     event = std::move(event);
+    EXPECT_TRUE(event);
+    EXPECT_EQ(expected_event, event.get());
     EXPECT_CALL(mock, sd_event_unref(expected_event))
         .WillOnce(testing::Return(nullptr));
 }

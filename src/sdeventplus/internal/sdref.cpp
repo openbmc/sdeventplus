@@ -49,6 +49,14 @@ SdRef<T>& SdRef<T>::operator=(const SdRef& other)
 }
 
 template <typename T>
+SdRef<T>::SdRef(SdRef&& other) :
+    sdevent(std::move(other.sdevent)), take_ref(std::move(other.take_ref)),
+    release_ref(std::move(other.release_ref)), ref(std::move(other.ref))
+{
+    other.ref = nullptr;
+}
+
+template <typename T>
 SdRef<T>& SdRef<T>::operator=(SdRef&& other)
 {
     if (this != &other)
@@ -63,6 +71,7 @@ SdRef<T>& SdRef<T>::operator=(SdRef&& other)
         take_ref = std::move(other.take_ref);
         release_ref = std::move(other.release_ref);
         ref = std::move(other.ref);
+        other.ref = nullptr;
     }
     return *this;
 }
@@ -73,6 +82,12 @@ SdRef<T>::~SdRef()
     // release_ref will be invalid after a move
     if (release_ref)
         release_ref(sdevent, ref);
+}
+
+template <typename T>
+SdRef<T>::operator bool() const
+{
+    return ref != nullptr;
 }
 
 template <typename T>

@@ -23,9 +23,10 @@ class SdRef
 
     SdRef(const SdRef& other);
     SdRef& operator=(const SdRef& other);
-    SdRef(SdRef&& other) = default;
+    SdRef(SdRef&& other);
     SdRef& operator=(SdRef&& other);
 
+    explicit operator bool() const;
     T* get() const;
 
   private:
