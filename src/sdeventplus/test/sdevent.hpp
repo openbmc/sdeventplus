@@ -18,6 +18,9 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD1(sd_event_unref, sd_event*(sd_event*));
 
     MOCK_CONST_METHOD1(sd_event_loop, int(sd_event*));
+
+    MOCK_CONST_METHOD3(sd_event_now, int(sd_event*, clockid_t, uint64_t*));
+
     MOCK_CONST_METHOD1(sd_event_get_watchdog, int(sd_event*));
     MOCK_CONST_METHOD2(sd_event_set_watchdog, int(sd_event*, int b));
 

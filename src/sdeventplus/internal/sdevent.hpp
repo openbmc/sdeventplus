@@ -18,6 +18,10 @@ class SdEvent
     virtual sd_event* sd_event_unref(sd_event* event) const = 0;
 
     virtual int sd_event_loop(sd_event* event) const = 0;
+
+    virtual int sd_event_now(sd_event* event, clockid_t clock,
+                             uint64_t* usec) const = 0;
+
     virtual int sd_event_get_watchdog(sd_event* event) const = 0;
     virtual int sd_event_set_watchdog(sd_event* event, int b) const = 0;
 
@@ -72,6 +76,12 @@ class SdEventImpl : public SdEvent
     int sd_event_loop(sd_event* event) const override
     {
         return ::sd_event_loop(event);
+    }
+
+    int sd_event_now(sd_event* event, clockid_t clock,
+                     uint64_t* usec) const override
+    {
+        return ::sd_event_now(event, clock, usec);
     }
 
     int sd_event_get_watchdog(sd_event* event) const override

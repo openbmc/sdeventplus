@@ -4,6 +4,9 @@ lib_LTLIBRARIES = libsdeventplus.la
 libsdeventplus_la_SOURCES =
 libsdeventplus_la_LIBADD = $(COMMON_LIBS)
 
+nobase_include_HEADERS += sdeventplus/clock.hpp
+libsdeventplus_la_SOURCES += sdeventplus/clock.cpp
+
 nobase_include_HEADERS += sdeventplus/event.hpp
 libsdeventplus_la_SOURCES += sdeventplus/event.cpp
 
@@ -15,6 +18,8 @@ libsdeventplus_la_SOURCES += sdeventplus/internal/sdevent.cpp
 
 nobase_include_HEADERS += sdeventplus/internal/sdref.hpp
 libsdeventplus_la_SOURCES += sdeventplus/internal/sdref.cpp
+
+nobase_include_HEADERS += sdeventplus/internal/utils.hpp
 
 nobase_include_HEADERS += sdeventplus/source/base.hpp
 libsdeventplus_la_SOURCES += sdeventplus/source/base.cpp

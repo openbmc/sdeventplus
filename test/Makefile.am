@@ -7,6 +7,11 @@ gtest_ldadd = $(SDEVENTPLUS_LIBS) $(GTEST_LIBS) $(GMOCK_LIBS) -lgmock_main
 check_PROGRAMS =
 TESTS = $(check_PROGRAMS)
 
+check_PROGRAMS += clock
+clock_SOURCES = clock.cpp
+clock_CPPFLAGS = $(gtest_cppflags)
+clock_LDADD = $(gtest_ldadd)
+
 check_PROGRAMS += event
 event_SOURCES = event.cpp
 event_CPPFLAGS = $(gtest_cppflags)
