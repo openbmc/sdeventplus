@@ -42,7 +42,7 @@ int Base::prepareCallback()
     }
 }
 
-const char* Base::get_description()
+const char* Base::get_description() const
 {
     const char* description;
     int r =
@@ -54,7 +54,7 @@ const char* Base::get_description()
     return description;
 }
 
-void Base::set_description(const char* description)
+void Base::set_description(const char* description) const
 {
     int r = sdevent->sd_event_source_set_description(source.get(), description);
     if (r < 0)
@@ -85,7 +85,7 @@ void Base::set_prepare(Callback&& callback)
     prepare = std::move(callback);
 }
 
-int Base::get_pending()
+int Base::get_pending() const
 {
     int r = sdevent->sd_event_source_get_pending(source.get());
     if (r < 0)
@@ -95,7 +95,7 @@ int Base::get_pending()
     return r;
 }
 
-int64_t Base::get_priority()
+int64_t Base::get_priority() const
 {
     int64_t priority;
     int r = sdevent->sd_event_source_get_priority(source.get(), &priority);
@@ -106,7 +106,7 @@ int64_t Base::get_priority()
     return priority;
 }
 
-void Base::set_priority(int64_t priority)
+void Base::set_priority(int64_t priority) const
 {
     int r = sdevent->sd_event_source_set_priority(source.get(), priority);
     if (r < 0)
@@ -115,7 +115,7 @@ void Base::set_priority(int64_t priority)
     }
 }
 
-int Base::get_enabled()
+int Base::get_enabled() const
 {
     int enabled;
     int r = sdevent->sd_event_source_get_enabled(source.get(), &enabled);
@@ -126,7 +126,7 @@ int Base::get_enabled()
     return enabled;
 }
 
-void Base::set_enabled(int enabled)
+void Base::set_enabled(int enabled) const
 {
     int r = sdevent->sd_event_source_set_enabled(source.get(), enabled);
     if (r < 0)

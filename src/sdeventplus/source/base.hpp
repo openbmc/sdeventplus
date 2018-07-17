@@ -27,14 +27,14 @@ class Base
 
     int prepareCallback();
 
-    const char* get_description();
-    void set_description(const char* description);
+    const char* get_description() const;
+    void set_description(const char* description) const;
     void set_prepare(Callback&& callback);
-    int get_pending();
-    int64_t get_priority();
-    void set_priority(int64_t priority);
-    int get_enabled();
-    void set_enabled(int enabled);
+    int get_pending() const;
+    int64_t get_priority() const;
+    void set_priority(int64_t priority) const;
+    int get_enabled() const;
+    void set_enabled(int enabled) const;
 
   protected:
     const internal::SdEvent* const sdevent;
