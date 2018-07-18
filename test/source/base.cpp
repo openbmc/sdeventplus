@@ -36,6 +36,8 @@ class BaseImpl : public Base
         Base(event, source, std::false_type())
     {
     }
+
+    using Base::get_prepare;
 };
 
 class BaseTest : public testing::Test
@@ -76,7 +78,7 @@ class BaseTest : public testing::Test
         return ret;
     }
 
-    void set_prepare_placeholder(Base& base)
+    void set_prepare_placeholder(BaseImpl& base)
     {
         EXPECT_CALL(mock, sd_event_source_set_prepare(base.get(), testing::_))
             .WillOnce(Return(0));

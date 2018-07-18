@@ -1,9 +1,6 @@
-#include <cerrno>
-#include <cstdio>
 #include <functional>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <type_traits>
 #include <utility>
@@ -53,22 +50,10 @@ void Base::set_description(const char* description) const
     }
 }
 
-static int prepare_callback(sd_event_source*, void* userdata)
-{
-    if (userdata == nullptr)
-    {
-        fprintf(stderr, "sdeventplus: prepare_callback: Missing userdata\n");
-        return -EINVAL;
-    }
-    Base* base = reinterpret_cast<Base*>(userdata);
-    return internal::performCallback("prepare_callback", base->get_prepare(),
-                                     std::ref(*base));
-}
-
 void Base::set_prepare(Callback&& callback)
 {
     int r = event.getSdEvent()->sd_event_source_set_prepare(
-        source.get(), callback ? prepare_callback : nullptr);
+        source.get(), callback ? prepareCallback : nullptr);
     if (r < 0)
     {
         prepare = nullptr;
@@ -177,6 +162,12 @@ Base& Base::operator=(Base&& other)
         set_userdata();
     }
     return *this;
+}
+
+int Base::prepareCallback(sd_event_source* source, void* userdata)
+{
+    return sourceCallback<Callback, Base, &Base::get_prepare>("prepareCallback",
+                                                              source, userdata);
 }
 
 void Base::set_userdata()

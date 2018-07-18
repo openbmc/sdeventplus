@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cerrno>
 #include <cstdint>
+#include <cstdio>
 #include <functional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/sdref.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
 
@@ -25,7 +28,6 @@ class Base
     const char* get_description() const;
     void set_description(const char* description) const;
     void set_prepare(Callback&& callback);
-    const Callback& get_prepare() const;
     int get_pending() const;
     int64_t get_priority() const;
     void set_priority(int64_t priority) const;
@@ -48,10 +50,28 @@ class Base
     Base(Base&& other);
     Base& operator=(Base&& other);
 
+    const Callback& get_prepare() const;
+
+    template <typename Callback, class Source,
+              const Callback& (Source::*getter)() const, typename... Args>
+    static int sourceCallback(const char* name, sd_event_source*,
+                              void* userdata, Args... args)
+    {
+        if (userdata == nullptr)
+        {
+            fprintf(stderr, "sdeventplus: %s: Missing userdata\n", name);
+            return -EINVAL;
+        }
+        Source* source = reinterpret_cast<Source*>(userdata);
+        return internal::performCallback(name, (source->*getter)(),
+                                         std::ref(*source), args...);
+    }
+
   private:
     Callback prepare;
 
     void set_userdata();
+    static int prepareCallback(sd_event_source* source, void* userdata);
 };
 
 } // namespace source
