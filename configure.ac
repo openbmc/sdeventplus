@@ -5,7 +5,7 @@ AC_LANG([C++])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([foreign subdir-objects -Wall -Werror dist-xz tar-ustar])
+AM_INIT_AUTOMAKE([nostdinc foreign subdir-objects -Wall -Werror dist-xz tar-ustar])
 AM_SILENT_RULES([yes])
 
 # Make sure the default CFLAGS of `-O2 -g` don't override CODE_COVERAGE_CFLAGS
