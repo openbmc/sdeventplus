@@ -19,7 +19,7 @@ namespace internal
 
 // Helpers for sd_event callbacks to handle exceptions gracefully
 template <typename Func, typename... Args>
-static int performCallback(const char* name, Func func, Args... args)
+inline int performCallback(const char* name, Func func, Args... args)
 {
     try
     {
