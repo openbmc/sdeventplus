@@ -81,6 +81,7 @@ TEST_F(TimeTest, ConstructSuccess)
         .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     Time<id> time(*event, expected_time, expected_accuracy,
                   std::move(callback));
+    EXPECT_FALSE(callback);
     EXPECT_EQ(expected_event, time.get_event().get());
     EXPECT_EQ(expected_source, time.get());
 
@@ -105,6 +106,7 @@ TEST_F(TimeTest, ConstructError)
     EXPECT_THROW(
         Time<id>(*event, expected_time, expected_accuracy, std::move(callback)),
         SdEventError);
+    EXPECT_TRUE(callback);
 }
 
 class TimeMethodTest : public TimeTest
