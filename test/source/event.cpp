@@ -8,6 +8,7 @@
 #include <sdeventplus/source/event.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 #include <utility>
 
 namespace sdeventplus
