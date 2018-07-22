@@ -27,6 +27,9 @@ libsdeventplus_la_SOURCES += sdeventplus/source/base.cpp
 nobase_include_HEADERS += sdeventplus/source/event.hpp
 libsdeventplus_la_SOURCES += sdeventplus/source/event.cpp
 
+nobase_include_HEADERS += sdeventplus/source/io.hpp
+libsdeventplus_la_SOURCES += sdeventplus/source/io.cpp
+
 nobase_include_HEADERS += sdeventplus/source/time.hpp
 libsdeventplus_la_SOURCES += sdeventplus/source/time.cpp
 

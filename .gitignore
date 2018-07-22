@@ -50,4 +50,5 @@ Makefile.in
 /test/internal_utils
 /test/source_base
 /test/source_event
+/test/source_io
 /test/source_time

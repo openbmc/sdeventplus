@@ -26,6 +26,14 @@ sd_event* SdEventImpl::sd_event_unref(sd_event* event) const
     return ::sd_event_unref(event);
 }
 
+int SdEventImpl::sd_event_add_io(sd_event* event, sd_event_source** source,
+                                 int fd, uint32_t events,
+                                 sd_event_io_handler_t callback,
+                                 void* userdata) const
+{
+    return ::sd_event_add_io(event, source, fd, events, callback, userdata);
+}
+
 int SdEventImpl::sd_event_add_time(sd_event* event, sd_event_source** source,
                                    clockid_t clock, uint64_t usec,
                                    uint64_t accuracy,
@@ -170,6 +178,46 @@ int SdEventImpl::sd_event_source_set_enabled(sd_event_source* source,
                                              int enabled) const
 {
     return ::sd_event_source_set_enabled(source, enabled);
+}
+
+int SdEventImpl::sd_event_source_get_io_fd(sd_event_source* source) const
+{
+    return ::sd_event_source_get_io_fd(source);
+}
+
+int SdEventImpl::sd_event_source_set_io_fd(sd_event_source* source,
+                                           int fd) const
+{
+    return ::sd_event_source_set_io_fd(source, fd);
+}
+
+int SdEventImpl::sd_event_source_get_io_fd_own(sd_event_source* source) const
+{
+    return ::sd_event_source_get_io_fd_own(source);
+}
+
+int SdEventImpl::sd_event_source_set_io_fd_own(sd_event_source* source,
+                                               int own) const
+{
+    return ::sd_event_source_set_io_fd_own(source, own);
+}
+
+int SdEventImpl::sd_event_source_get_io_events(sd_event_source* source,
+                                               uint32_t* events) const
+{
+    return ::sd_event_source_get_io_events(source, events);
+}
+
+int SdEventImpl::sd_event_source_set_io_events(sd_event_source* source,
+                                               uint32_t events) const
+{
+    return ::sd_event_source_set_io_events(source, events);
+}
+
+int SdEventImpl::sd_event_source_get_io_revents(sd_event_source* source,
+                                                uint32_t* revents) const
+{
+    return ::sd_event_source_get_io_revents(source, revents);
 }
 
 int SdEventImpl::sd_event_source_get_time(sd_event_source* source,

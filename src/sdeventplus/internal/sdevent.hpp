@@ -17,6 +17,9 @@ class SdEvent
     virtual sd_event* sd_event_ref(sd_event* event) const = 0;
     virtual sd_event* sd_event_unref(sd_event* event) const = 0;
 
+    virtual int sd_event_add_io(sd_event* event, sd_event_source** source,
+                                int fd, uint32_t events, sd_event_io_handler_t,
+                                void* userdata) const = 0;
     virtual int sd_event_add_time(sd_event* event, sd_event_source** source,
                                   clockid_t clock, uint64_t usec,
                                   uint64_t accuracy,
@@ -72,6 +75,19 @@ class SdEvent
                                             int* enabled) const = 0;
     virtual int sd_event_source_set_enabled(sd_event_source* source,
                                             int enabled) const = 0;
+    virtual int sd_event_source_get_io_fd(sd_event_source* source) const = 0;
+    virtual int sd_event_source_set_io_fd(sd_event_source* source,
+                                          int fd) const = 0;
+    virtual int
+        sd_event_source_get_io_fd_own(sd_event_source* source) const = 0;
+    virtual int sd_event_source_set_io_fd_own(sd_event_source* source,
+                                              int own) const = 0;
+    virtual int sd_event_source_get_io_events(sd_event_source* source,
+                                              uint32_t* events) const = 0;
+    virtual int sd_event_source_set_io_events(sd_event_source* source,
+                                              uint32_t events) const = 0;
+    virtual int sd_event_source_get_io_revents(sd_event_source* source,
+                                               uint32_t* revents) const = 0;
     virtual int sd_event_source_get_time(sd_event_source* source,
                                          uint64_t* usec) const = 0;
     virtual int sd_event_source_set_time(sd_event_source* source,
@@ -90,6 +106,9 @@ class SdEventImpl : public SdEvent
     sd_event* sd_event_ref(sd_event* event) const override;
     sd_event* sd_event_unref(sd_event* event) const override;
 
+    int sd_event_add_io(sd_event* event, sd_event_source** source, int fd,
+                        uint32_t events, sd_event_io_handler_t callback,
+                        void* userdata) const override;
     int sd_event_add_time(sd_event* event, sd_event_source** source,
                           clockid_t clock, uint64_t usec, uint64_t accuracy,
                           sd_event_time_handler_t callback,
@@ -141,6 +160,18 @@ class SdEventImpl : public SdEvent
                                     int* enabled) const override;
     int sd_event_source_set_enabled(sd_event_source* source,
                                     int enabled) const override;
+    int sd_event_source_get_io_fd(sd_event_source* source) const override;
+    int sd_event_source_set_io_fd(sd_event_source* source,
+                                  int fd) const override;
+    int sd_event_source_get_io_fd_own(sd_event_source* source) const override;
+    int sd_event_source_set_io_fd_own(sd_event_source* source,
+                                      int own) const override;
+    int sd_event_source_get_io_events(sd_event_source* source,
+                                      uint32_t* events) const override;
+    int sd_event_source_set_io_events(sd_event_source* source,
+                                      uint32_t events) const override;
+    int sd_event_source_get_io_revents(sd_event_source* source,
+                                       uint32_t* revents) const override;
     int sd_event_source_get_time(sd_event_source* source,
                                  uint64_t* usec) const override;
     int sd_event_source_set_time(sd_event_source* source,
