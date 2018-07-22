@@ -1,5 +1,6 @@
 #include <cerrno>
 #include <chrono>
+#include <functional>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
