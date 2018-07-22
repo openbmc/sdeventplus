@@ -22,6 +22,15 @@ class SdEvent
                                   uint64_t accuracy,
                                   sd_event_time_handler_t callback,
                                   void* userdata) const = 0;
+    virtual int sd_event_add_defer(sd_event* event, sd_event_source** source,
+                                   sd_event_handler_t callback,
+                                   void* userdata) const = 0;
+    virtual int sd_event_add_post(sd_event* event, sd_event_source** source,
+                                  sd_event_handler_t callback,
+                                  void* userdata) const = 0;
+    virtual int sd_event_add_exit(sd_event* event, sd_event_source** source,
+                                  sd_event_handler_t callback,
+                                  void* userdata) const = 0;
 
     virtual int sd_event_prepare(sd_event* event) const = 0;
     virtual int sd_event_wait(sd_event* event, uint64_t usec) const = 0;
@@ -103,6 +112,27 @@ class SdEventImpl : public SdEvent
     {
         return ::sd_event_add_time(event, source, clock, usec, accuracy,
                                    callback, userdata);
+    }
+
+    int sd_event_add_defer(sd_event* event, sd_event_source** source,
+                           sd_event_handler_t callback,
+                           void* userdata) const override
+    {
+        return ::sd_event_add_defer(event, source, callback, userdata);
+    }
+
+    int sd_event_add_post(sd_event* event, sd_event_source** source,
+                          sd_event_handler_t callback,
+                          void* userdata) const override
+    {
+        return ::sd_event_add_post(event, source, callback, userdata);
+    }
+
+    int sd_event_add_exit(sd_event* event, sd_event_source** source,
+                          sd_event_handler_t callback,
+                          void* userdata) const override
+    {
+        return ::sd_event_add_exit(event, source, callback, userdata);
     }
 
     int sd_event_prepare(sd_event* event) const override

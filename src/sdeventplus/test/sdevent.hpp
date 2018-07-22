@@ -20,6 +20,12 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD7(sd_event_add_time,
                        int(sd_event*, sd_event_source**, clockid_t, uint64_t,
                            uint64_t, sd_event_time_handler_t, void*));
+    MOCK_CONST_METHOD4(sd_event_add_defer, int(sd_event*, sd_event_source**,
+                                               sd_event_handler_t, void*));
+    MOCK_CONST_METHOD4(sd_event_add_post, int(sd_event*, sd_event_source**,
+                                              sd_event_handler_t, void*));
+    MOCK_CONST_METHOD4(sd_event_add_exit, int(sd_event*, sd_event_source**,
+                                              sd_event_handler_t, void*));
 
     MOCK_CONST_METHOD1(sd_event_prepare, int(sd_event*));
     MOCK_CONST_METHOD2(sd_event_wait, int(sd_event*, uint64_t));
