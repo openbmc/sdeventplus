@@ -134,7 +134,7 @@ class Event
      * @return 'true' if the watchdog is supported and enabled
      *         'false' otherwise
      */
-    int get_watchdog() const;
+    bool get_watchdog() const;
 
     /** @brief Sets the state of the event loop watchdog
      *
@@ -143,7 +143,7 @@ class Event
      * @return 'true' if the watchdog is supported and enabled
      *         'false' otherwise
      */
-    int set_watchdog(int b) const;
+    bool set_watchdog(bool b) const;
 
   private:
     const internal::SdEvent* sdevent;

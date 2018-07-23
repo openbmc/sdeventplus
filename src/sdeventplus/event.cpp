@@ -108,14 +108,13 @@ int Event::loop() const
     return r;
 }
 
-int Event::exit(int code) const
+void Event::exit(int code) const
 {
     int r = sdevent->sd_event_exit(event.get(), code);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_exit");
     }
-    return r;
 }
 
 int Event::get_exit_code() const
@@ -129,7 +128,7 @@ int Event::get_exit_code() const
     return code;
 }
 
-int Event::get_watchdog() const
+bool Event::get_watchdog() const
 {
     int r = sdevent->sd_event_get_watchdog(event.get());
     if (r < 0)
@@ -139,7 +138,7 @@ int Event::get_watchdog() const
     return r;
 }
 
-int Event::set_watchdog(int b) const
+bool Event::set_watchdog(bool b) const
 {
     int r = sdevent->sd_event_set_watchdog(event.get(), b);
     if (r < 0)

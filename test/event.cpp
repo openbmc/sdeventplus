@@ -205,15 +205,11 @@ TEST_F(EventMethodTest, LoopInternalError)
 TEST_F(EventMethodTest, ExitSuccess)
 {
     EXPECT_CALL(mock, sd_event_exit(expected_event, 0)).WillOnce(Return(2));
-    EXPECT_EQ(2, event->exit(0));
-}
-
-TEST_F(EventMethodTest, ExitUserError)
-{
-    const int user_error = 10;
-    EXPECT_CALL(mock, sd_event_exit(expected_event, user_error))
-        .WillOnce(Return(user_error));
-    EXPECT_EQ(user_error, event->exit(user_error));
+    event->exit(0);
+    EXPECT_CALL(mock, sd_event_exit(expected_event, 0)).WillOnce(Return(0));
+    event->exit(0);
+    EXPECT_CALL(mock, sd_event_exit(expected_event, 10)).WillOnce(Return(0));
+    event->exit(10);
 }
 
 TEST_F(EventMethodTest, ExitInternalError)
@@ -245,11 +241,11 @@ TEST_F(EventMethodTest, GetWatchdogSuccess)
 {
     EXPECT_CALL(mock, sd_event_get_watchdog(expected_event))
         .WillOnce(Return(0));
-    EXPECT_EQ(0, event->get_watchdog());
+    EXPECT_FALSE(event->get_watchdog());
 
     EXPECT_CALL(mock, sd_event_get_watchdog(expected_event))
         .WillOnce(Return(2));
-    EXPECT_EQ(2, event->get_watchdog());
+    EXPECT_TRUE(event->get_watchdog());
 }
 
 TEST_F(EventMethodTest, GetWatchdogError)
@@ -261,13 +257,20 @@ TEST_F(EventMethodTest, GetWatchdogError)
 
 TEST_F(EventMethodTest, SetWatchdogSuccess)
 {
-    EXPECT_CALL(mock, sd_event_set_watchdog(expected_event, 0))
+    // Disable
+    EXPECT_CALL(mock, sd_event_set_watchdog(expected_event, false))
         .WillOnce(Return(0));
-    EXPECT_EQ(0, event->set_watchdog(0));
+    EXPECT_FALSE(event->set_watchdog(false));
 
-    EXPECT_CALL(mock, sd_event_set_watchdog(expected_event, 1))
+    // Enable but not supported
+    EXPECT_CALL(mock, sd_event_set_watchdog(expected_event, true))
+        .WillOnce(Return(0));
+    EXPECT_FALSE(event->set_watchdog(true));
+
+    // Enabled and supported
+    EXPECT_CALL(mock, sd_event_set_watchdog(expected_event, true))
         .WillOnce(Return(2));
-    EXPECT_EQ(2, event->set_watchdog(1));
+    EXPECT_TRUE(event->set_watchdog(true));
 }
 
 TEST_F(EventMethodTest, SetWatchdogError)
