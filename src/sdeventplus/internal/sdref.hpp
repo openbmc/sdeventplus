@@ -35,6 +35,8 @@ class SdRef
 
     /** @brief Constructs a new reference holder
      *         Does not take a new reference on the passed ref
+     *         NOTE: This will still take a reference during future copies
+     *         Useful for first creation of an object reference
      *
      *  @param[in] ref         - Object which is referenced
      *  @param[in] take_ref    - Function used to take references
