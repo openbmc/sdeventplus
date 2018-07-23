@@ -19,8 +19,6 @@ class IO : public Base
 
     int get_fd() const;
     void set_fd(int fd) const;
-    bool get_fd_own() const;
-    void set_fd_own(bool own) const;
     uint32_t get_events() const;
     void set_events(uint32_t events) const;
     uint32_t get_revents() const;

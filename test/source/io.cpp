@@ -172,37 +172,6 @@ TEST_F(IOMethodTest, SetFdError)
     EXPECT_THROW(io->set_fd(fd), SdEventError);
 }
 
-TEST_F(IOMethodTest, GetFdOwnSuccess)
-{
-    EXPECT_CALL(mock, sd_event_source_get_io_fd_own(expected_source))
-        .WillOnce(Return(3));
-    EXPECT_TRUE(io->get_fd_own());
-    EXPECT_CALL(mock, sd_event_source_get_io_fd_own(expected_source))
-        .WillOnce(Return(0));
-    EXPECT_FALSE(io->get_fd_own());
-}
-
-TEST_F(IOMethodTest, GetFdOwnError)
-{
-    EXPECT_CALL(mock, sd_event_source_get_io_fd_own(expected_source))
-        .WillOnce(Return(-EINVAL));
-    EXPECT_THROW(io->get_fd_own(), SdEventError);
-}
-
-TEST_F(IOMethodTest, SetFdOwnSuccess)
-{
-    EXPECT_CALL(mock, sd_event_source_set_io_fd_own(expected_source, true))
-        .WillOnce(Return(0));
-    io->set_fd_own(true);
-}
-
-TEST_F(IOMethodTest, SetFdOwnError)
-{
-    EXPECT_CALL(mock, sd_event_source_set_io_fd_own(expected_source, false))
-        .WillOnce(Return(-EINVAL));
-    EXPECT_THROW(io->set_fd_own(false), SdEventError);
-}
-
 TEST_F(IOMethodTest, GetEventsSuccess)
 {
     const uint32_t events = EPOLLIN | EPOLLOUT;

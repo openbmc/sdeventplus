@@ -32,26 +32,6 @@ void IO::set_fd(int fd) const
     }
 }
 
-bool IO::get_fd_own() const
-{
-    int r = event.getSdEvent()->sd_event_source_get_io_fd_own(source.get());
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_io_fd_own");
-    }
-    return r;
-}
-
-void IO::set_fd_own(bool own) const
-{
-    int r =
-        event.getSdEvent()->sd_event_source_set_io_fd_own(source.get(), own);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_io_fd_own");
-    }
-}
-
 uint32_t IO::get_events() const
 {
     uint32_t events;

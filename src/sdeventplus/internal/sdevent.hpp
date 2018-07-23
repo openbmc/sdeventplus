@@ -85,10 +85,6 @@ class SdEvent
     virtual int sd_event_source_get_io_fd(sd_event_source* source) const = 0;
     virtual int sd_event_source_set_io_fd(sd_event_source* source,
                                           int fd) const = 0;
-    virtual int
-        sd_event_source_get_io_fd_own(sd_event_source* source) const = 0;
-    virtual int sd_event_source_set_io_fd_own(sd_event_source* source,
-                                              int own) const = 0;
     virtual int sd_event_source_get_io_events(sd_event_source* source,
                                               uint32_t* events) const = 0;
     virtual int sd_event_source_set_io_events(sd_event_source* source,
@@ -189,9 +185,6 @@ class SdEventImpl : public SdEvent
     int sd_event_source_get_io_fd(sd_event_source* source) const override;
     int sd_event_source_set_io_fd(sd_event_source* source,
                                   int fd) const override;
-    int sd_event_source_get_io_fd_own(sd_event_source* source) const override;
-    int sd_event_source_set_io_fd_own(sd_event_source* source,
-                                      int own) const override;
     int sd_event_source_get_io_events(sd_event_source* source,
                                       uint32_t* events) const override;
     int sd_event_source_set_io_events(sd_event_source* source,
