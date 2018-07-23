@@ -9,6 +9,10 @@ namespace sdeventplus
 namespace test
 {
 
+/** @class SdEventMock
+ *  @brief sd_event mocked implementation
+ *  @details Uses googlemock to handle all sd_event calls
+ */
 class SdEventMock : public internal::SdEvent
 {
   public:

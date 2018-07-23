@@ -17,7 +17,10 @@ using SdEventDuration =
 namespace internal
 {
 
-// Helpers for sd_event callbacks to handle exceptions gracefully
+/** @brief Handle sd_event callback exception gracefully
+ *  @details A generic wrapper that turns exceptions into
+ *           error messages and return codes.
+ */
 template <typename Func, typename... Args>
 inline int performCallback(const char* name, Func func, Args... args)
 {

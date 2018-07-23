@@ -7,6 +7,9 @@ namespace sdeventplus
 namespace internal
 {
 
+/** @class SdEvent
+ *  @brief Overridable direct sd_event interface
+ */
 class SdEvent
 {
   public:
@@ -104,6 +107,10 @@ class SdEvent
                                               pid_t* pid) const = 0;
 };
 
+/** @class SdEventImpl
+ *  @brief sd_event concrete implementation
+ *  @details Uses libsystemd to handle all sd_event calls
+ */
 class SdEventImpl : public SdEvent
 {
   public:
@@ -204,6 +211,8 @@ class SdEventImpl : public SdEvent
                                       pid_t* pid) const override;
 };
 
+/** @brief Default instantiation of sd_event
+ */
 extern SdEventImpl sdevent_impl;
 
 } // namespace internal
