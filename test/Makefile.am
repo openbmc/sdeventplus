@@ -47,6 +47,11 @@ source_io_SOURCES = source/io.cpp
 source_io_CPPFLAGS = $(gtest_cppflags)
 source_io_LDADD = $(gtest_ldadd)
 
+check_PROGRAMS += source_signal
+source_signal_SOURCES = source/signal.cpp
+source_signal_CPPFLAGS = $(gtest_cppflags)
+source_signal_LDADD = $(gtest_ldadd)
+
 check_PROGRAMS += source_time
 source_time_SOURCES = source/time.cpp
 source_time_CPPFLAGS = $(gtest_cppflags)

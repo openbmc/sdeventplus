@@ -244,6 +244,11 @@ int SdEventImpl::sd_event_source_set_time_accuracy(sd_event_source* source,
     return ::sd_event_source_set_time_accuracy(source, usec);
 }
 
+int SdEventImpl::sd_event_source_get_signal(sd_event_source* source) const
+{
+    return ::sd_event_source_get_signal(source);
+}
+
 SdEventImpl sdevent_impl;
 
 } // namespace internal

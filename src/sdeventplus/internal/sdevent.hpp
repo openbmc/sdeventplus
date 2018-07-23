@@ -25,6 +25,9 @@ class SdEvent
                                   uint64_t accuracy,
                                   sd_event_time_handler_t callback,
                                   void* userdata) const = 0;
+    virtual int sd_event_add_signal(sd_event* event, sd_event_source** source,
+                                    int sig, sd_event_signal_handler_t callback,
+                                    void* userdata) const = 0;
     virtual int sd_event_add_defer(sd_event* event, sd_event_source** source,
                                    sd_event_handler_t callback,
                                    void* userdata) const = 0;
@@ -96,6 +99,7 @@ class SdEvent
                                                   uint64_t* usec) const = 0;
     virtual int sd_event_source_set_time_accuracy(sd_event_source* source,
                                                   uint64_t usec) const = 0;
+    virtual int sd_event_source_get_signal(sd_event_source*) const = 0;
 };
 
 class SdEventImpl : public SdEvent
@@ -113,6 +117,14 @@ class SdEventImpl : public SdEvent
                           clockid_t clock, uint64_t usec, uint64_t accuracy,
                           sd_event_time_handler_t callback,
                           void* userdata) const override;
+
+    int sd_event_add_signal(sd_event* event, sd_event_source** source, int sig,
+                            sd_event_signal_handler_t callback,
+                            void* userdata) const override
+    {
+        return ::sd_event_add_signal(event, source, sig, callback, userdata);
+    }
+
     int sd_event_add_defer(sd_event* event, sd_event_source** source,
                            sd_event_handler_t callback,
                            void* userdata) const override;
@@ -180,6 +192,7 @@ class SdEventImpl : public SdEvent
                                           uint64_t* usec) const override;
     int sd_event_source_set_time_accuracy(sd_event_source* source,
                                           uint64_t usec) const override;
+    int sd_event_source_get_signal(sd_event_source*) const override;
 };
 
 extern SdEventImpl sdevent_impl;
