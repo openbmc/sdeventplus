@@ -10,16 +10,16 @@ namespace sdeventplus
 namespace source
 {
 
-class Event : public Base
+class EventBase : public Base
 {
   public:
-    using Callback = std::function<void(Event& source)>;
+    using Callback = std::function<void(EventBase& source)>;
 
   protected:
     using CreateFunc = decltype(&internal::SdEvent::sd_event_add_exit);
 
-    Event(const char* name, CreateFunc create, const sdeventplus::Event& event,
-          Callback&& callback);
+    EventBase(const char* name, CreateFunc create, const Event& event,
+              Callback&& callback);
 
   private:
     Callback callback;
@@ -27,27 +27,27 @@ class Event : public Base
     const Callback& get_callback() const;
 
     static sd_event_source* create_source(const char* name, CreateFunc create,
-                                          const sdeventplus::Event& event);
+                                          const Event& event);
 
     static int eventCallback(sd_event_source* source, void* userdata);
 };
 
-class Defer : public Event
+class Defer : public EventBase
 {
   public:
-    Defer(const sdeventplus::Event& event, Callback&& Callback);
+    Defer(const Event& event, Callback&& Callback);
 };
 
-class Post : public Event
+class Post : public EventBase
 {
   public:
-    Post(const sdeventplus::Event& event, Callback&& callback);
+    Post(const Event& event, Callback&& callback);
 };
 
-class Exit : public Event
+class Exit : public EventBase
 {
   public:
-    Exit(const sdeventplus::Event& event, Callback&& callback);
+    Exit(const Event& event, Callback&& callback);
 };
 
 } // namespace source

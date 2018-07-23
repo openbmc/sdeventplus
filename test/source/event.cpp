@@ -23,8 +23,7 @@ using testing::Return;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
-using UniqueEvent = std::unique_ptr<sdeventplus::Event,
-                                    std::function<void(sdeventplus::Event*)>>;
+using UniqueEvent = std::unique_ptr<Event, std::function<void(Event*)>>;
 
 class EventTest : public testing::Test
 {
@@ -37,13 +36,12 @@ class EventTest : public testing::Test
 
     UniqueEvent make_event(sd_event* event)
     {
-        auto deleter = [this, event](sdeventplus::Event* e) {
+        auto deleter = [this, event](Event* e) {
             EXPECT_CALL(this->mock, sd_event_unref(event))
                 .WillOnce(Return(nullptr));
             delete e;
         };
-        return UniqueEvent(
-            new sdeventplus::Event(event, std::false_type(), &mock), deleter);
+        return UniqueEvent(new Event(event, std::false_type(), &mock), deleter);
     }
 
     void expect_destruct()
@@ -74,7 +72,9 @@ TEST_F(EventTest, DeferConstruct)
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<2>(&handler),
                         Return(0)));
     int completions = 0;
-    Event::Callback callback = [&completions](Event&) { completions++; };
+    EventBase::Callback callback = [&completions](EventBase&) {
+        completions++;
+    };
     Defer defer(*event, std::move(callback));
     EXPECT_EQ(&defer, userdata);
     EXPECT_FALSE(callback);
@@ -99,7 +99,9 @@ TEST_F(EventTest, PostConstruct)
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<2>(&handler),
                         Return(0)));
     int completions = 0;
-    Event::Callback callback = [&completions](Event&) { completions++; };
+    EventBase::Callback callback = [&completions](EventBase&) {
+        completions++;
+    };
     Post post(*event, std::move(callback));
     EXPECT_EQ(&post, userdata);
     EXPECT_FALSE(callback);
@@ -124,7 +126,9 @@ TEST_F(EventTest, ExitConstruct)
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<2>(&handler),
                         Return(0)));
     int completions = 0;
-    Event::Callback callback = [&completions](Event&) { completions++; };
+    EventBase::Callback callback = [&completions](EventBase&) {
+        completions++;
+    };
     Exit exit(*event, std::move(callback));
     EXPECT_EQ(&exit, userdata);
     EXPECT_FALSE(callback);
@@ -142,7 +146,9 @@ TEST_F(EventTest, ConstructFailure)
                                          nullptr))
         .WillOnce(Return(-EINVAL));
     int completions = 0;
-    Event::Callback callback = [&completions](Event&) { completions++; };
+    EventBase::Callback callback = [&completions](EventBase&) {
+        completions++;
+    };
     EXPECT_THROW(Defer(*event, std::move(callback)), SdEventError);
     EXPECT_TRUE(callback);
     EXPECT_EQ(0, completions);
