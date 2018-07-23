@@ -28,6 +28,10 @@ class SdEvent
     virtual int sd_event_add_signal(sd_event* event, sd_event_source** source,
                                     int sig, sd_event_signal_handler_t callback,
                                     void* userdata) const = 0;
+    virtual int sd_event_add_child(sd_event* event, sd_event_source** source,
+                                   pid_t, int options,
+                                   sd_event_child_handler_t callback,
+                                   void* userdata) const = 0;
     virtual int sd_event_add_defer(sd_event* event, sd_event_source** source,
                                    sd_event_handler_t callback,
                                    void* userdata) const = 0;
@@ -100,6 +104,8 @@ class SdEvent
     virtual int sd_event_source_set_time_accuracy(sd_event_source* source,
                                                   uint64_t usec) const = 0;
     virtual int sd_event_source_get_signal(sd_event_source*) const = 0;
+    virtual int sd_event_source_get_child_pid(sd_event_source*,
+                                              pid_t* pid) const = 0;
 };
 
 class SdEventImpl : public SdEvent
@@ -123,6 +129,14 @@ class SdEventImpl : public SdEvent
                             void* userdata) const override
     {
         return ::sd_event_add_signal(event, source, sig, callback, userdata);
+    }
+
+    int sd_event_add_child(sd_event* event, sd_event_source** source, pid_t pid,
+                           int options, sd_event_child_handler_t callback,
+                           void* userdata) const override
+    {
+        return ::sd_event_add_child(event, source, pid, options, callback,
+                                    userdata);
     }
 
     int sd_event_add_defer(sd_event* event, sd_event_source** source,
@@ -193,6 +207,8 @@ class SdEventImpl : public SdEvent
     int sd_event_source_set_time_accuracy(sd_event_source* source,
                                           uint64_t usec) const override;
     int sd_event_source_get_signal(sd_event_source*) const override;
+    int sd_event_source_get_child_pid(sd_event_source*,
+                                      pid_t* pid) const override;
 };
 
 extern SdEventImpl sdevent_impl;

@@ -249,6 +249,12 @@ int SdEventImpl::sd_event_source_get_signal(sd_event_source* source) const
     return ::sd_event_source_get_signal(source);
 }
 
+int SdEventImpl::sd_event_source_get_child_pid(sd_event_source* source,
+                                               pid_t* pid) const
+{
+    return ::sd_event_source_get_child_pid(source, pid);
+}
+
 SdEventImpl sdevent_impl;
 
 } // namespace internal

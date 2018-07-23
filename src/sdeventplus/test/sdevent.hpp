@@ -26,6 +26,9 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD5(sd_event_add_signal,
                        int(sd_event*, sd_event_source**, int,
                            sd_event_signal_handler_t, void*));
+    MOCK_CONST_METHOD6(sd_event_add_child,
+                       int(sd_event*, sd_event_source**, pid_t, int,
+                           sd_event_child_handler_t, void*));
     MOCK_CONST_METHOD4(sd_event_add_defer, int(sd_event*, sd_event_source**,
                                                sd_event_handler_t, void*));
     MOCK_CONST_METHOD4(sd_event_add_post, int(sd_event*, sd_event_source**,
@@ -87,6 +90,8 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD2(sd_event_source_set_time_accuracy,
                        int(sd_event_source*, uint64_t));
     MOCK_CONST_METHOD1(sd_event_source_get_signal, int(sd_event_source*));
+    MOCK_CONST_METHOD2(sd_event_source_get_child_pid,
+                       int(sd_event_source*, pid_t*));
 };
 
 } // namespace test

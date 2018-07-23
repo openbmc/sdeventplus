@@ -49,6 +49,7 @@ Makefile.in
 /test/internal_sdref
 /test/internal_utils
 /test/source_base
+/test/source_child
 /test/source_event
 /test/source_io
 /test/source_signal
