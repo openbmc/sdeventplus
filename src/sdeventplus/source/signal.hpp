@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <sdeventplus/event.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sys/signalfd.h>
 
