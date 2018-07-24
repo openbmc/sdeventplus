@@ -15,6 +15,10 @@ namespace sdeventplus
 namespace source
 {
 
+/** @class Base
+ *  @brief The base class for all sources implementing common source methods
+ *         Not instantiated directly by end users
+ */
 class Base
 {
   public:
@@ -22,16 +26,77 @@ class Base
 
     virtual ~Base();
 
+    /** @brief Gets the underlying sd_event_source
+     *
+     *  @return The sd_event_source
+     */
     sd_event_source* get() const;
+
+    /** @brief Gets the associated Event object
+     *
+     *  @return The Event
+     */
     const Event& get_event() const;
 
+    /** @brief Gets the description of the source
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return The c-string description or a nullptr if none exists
+     */
     const char* get_description() const;
+
+    /** @brief Sets the description of the source
+     *
+     *  @param[in] description - The c-string description
+     *  @throws SdEventError for underlying sd_event errors
+     */
     void set_description(const char* description) const;
+
+    /** @brief Sets the callback associated with the source to be performed
+     *         before the event loop goes to sleep, waiting for new events
+     *
+     *  @param[in] callback - Function run for preparation of the source
+     *  @throws SdEventError for underlying sd_event errors
+     */
     void set_prepare(Callback&& callback);
+
+    /** @brief Whether or not the source has any pending events that have
+     *         not been dispatched yet.
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return 'true' if the source has pending events
+     *          'false' otherwise
+     */
     int get_pending() const;
+
+    /** @brief Gets the priority of the source relative to other sources
+     *         The lower the priority the more important the source
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return A 64 bit integer representing the dispatch priority
+     */
     int64_t get_priority() const;
+
+    /** @brief Sets the priority of the source relative to other sources
+     *         The lower the priority the more important the source
+     *
+     *  @param[in] priority - A 64 bit integer representing the priority
+     *  @throws SdEventError for underlying sd_event errors
+     */
     void set_priority(int64_t priority) const;
+
+    /** @brief Determines the enablement value of the source
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return The enabled status of the source
+     */
     int get_enabled() const;
+
+    /** @brief Sets the enablement value of the source
+     *
+     *  @param[in] enabled - The new state of the source
+     *  @throws SdEventError for underlying sd_event errors
+     */
     void set_enabled(int enabled) const;
 
   protected:
