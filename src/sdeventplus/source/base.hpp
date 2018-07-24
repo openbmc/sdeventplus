@@ -15,6 +15,17 @@ namespace sdeventplus
 namespace source
 {
 
+/** @class Enabled
+ *  @brief Mapping of sdeventplus source enable values to the sd-event
+ *         equivalent
+ */
+enum class Enabled
+{
+    Off = SD_EVENT_OFF,
+    On = SD_EVENT_ON,
+    OneShot = SD_EVENT_ONESHOT,
+};
+
 /** @class Base
  *  @brief The base class for all sources implementing common source methods
  *         Not instantiated directly by end users
@@ -67,7 +78,7 @@ class Base
      *  @return 'true' if the source has pending events
      *          'false' otherwise
      */
-    int get_pending() const;
+    bool get_pending() const;
 
     /** @brief Gets the priority of the source relative to other sources
      *         The lower the priority the more important the source
@@ -90,14 +101,14 @@ class Base
      *  @throws SdEventError for underlying sd_event errors
      *  @return The enabled status of the source
      */
-    int get_enabled() const;
+    Enabled get_enabled() const;
 
     /** @brief Sets the enablement value of the source
      *
      *  @param[in] enabled - The new state of the source
      *  @throws SdEventError for underlying sd_event errors
      */
-    void set_enabled(int enabled) const;
+    void set_enabled(Enabled enabled) const;
 
   protected:
     Event event;

@@ -355,10 +355,10 @@ TEST_F(BaseMethodTest, GetPendingSuccess)
 {
     EXPECT_CALL(mock, sd_event_source_get_pending(expected_source))
         .WillOnce(Return(0));
-    EXPECT_EQ(0, base->get_pending());
+    EXPECT_FALSE(base->get_pending());
     EXPECT_CALL(mock, sd_event_source_get_pending(expected_source))
         .WillOnce(Return(4));
-    EXPECT_EQ(4, base->get_pending());
+    EXPECT_TRUE(base->get_pending());
 }
 
 TEST_F(BaseMethodTest, GetPendingError)
@@ -400,7 +400,7 @@ TEST_F(BaseMethodTest, GetEnabledSuccess)
 {
     EXPECT_CALL(mock, sd_event_source_get_enabled(expected_source, testing::_))
         .WillOnce(DoAll(SetArgPointee<1>(SD_EVENT_ON), Return(0)));
-    EXPECT_EQ(SD_EVENT_ON, base->get_enabled());
+    EXPECT_EQ(Enabled::On, base->get_enabled());
 }
 
 TEST_F(BaseMethodTest, GetEnabledError)
@@ -414,14 +414,15 @@ TEST_F(BaseMethodTest, SetEnabledSuccess)
 {
     EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source, SD_EVENT_ON))
         .WillOnce(Return(0));
-    base->set_enabled(SD_EVENT_ON);
+    base->set_enabled(Enabled::On);
 }
 
 TEST_F(BaseMethodTest, SetEnabledError)
 {
-    EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source, SD_EVENT_ON))
+    EXPECT_CALL(mock,
+                sd_event_source_set_enabled(expected_source, SD_EVENT_ONESHOT))
         .WillOnce(Return(-EINVAL));
-    EXPECT_THROW(base->set_enabled(SD_EVENT_ON), SdEventError);
+    EXPECT_THROW(base->set_enabled(Enabled::OneShot), SdEventError);
 }
 
 } // namespace

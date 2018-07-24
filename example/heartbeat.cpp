@@ -30,6 +30,6 @@ int main(int argc, char* argv[])
     };
     Time<ClockId::RealTime> time(event, Clock<ClockId::RealTime>(event).now(),
                                  std::chrono::seconds{1}, std::move(hbFunc));
-    time.set_enabled(SD_EVENT_ON);
+    time.set_enabled(sdeventplus::source::Enabled::On);
     return event.loop();
 }

@@ -14,7 +14,7 @@ Base::~Base()
 {
     if (source)
     {
-        set_enabled(SD_EVENT_OFF);
+        set_enabled(Enabled::Off);
     }
 }
 
@@ -67,7 +67,7 @@ const Base::Callback& Base::get_prepare() const
     return prepare;
 }
 
-int Base::get_pending() const
+bool Base::get_pending() const
 {
     int r = event.getSdEvent()->sd_event_source_get_pending(source.get());
     if (r < 0)
@@ -99,7 +99,7 @@ void Base::set_priority(int64_t priority) const
     }
 }
 
-int Base::get_enabled() const
+Enabled Base::get_enabled() const
 {
     int enabled;
     int r =
@@ -108,13 +108,13 @@ int Base::get_enabled() const
     {
         throw SdEventError(-r, "sd_event_source_get_enabled");
     }
-    return enabled;
+    return static_cast<Enabled>(enabled);
 }
 
-void Base::set_enabled(int enabled) const
+void Base::set_enabled(Enabled enabled) const
 {
-    int r =
-        event.getSdEvent()->sd_event_source_set_enabled(source.get(), enabled);
+    int r = event.getSdEvent()->sd_event_source_set_enabled(
+        source.get(), static_cast<int>(enabled));
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_enabled");
@@ -152,7 +152,7 @@ Base& Base::operator=(Base&& other)
         // after it gets deleted in the move
         if (source)
         {
-            set_enabled(SD_EVENT_OFF);
+            set_enabled(Enabled::Off);
         }
 
         event = std::move(other.event);
