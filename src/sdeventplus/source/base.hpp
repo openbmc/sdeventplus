@@ -114,8 +114,24 @@ class Base
     Event event;
     internal::SdRef<sd_event_source> source;
 
-    // Base sources cannot be directly constructed.
+    /** @brief Constructs a basic event source wrapper
+     *         Adds a reference to the source
+     *
+     *  @param[in] event  - The event associated with the source
+     *  @param[in] source - The underlying sd_event_source wrapped
+     *  @throws SdEventError for underlying sd_event errors
+     */
     Base(const Event& event, sd_event_source* source);
+
+    /** @brief Constructs a basic event source wrapper
+     *         Owns the passed reference to the source
+     *         This ownership is exception safe and will properly free the
+     *         source in the case of an exception during construction
+     *
+     *  @param[in] event  - The event associated with the source
+     *  @param[in] source - The underlying sd_event_source wrapped
+     *  @throws SdEventError for underlying sd_event errors
+     */
     Base(const Event& event, sd_event_source* source, std::false_type);
 
     // We can't ever copy an event_source because the callback
@@ -126,8 +142,23 @@ class Base
     Base(Base&& other);
     Base& operator=(Base&& other);
 
+    /** @brief Returns a reference to the prepare callback executed for this
+     *         source
+     *
+     *  @return A reference to the callback, this should be checked to make sure
+     *          the callback is valid as there is no guarantee
+     */
     const Callback& get_prepare() const;
 
+    /** @brief A helper for subclasses to trivially wrap a c++ style callback
+     *         to be called from the sd-event c library
+     *
+     *  @param[in] name     - The name of the callback for use in error messages
+     *  @param[in] source   - The sd_event_source provided by sd-event
+     *  @param[in] userdata - The userdata provided by sd-event
+     *  @param[in] args...  - Extra arguments to pass to the callaback
+     *  @return An negative errno on error, or 0 on success
+     */
     template <typename Callback, class Source,
               const Callback& (Source::*getter)() const, typename... Args>
     static int sourceCallback(const char* name, sd_event_source*,
@@ -146,7 +177,19 @@ class Base
   private:
     Callback prepare;
 
+    /** @brief A helper used to make sure the userdata for the sd-event
+     *         callback is set to the current source c++ object
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     */
     void set_userdata();
+
+    /** @brief A wrapper around the callback that can be called from sd-event
+     *
+     * @param[in] source   - The sd_event_source associated with the call
+     * @param[in] userdata - The provided userdata for the source
+     * @return 0 on success or a negative errno otherwise
+     */
     static int prepareCallback(sd_event_source* source, void* userdata);
 };
 
