@@ -28,7 +28,7 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
 # Checks for libtool
-LT_INIT # Removes 'unrecognized options: --with-libtool-sysroot'
+LT_INIT
 
 # Make sure the pkgconfigdata is configured for automake
 PKG_INSTALLDIR
@@ -43,8 +43,9 @@ AX_PKG_CHECK_MODULES([SYSTEMD], [libsystemd >= 218])
 
 AX_SAVE_FLAGS_WITH_PREFIX(OLD, [CPPFLAGS])
 AX_APPEND_COMPILE_FLAGS([$SYSTEMD_CFLAGS], [CPPFLAGS])
-AC_CHECK_HEADERS([systemd/sd-event.h], [],
-    [AC_MSG_ERROR([Could not find systemd/sd-event.h])])
+AC_CHECK_HEADERS([systemd/sd-event.h], [], [
+    AC_MSG_ERROR([Could not find systemd/sd-event.h])
+])
 AX_RESTORE_FLAGS_WITH_PREFIX(OLD, [CPPFLAGS])
 
 AX_SAVE_FLAGS_WITH_PREFIX(OLD, [LDFLAGS])
