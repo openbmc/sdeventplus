@@ -130,21 +130,19 @@ AS_IF([test "x$enable_tests" != "xno"], [
 ])
 
 # Check for valgrind
-AS_IF([test "x$enable_tests" != "xno"], [
-    m4_foreach([vgtool], [valgrind_tool_list],
-        [AX_VALGRIND_DFLT(vgtool, [off])])
-    AX_VALGRIND_DFLT([memcheck], [on])
-    AX_VALGRIND_CHECK
-    AM_EXTRA_RECURSIVE_TARGETS([check-valgrind])
-    m4_foreach([vgtool], [valgrind_tool_list],
-        [AM_EXTRA_RECURSIVE_TARGETS([check-valgrind-]vgtool)])
-])
+AS_IF([test "x$enable_tests" = "xno"], [enable_valgrind=no])
+m4_foreach([vgtool], [valgrind_tool_list],
+	[AX_VALGRIND_DFLT(vgtool, [off])])
+AX_VALGRIND_DFLT([memcheck], [on])
+AX_VALGRIND_CHECK
+AM_EXTRA_RECURSIVE_TARGETS([check-valgrind])
+m4_foreach([vgtool], [valgrind_tool_list],
+	[AM_EXTRA_RECURSIVE_TARGETS([check-valgrind-]vgtool)])
 
 # Code coverage
-AS_IF([test "x$enable_tests" != "xno"], [
-    AX_CODE_COVERAGE
-    AM_EXTRA_RECURSIVE_TARGETS([check-code-coverage])
-])
+AS_IF([test "x$enable_tests" = "xno"], [enable_code_coverage=no])
+AX_CODE_COVERAGE
+AM_EXTRA_RECURSIVE_TARGETS([check-code-coverage])
 
 # Append -Werror after doing autoconf compiler checks
 # Otherwise some perfectly valid checks can fail and cause our
