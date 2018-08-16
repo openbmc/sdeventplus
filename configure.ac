@@ -11,6 +11,7 @@ AM_SILENT_RULES([yes])
 # Make sure the default CFLAGS of `-O2 -g` don't override CODE_COVERAGE_CFLAGS
 # It is important that this comes before AC_PROG_C{C,XX}, as we are attempting
 # to stop them from populating default CFLAGS and CXXFLAGS.
+AS_IF([test "x$enable_tests" = "xno"], [enable_code_coverage=no])
 AS_IF([test "x$enable_code_coverage" != "xno"], [
     AS_IF([test "x${CXXFLAGS+set}" != "xset"], [
         AC_SUBST(CXXFLAGS, [""])
@@ -140,7 +141,6 @@ m4_foreach([vgtool], [valgrind_tool_list],
 	[AM_EXTRA_RECURSIVE_TARGETS([check-valgrind-]vgtool)])
 
 # Code coverage
-AS_IF([test "x$enable_tests" = "xno"], [enable_code_coverage=no])
 AX_CODE_COVERAGE
 AM_EXTRA_RECURSIVE_TARGETS([check-code-coverage])
 
