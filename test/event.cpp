@@ -1,6 +1,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
+#include <optional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/test/sdevent.hpp>
@@ -128,14 +129,14 @@ TEST_F(EventMethodTest, WaitSuccessReady)
     const int events_ready = 10;
     EXPECT_CALL(mock, sd_event_wait(expected_event, static_cast<uint64_t>(-1)))
         .WillOnce(Return(events_ready));
-    EXPECT_EQ(events_ready, event->wait(std::experimental::nullopt));
+    EXPECT_EQ(events_ready, event->wait(std::nullopt));
 }
 
 TEST_F(EventMethodTest, WaitInternalError)
 {
     EXPECT_CALL(mock, sd_event_wait(expected_event, static_cast<uint64_t>(-1)))
         .WillOnce(Return(-EINVAL));
-    EXPECT_THROW(event->wait(std::experimental::nullopt), SdEventError);
+    EXPECT_THROW(event->wait(std::nullopt), SdEventError);
 }
 
 TEST_F(EventMethodTest, DispatchInitial)
@@ -172,14 +173,14 @@ TEST_F(EventMethodTest, RunSuccessReady)
     const int events_ready = 10;
     EXPECT_CALL(mock, sd_event_run(expected_event, static_cast<uint64_t>(-1)))
         .WillOnce(Return(events_ready));
-    EXPECT_EQ(events_ready, event->run(std::experimental::nullopt));
+    EXPECT_EQ(events_ready, event->run(std::nullopt));
 }
 
 TEST_F(EventMethodTest, RunInternalError)
 {
     EXPECT_CALL(mock, sd_event_run(expected_event, static_cast<uint64_t>(-1)))
         .WillOnce(Return(-EINVAL));
-    EXPECT_THROW(event->run(std::experimental::nullopt), SdEventError);
+    EXPECT_THROW(event->run(std::nullopt), SdEventError);
 }
 
 TEST_F(EventMethodTest, LoopSuccess)

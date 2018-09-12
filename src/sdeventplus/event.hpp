@@ -1,6 +1,6 @@
 #pragma once
 
-#include <experimental/optional>
+#include <optional>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/sdref.hpp>
 #include <sdeventplus/internal/utils.hpp>
@@ -18,7 +18,7 @@ class Event
     /** @brief Duration type used for specifying timeouts
      */
     using Timeout = SdEventDuration;
-    using MaybeTimeout = std::experimental::optional<Timeout>;
+    using MaybeTimeout = std::optional<Timeout>;
 
     /** @brief Constructs a new event from sd_event
      *         Takes a reference on the passed in sd_event
