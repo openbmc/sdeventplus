@@ -1,0 +1,9 @@
+Ok-To-Test+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Verified+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Code-Review+1: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Wed, 12 Sep 2018 18:30:59 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/12750
+Project: openbmc/sdeventplus
+Branch: refs/heads/master
