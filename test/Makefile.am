@@ -22,42 +22,42 @@ exception_SOURCES = exception.cpp
 exception_CPPFLAGS = $(gtest_cppflags)
 exception_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += internal_sdref
+check_PROGRAMS += internal/sdref
 internal_sdref_SOURCES = internal/sdref.cpp
 internal_sdref_CPPFLAGS = $(gtest_cppflags)
 internal_sdref_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += internal_utils
+check_PROGRAMS += internal/utils
 internal_utils_SOURCES = internal/utils.cpp
 internal_utils_CPPFLAGS = $(gtest_cppflags)
 internal_utils_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_base
+check_PROGRAMS += source/base
 source_base_SOURCES = source/base.cpp
 source_base_CPPFLAGS = $(gtest_cppflags)
 source_base_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_child
+check_PROGRAMS += source/child
 source_child_SOURCES = source/child.cpp
 source_child_CPPFLAGS = $(gtest_cppflags)
 source_child_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_event
+check_PROGRAMS += source/event
 source_event_SOURCES = source/event.cpp
 source_event_CPPFLAGS = $(gtest_cppflags)
 source_event_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_io
+check_PROGRAMS += source/io
 source_io_SOURCES = source/io.cpp
 source_io_CPPFLAGS = $(gtest_cppflags)
 source_io_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_signal
+check_PROGRAMS += source/signal
 source_signal_SOURCES = source/signal.cpp
 source_signal_CPPFLAGS = $(gtest_cppflags)
 source_signal_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += source_time
+check_PROGRAMS += source/time
 source_time_SOURCES = source/time.cpp
 source_time_CPPFLAGS = $(gtest_cppflags)
 source_time_LDADD = $(gtest_ldadd)
