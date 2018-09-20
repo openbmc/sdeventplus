@@ -2,6 +2,10 @@ noinst_PROGRAMS =
 
 if BUILD_EXAMPLES
 
+noinst_PROGRAMS += delayed_echo
+delayed_echo_SOURCES = delayed_echo.cpp
+delayed_echo_LDADD = $(SDEVENTPLUS_LIBS)
+
 noinst_PROGRAMS += follow
 follow_SOURCES = follow.cpp
 follow_LDADD = $(SDEVENTPLUS_LIBS)
