@@ -41,6 +41,7 @@ Makefile.in
 /src/sdeventplus.pc
 
 # Output binaries
+/example/delayed_echo
 /example/follow
 /example/heartbeat
 /example/heartbeat_timer

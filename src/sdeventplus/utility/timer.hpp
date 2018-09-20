@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <functional>
+#include <optional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/time.hpp>
@@ -14,12 +15,13 @@ namespace utility
 /** @class Timer<Id>
  *  @brief A simple, repeating timer around an sd_event time source
  *  @details Adds a timer to the SdEvent loop that runs a user defined callback
- *           at specified intervals. Besides running callbacks, the timer tracks
- *           whether or not it has expired since creation or since the last
- *           clearExpired() or restart(). The concept of expiration is
+ *           at specified intervals. If no interval is provided to the timer,
+ *           it can be used for oneshot actions. Besides running callbacks, the
+ *           timer tracks whether or not it has expired since creation or since
+ *           the last clearExpired() or restart(). The concept of expiration is
  *           orthogonal to the callback mechanism and can be ignored.
  *
- *           See example/heartbeat_timer.cpp for usage examples.
+ *           See example/{heartbeat_timer,delayed_echo}.cpp for usage examples.
  */
 template <ClockId Id>
 class Timer
@@ -42,17 +44,20 @@ class Timer
     virtual ~Timer() = default;
 
     /** @brief Creates a new timer on the given event loop.
-     *         This timer is created enabled by default.
+     *         This timer is created enabled by default if passed an interval.
      *
      *  @param[in] event    - The event we are attaching to
      *  @param[in] callback - The user provided callback run when elapsing
      *                        This can be empty
-     *  @param[in] interval - The amount of time in between timer expirations
+     *  @param[in] interval - Optional amount of time in-between timer
+     *                        expirations. std::nullopt means the interval
+     *                        will be provided later.
      *  @param[in] accuracy - Optional amount of error tolerable in timer
      *                        expiration. Defaults to 1ms.
      *  @throws SdEventError for underlying sd_event errors
      */
-    Timer(const Event& event, Callback&& callback, Duration interval,
+    Timer(const Event& event, Callback&& callback,
+          std::optional<Duration> interval = std::nullopt,
           typename source::Time<Id>::Accuracy accuracy =
               std::chrono::milliseconds{1});
 
@@ -71,10 +76,12 @@ class Timer
     bool isEnabled() const;
 
     /** @brief Gets interval between timer expirations
+     *         The timer may not have a configured interval and is instead
+     *         operating as a one-shot timer.
      *
      *  @return The interval as an std::chrono::duration
      */
-    Duration getInterval() const;
+    std::optional<Duration> getInterval() const;
 
     /** @brief Gets time left before the timer expirations
      *
@@ -88,6 +95,7 @@ class Timer
      *         This does not alter the expiration time of the timer.
      *
      *  @param[in] enabled - Should the timer be enabled or disabled
+     *  @throws std::runtime_error If the timer has not been initialized
      *  @throws SdEventError for underlying sd_event errors
      */
     void setEnabled(bool enabled);
@@ -111,7 +119,7 @@ class Timer
      *
      *  @param[in] interval - The new interval for the timer
      */
-    void setInterval(Duration interval);
+    void setInterval(std::optional<Duration> interval);
 
     /** @brief Resets the expired status of the timer. */
     void clearExpired();
@@ -119,22 +127,34 @@ class Timer
     /** @brief Restarts the timer as though it has been completely
      *         re-initialized. Expired status is reset, interval is updated,
      *         time remaining is set to the new interval, and the timer is
-     *         enabled.
+     *         enabled if the interval is populated.
      *
      *  @param[in] interval - The new interval for the timer
      *  @throws SdEventError for underlying sd_event errors
      */
-    void restart(Duration interval);
+    void restart(std::optional<Duration> interval);
+
+    /** @brief Restarts the timer as though it has been completely
+     *         re-initialized. Expired status is reset, interval is removed,
+     *         time remaining is set to the new remaining, and the timer is
+     *         enabled as a one shot.
+     *
+     *  @param[in] interval - The new interval for the timer
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    void restartOnce(Duration remaining);
 
   private:
     /** @brief Tracks the expiration status of the timer */
     bool expired;
+    /** @brief Tracks whether or not the expiration timeout is valid */
+    bool initialized;
     /** @brief User defined callback run on each expiration */
     Callback callback;
     /** @brief Clock used for updating the time source */
     Clock<Id> clock;
     /** @brief Interval between each timer expiration */
-    Duration interval;
+    std::optional<Duration> interval;
     /** @brief Underlying sd_event time source that backs the timer */
     source::Time<Id> timeSource;
 

@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
+#include <optional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/test/sdevent.hpp>
@@ -50,6 +51,7 @@ class TimerTest : public testing::Test
     const milliseconds starting_time{10};
     sd_event_time_handler_t handler = nullptr;
     void* handler_userdata;
+    std::unique_ptr<Event> event;
     std::unique_ptr<TestTimer> timer;
     std::function<void()> callback;
 
@@ -83,14 +85,41 @@ class TimerTest : public testing::Test
                 DoAll(SetArgPointee<1>(static_cast<int>(enabled)), Return(0)));
     }
 
+    void resetTimer()
+    {
+        if (timer)
+        {
+            expectSetEnabled(source::Enabled::Off);
+            timer.reset();
+        }
+    }
+
+    void expireTimer()
+    {
+        const milliseconds new_time(90);
+        expectNow(new_time);
+        expectSetTime(new_time + interval);
+        EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+        EXPECT_TRUE(timer->hasExpired());
+        EXPECT_EQ(interval, timer->getInterval());
+    }
+
     void SetUp()
     {
         EXPECT_CALL(mock, sd_event_ref(expected_event))
             .WillRepeatedly(DoAll(EventRef(), Return(expected_event)));
         EXPECT_CALL(mock, sd_event_unref(expected_event))
             .WillRepeatedly(DoAll(EventUnref(), Return(nullptr)));
-        Event event(expected_event, &mock);
+        event = std::make_unique<Event>(expected_event, &mock);
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillRepeatedly(Return(nullptr));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillRepeatedly(
+                DoAll(SaveArg<1>(&handler_userdata), Return(nullptr)));
 
+        // Having a callback proxy allows us to update the test callback
+        // dynamically, without changing it inside the timer
         auto runCallback = [&](TestTimer&) {
             if (callback)
             {
@@ -105,23 +134,53 @@ class TimerTest : public testing::Test
                               1000, testing::_, nullptr))
             .WillOnce(DoAll(SetArgPointee<1>(expected_source),
                             SaveArg<5>(&handler), Return(0)));
-        EXPECT_CALL(mock,
-                    sd_event_source_set_userdata(expected_source, testing::_))
-            .WillOnce(DoAll(SaveArg<1>(&handler_userdata), Return(nullptr)));
-        // Timer always enables the source to keep ticking
         expectSetEnabled(source::Enabled::On);
-        timer = std::make_unique<TestTimer>(event, runCallback, interval);
+        timer = std::make_unique<TestTimer>(*event, runCallback, interval);
     }
 
     void TearDown()
     {
-        expectSetEnabled(source::Enabled::Off);
-        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
-            .WillOnce(Return(nullptr));
-        timer.reset();
+        resetTimer();
+        event.reset();
         EXPECT_EQ(0, event_ref_times);
     }
 };
+
+TEST_F(TimerTest, NoCallback)
+{
+    resetTimer();
+    expectNow(starting_time);
+    EXPECT_CALL(
+        mock, sd_event_add_time(expected_event, testing::_,
+                                static_cast<clockid_t>(testClock),
+                                microseconds(starting_time + interval).count(),
+                                1000, testing::_, nullptr))
+        .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<5>(&handler),
+                        Return(0)));
+    expectSetEnabled(source::Enabled::On);
+    timer = std::make_unique<TestTimer>(*event, nullptr, interval);
+
+    expectNow(starting_time);
+    expectSetTime(starting_time + interval);
+    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+}
+
+TEST_F(TimerTest, NoInterval)
+{
+    resetTimer();
+    expectNow(starting_time);
+    EXPECT_CALL(mock, sd_event_add_time(expected_event, testing::_,
+                                        static_cast<clockid_t>(testClock),
+                                        microseconds(starting_time).count(),
+                                        1000, testing::_, nullptr))
+        .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<5>(&handler),
+                        Return(0)));
+    expectSetEnabled(source::Enabled::Off);
+    timer = std::make_unique<TestTimer>(*event, nullptr);
+
+    EXPECT_EQ(std::nullopt, timer->getInterval());
+    EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
+}
 
 TEST_F(TimerTest, NewTimer)
 {
@@ -184,6 +243,32 @@ TEST_F(TimerTest, SetEnabled)
     EXPECT_FALSE(timer->hasExpired());
 }
 
+TEST_F(TimerTest, SetEnabledUnsetTimer)
+{
+    // Force the timer to become unset
+    expectSetEnabled(source::Enabled::Off);
+    timer->restart(std::nullopt);
+
+    // Setting an interval should not update the timer directly
+    timer->setInterval(milliseconds(90));
+
+    expectSetEnabled(source::Enabled::Off);
+    timer->setEnabled(false);
+    EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
+}
+
+TEST_F(TimerTest, SetEnabledOneshot)
+{
+    // Timer effectively becomes oneshot if it gets initialized but has
+    // the interval removed
+    timer->setInterval(std::nullopt);
+
+    expectSetEnabled(source::Enabled::Off);
+    timer->setEnabled(false);
+    expectSetEnabled(source::Enabled::On);
+    timer->setEnabled(true);
+}
+
 TEST_F(TimerTest, SetRemaining)
 {
     const milliseconds now(90), remaining(30);
@@ -210,6 +295,48 @@ TEST_F(TimerTest, SetInterval)
     timer->setInterval(new_interval);
     EXPECT_EQ(new_interval, timer->getInterval());
     EXPECT_FALSE(timer->hasExpired());
+}
+
+TEST_F(TimerTest, SetIntervalEmpty)
+{
+    timer->setInterval(std::nullopt);
+    EXPECT_EQ(std::nullopt, timer->getInterval());
+    EXPECT_FALSE(timer->hasExpired());
+}
+
+TEST_F(TimerTest, CallbackHappensLast)
+{
+    const milliseconds new_time(90);
+    expectNow(new_time);
+    expectSetTime(new_time + interval);
+    callback = [&]() {
+        EXPECT_TRUE(timer->hasExpired());
+        expectSetEnabled(source::Enabled::On);
+        timer->setEnabled(true);
+        timer->clearExpired();
+        timer->setInterval(std::nullopt);
+    };
+    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+    EXPECT_FALSE(timer->hasExpired());
+    EXPECT_EQ(std::nullopt, timer->getInterval());
+    expectSetEnabled(source::Enabled::On);
+    timer->setEnabled(true);
+}
+
+TEST_F(TimerTest, CallbackOneshot)
+{
+    // Make sure we try a one shot so we can test the callback
+    // correctly
+    timer->setInterval(std::nullopt);
+
+    expectSetEnabled(source::Enabled::Off);
+    callback = [&]() {
+        EXPECT_TRUE(timer->hasExpired());
+        EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
+        timer->setInterval(interval);
+    };
+    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+    EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
 }
 
 TEST_F(TimerTest, SetValuesExpiredTimer)
@@ -242,12 +369,7 @@ TEST_F(TimerTest, SetValuesExpiredTimer)
 
 TEST_F(TimerTest, Restart)
 {
-    const milliseconds new_time(90);
-    expectNow(new_time);
-    expectSetTime(new_time + interval);
-    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
-    EXPECT_TRUE(timer->hasExpired());
-    EXPECT_EQ(interval, timer->getInterval());
+    expireTimer();
 
     const milliseconds new_interval(471);
     expectNow(starting_time);
@@ -256,6 +378,34 @@ TEST_F(TimerTest, Restart)
     timer->restart(new_interval);
     EXPECT_FALSE(timer->hasExpired());
     EXPECT_EQ(new_interval, timer->getInterval());
+    expectSetEnabled(source::Enabled::On);
+    timer->setEnabled(true);
+}
+
+TEST_F(TimerTest, RestartEmpty)
+{
+    expireTimer();
+
+    expectSetEnabled(source::Enabled::Off);
+    timer->restart(std::nullopt);
+    EXPECT_FALSE(timer->hasExpired());
+    EXPECT_EQ(std::nullopt, timer->getInterval());
+    EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
+}
+
+TEST_F(TimerTest, RestartOnce)
+{
+    expireTimer();
+
+    const milliseconds remaining(471);
+    expectNow(starting_time);
+    expectSetTime(starting_time + remaining);
+    expectSetEnabled(source::Enabled::On);
+    timer->restartOnce(remaining);
+    EXPECT_FALSE(timer->hasExpired());
+    EXPECT_EQ(std::nullopt, timer->getInterval());
+    expectSetEnabled(source::Enabled::On);
+    timer->setEnabled(true);
 }
 
 } // namespace
