@@ -9,15 +9,18 @@ namespace utility
 {
 
 template <ClockId Id>
-Timer<Id>::Timer(const Event& event, Callback&& callback, Duration interval,
+Timer<Id>::Timer(const Event& event, Callback&& callback,
+                 std::optional<Duration> interval,
                  typename source::Time<Id>::Accuracy accuracy) :
     expired(false),
-    callback(callback), clock(event), interval(interval),
-    timeSource(event, clock.now() + interval, accuracy,
+    setOnce(interval.has_value()), callback(callback), clock(event),
+    interval(interval),
+    timeSource(event, clock.now() + interval.value_or(Duration::zero()),
+               accuracy,
                std::bind(&Timer::internalCallback, this, std::placeholders::_1,
                          std::placeholders::_2))
 {
-    timeSource.set_enabled(source::Enabled::On);
+    setEnabled(interval.has_value());
 }
 
 template <ClockId Id>
@@ -33,7 +36,7 @@ bool Timer<Id>::isEnabled() const
 }
 
 template <ClockId Id>
-typename Timer<Id>::Duration Timer<Id>::getInterval() const
+std::optional<typename Timer<Id>::Duration> Timer<Id>::getInterval() const
 {
     return interval;
 }
@@ -58,6 +61,10 @@ typename Timer<Id>::Duration Timer<Id>::getRemaining() const
 template <ClockId Id>
 void Timer<Id>::setEnabled(bool enabled)
 {
+    if (enabled && !setOnce)
+    {
+        throw std::runtime_error("Timer was never initialized");
+    }
     timeSource.set_enabled(enabled ? source::Enabled::On
                                    : source::Enabled::Off);
 }
@@ -66,16 +73,17 @@ template <ClockId Id>
 void Timer<Id>::setRemaining(Duration remaining)
 {
     timeSource.set_time(clock.now() + remaining);
+    setOnce = true;
 }
 
 template <ClockId Id>
 void Timer<Id>::resetRemaining()
 {
-    setRemaining(interval);
+    setRemaining(interval.value());
 }
 
 template <ClockId Id>
-void Timer<Id>::setInterval(Duration interval)
+void Timer<Id>::setInterval(std::optional<Duration> interval)
 {
     this->interval = interval;
 }
@@ -87,11 +95,25 @@ void Timer<Id>::clearExpired()
 }
 
 template <ClockId Id>
-void Timer<Id>::restart(Duration interval)
+void Timer<Id>::restart(std::optional<Duration> interval)
 {
     clearExpired();
+    setOnce = false;
     setInterval(interval);
-    resetRemaining();
+    if (interval)
+    {
+        resetRemaining();
+    }
+    setEnabled(interval.has_value());
+}
+
+template <ClockId Id>
+void Timer<Id>::restartOnce(Duration remaining)
+{
+    clearExpired();
+    setOnce = false;
+    setInterval(std::nullopt);
+    setRemaining(remaining);
     setEnabled(true);
 }
 
@@ -100,11 +122,20 @@ void Timer<Id>::internalCallback(source::Time<Id>&,
                                  typename source::Time<Id>::TimePoint)
 {
     expired = true;
+    setOnce = false;
+    if (interval)
+    {
+        resetRemaining();
+    }
+    else
+    {
+        setEnabled(false);
+    }
+
     if (callback)
     {
         callback();
     }
-    resetRemaining();
 }
 
 template class Timer<ClockId::RealTime>;
