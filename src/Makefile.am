@@ -40,3 +40,6 @@ nobase_include_HEADERS += sdeventplus/source/time.hpp
 libsdeventplus_la_SOURCES += sdeventplus/source/time.cpp
 
 nobase_include_HEADERS += sdeventplus/test/sdevent.hpp
+
+nobase_include_HEADERS += sdeventplus/utility/timer.hpp
+libsdeventplus_la_SOURCES += sdeventplus/utility/timer.cpp
