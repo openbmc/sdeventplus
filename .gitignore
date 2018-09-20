@@ -54,3 +54,4 @@ Makefile.in
 /test/source/io
 /test/source/signal
 /test/source/time
+/test/utility/timer
