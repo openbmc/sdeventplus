@@ -61,3 +61,8 @@ check_PROGRAMS += source/time
 source_time_SOURCES = source/time.cpp
 source_time_CPPFLAGS = $(gtest_cppflags)
 source_time_LDADD = $(gtest_ldadd)
+
+check_PROGRAMS += utility/timer
+utility_timer_SOURCES = utility/timer.cpp
+utility_timer_CPPFLAGS = $(gtest_cppflags)
+utility_timer_LDADD = $(gtest_ldadd)
