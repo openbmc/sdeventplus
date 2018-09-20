@@ -18,9 +18,10 @@ class IO : public Base
     /** @brief Adds a new IO source handler to the Event
      *         Executes the callback upon events occurring
      *
-     *  @param[in] name   - The name identifying the create function
-     *  @param[in] create - The SdEvent function called to create the source
-     *  @param[in] event  - The event to attach the handler
+     *  @param[in] event    - The event to attach the handler
+     *  @param[in] fd       - The file descriptor producing the events
+     *  @param[in] events   - The event mask passed which determines triggers
+     *                        See epoll_ctl(2) for more info on the mask
      *  @param[in] callback - The function executed on event dispatch
      *  @throws SdEventError for underlying sd_event errors
      */
