@@ -102,7 +102,7 @@ void Timer<Id>::internalCallback(source::Time<Id>&,
     expired = true;
     if (callback)
     {
-        callback();
+        callback(*this);
     }
     resetRemaining();
 }

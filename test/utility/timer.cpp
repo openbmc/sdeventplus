@@ -91,7 +91,7 @@ class TimerTest : public testing::Test
             .WillRepeatedly(DoAll(EventUnref(), Return(nullptr)));
         Event event(expected_event, &mock);
 
-        auto runCallback = [&]() {
+        auto runCallback = [&](TestTimer&) {
             if (callback)
             {
                 callback();

@@ -31,7 +31,7 @@ class Timer
     /** @brief Type of the user provided callback function when the
      *         timer elapses.
      */
-    using Callback = std::function<void()>;
+    using Callback = std::function<void(Timer<Id>&)>;
 
     Timer(const Timer& other) = delete;
     Timer(Timer&& other) = default;
