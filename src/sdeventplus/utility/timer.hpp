@@ -18,6 +18,8 @@ namespace utility
  *           whether or not it has expired since creation or since the last
  *           clearExpired() or restart(). The concept of expiration is
  *           orthogonal to the callback mechanism and can be ignored.
+ *
+ *           See example/heartbeat_timer.cpp for usage examples.
  */
 template <ClockId Id>
 class Timer

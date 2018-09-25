@@ -43,6 +43,7 @@ Makefile.in
 # Output binaries
 /example/follow
 /example/heartbeat
+/example/heartbeat_timer
 /test/clock
 /test/event
 /test/exception

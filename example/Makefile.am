@@ -10,4 +10,8 @@ noinst_PROGRAMS += heartbeat
 heartbeat_SOURCES = heartbeat.cpp
 heartbeat_LDADD = $(SDEVENTPLUS_LIBS)
 
+noinst_PROGRAMS += heartbeat_timer
+heartbeat_timer_SOURCES = heartbeat_timer.cpp
+heartbeat_timer_LDADD = $(SDEVENTPLUS_LIBS)
+
 endif
