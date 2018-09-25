@@ -12,6 +12,10 @@ namespace sdeventplus
 namespace source
 {
 
+/** @class Time<ClockId>
+ *  @brief A wrapper around the sd_event_source time type
+ *         See sd_event_add_time(3) for more information
+ */
 template <ClockId Id>
 class Time : public Base
 {
@@ -24,11 +28,14 @@ class Time : public Base
     using Callback = std::function<void(Time& source, TimePoint time)>;
 
     /** @brief Creates a new time event source on the provided event loop
+     *         This type of source defaults to Enabled::Oneshot, and needs to be
+     *         reconfigured upon each callback.
      *
      *  @param[in] event    - The event to attach the handler
      *  @param[in] time     - Absolute time when the callback should be executed
      *  @param[in] accuracy - Optional amount of error tolerable in time source
      *  @param[in] callback - The function executed on event dispatch
+     *  @throws SdEventError for underlying sd_event errors
      */
     Time(const Event& event, TimePoint time, Accuracy accuracy,
          Callback&& callback);

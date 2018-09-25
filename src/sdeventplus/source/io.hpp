@@ -10,13 +10,18 @@ namespace sdeventplus
 namespace source
 {
 
+/** @class IO
+ *  @brief A wrapper around the sd_event_source IO type
+ *         See sd_event_add_io(3) for more information
+ */
 class IO : public Base
 {
   public:
     using Callback = std::function<void(IO&, int fd, uint32_t revents)>;
 
     /** @brief Adds a new IO source handler to the Event
-     *         Executes the callback upon events occurring
+     *         This type of source defaults to Enabled::On, executing the
+     *         callback for each IO epoll event observed.
      *
      *  @param[in] event    - The event to attach the handler
      *  @param[in] fd       - The file descriptor producing the events

@@ -10,6 +10,12 @@ namespace sdeventplus
 namespace source
 {
 
+/** @class EventBase
+ *  @brief A wrapper around the sd_event_source defer type
+ *         See sd_event_add_defer(3) for more information
+ *         There are multiple types of defer sources, instantiate
+ *         Defer, Post, or Exit depending on the required event.
+ */
 class EventBase : public Base
 {
   public:
@@ -19,7 +25,8 @@ class EventBase : public Base
     using CreateFunc = decltype(&internal::SdEvent::sd_event_add_exit);
 
     /** @brief Adds a new event source handler to the Event
-     *         Executes the callback upon events occurring
+     *         This type of source defaults to Enabled::Oneshot, and needs to be
+     *         reconfigured upon each callback.
      *
      *  @param[in] name   - The name identifying the create function
      *  @param[in] create - The SdEvent function called to create the source

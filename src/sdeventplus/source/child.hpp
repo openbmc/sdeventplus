@@ -11,6 +11,7 @@ namespace source
 
 /** @class Child
  *  @brief A wrapper around the sd_event_source child type
+ *         See sd_event_add_child(3) for more information
  */
 class Child : public Base
 {
@@ -18,7 +19,8 @@ class Child : public Base
     using Callback = std::function<void(Child& source, const siginfo_t* si)>;
 
     /** @brief Adds a new child source handler to the Event
-     *         Executes the callback upon the child events occurring
+     *         This type of source defaults to Enabled::Oneshot, and needs to be
+     *         reconfigured upon each callback.
      *
      *  @param[in] event    - The event to attach the handler
      *  @param[in] pid      - The pid of the child to monitor
