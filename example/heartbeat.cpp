@@ -6,10 +6,12 @@
 #include <string>
 #include <utility>
 
-using sdeventplus::Clock;
-using sdeventplus::ClockId;
 using sdeventplus::Event;
-using sdeventplus::source::Time;
+using sdeventplus::source::Enabled;
+
+constexpr auto clockId = sdeventplus::ClockId::RealTime;
+using Clock = sdeventplus::Clock<clockId>;
+using Time = sdeventplus::source::Time<clockId>;
 
 int main(int argc, char* argv[])
 {
@@ -23,13 +25,12 @@ int main(int argc, char* argv[])
     fprintf(stderr, "Beating every %u seconds\n", interval);
 
     auto event = Event::get_default();
-    auto hbFunc = [interval](Time<ClockId::RealTime>& source,
-                             Time<ClockId::RealTime>::TimePoint time) {
+    auto hbFunc = [interval](Time& source, Time::TimePoint time) {
         printf("Beat\n");
         source.set_time(time + std::chrono::seconds{interval});
     };
-    Time<ClockId::RealTime> time(event, Clock<ClockId::RealTime>(event).now(),
-                                 std::chrono::seconds{1}, std::move(hbFunc));
-    time.set_enabled(sdeventplus::source::Enabled::On);
+    Time time(event, Clock(event).now(), std::chrono::seconds{1},
+              std::move(hbFunc));
+    time.set_enabled(Enabled::On);
     return event.loop();
 }
