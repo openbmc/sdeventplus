@@ -23,7 +23,8 @@ class Signal : public Base
 
     /** @brief Creates a new signal event source on the provided event loop
      *         This type of source defaults to Enabled::On, executing the
-     *         callback for each signal observed.
+     *         callback for each signal observed. You are required to block
+     *         the signal in all threads prior to creating this source.
      *
      *  @param[in] event    - The event to attach the handler
      *  @param[in] sig      - Signum to watch, see signal(7)
