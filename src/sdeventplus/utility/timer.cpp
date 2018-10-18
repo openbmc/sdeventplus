@@ -24,6 +24,12 @@ Timer<Id>::Timer(const Event& event, Callback&& callback,
 }
 
 template <ClockId Id>
+const Event& Timer<Id>::get_event() const
+{
+    return timeSource.get_event();
+}
+
+template <ClockId Id>
 bool Timer<Id>::hasExpired() const
 {
     return expired;

@@ -136,6 +136,7 @@ class TimerTest : public testing::Test
                             SaveArg<5>(&handler), Return(0)));
         expectSetEnabled(source::Enabled::On);
         timer = std::make_unique<TestTimer>(*event, runCallback, interval);
+        EXPECT_EQ(expected_event, timer->get_event().get());
     }
 
     void TearDown()

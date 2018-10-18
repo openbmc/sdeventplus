@@ -61,6 +61,12 @@ class Timer
           typename source::Time<Id>::Accuracy accuracy =
               std::chrono::milliseconds{1});
 
+    /** @brief Gets the associated Event object
+     *
+     *  @return The Event
+     */
+    const Event& get_event() const;
+
     /** @brief Has the timer expired since creation or reset of expiration
      *         state.
      *
