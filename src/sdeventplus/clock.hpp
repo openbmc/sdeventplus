@@ -52,7 +52,7 @@ class Clock
     time_point now() const;
 
   private:
-    const Event event;
+    Event event;
 };
 
 } // namespace sdeventplus
