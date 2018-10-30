@@ -38,9 +38,9 @@ class Timer
     using Callback = std::function<void(Timer<Id>&)>;
 
     Timer(const Timer& other) = delete;
-    Timer(Timer&& other) = default;
+    Timer(Timer&& other);
     Timer& operator=(const Timer& other) = delete;
-    Timer& operator=(Timer&& other) = default;
+    Timer& operator=(Timer&& other);
     virtual ~Timer() = default;
 
     /** @brief Creates a new timer on the given event loop.

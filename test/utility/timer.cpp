@@ -47,8 +47,11 @@ class TimerTest : public testing::Test
     sd_event* const expected_event = reinterpret_cast<sd_event*>(1234);
     sd_event_source* const expected_source =
         reinterpret_cast<sd_event_source*>(2345);
+    sd_event_source* const expected_source2 =
+        reinterpret_cast<sd_event_source*>(3456);
     const milliseconds interval{134};
     const milliseconds starting_time{10};
+    const milliseconds starting_time2{30};
     sd_event_time_handler_t handler = nullptr;
     void* handler_userdata;
     std::unique_ptr<Event> event;
@@ -338,6 +341,44 @@ TEST_F(TimerTest, CallbackOneshot)
     };
     EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
     EXPECT_THROW(timer->setEnabled(true), std::runtime_error);
+}
+
+TEST_F(TimerTest, CallbackMove)
+{
+    size_t called = 0;
+    callback = [&]() { ++called; };
+
+    expectNow(starting_time2);
+    EXPECT_CALL(mock,
+                sd_event_source_set_userdata(expected_source2, testing::_))
+        .WillOnce(Return(nullptr));
+    EXPECT_CALL(mock, sd_event_add_time(expected_event, testing::_,
+                                        static_cast<clockid_t>(testClock),
+                                        microseconds(starting_time2).count(),
+                                        1000, testing::_, nullptr))
+        .WillOnce(DoAll(SetArgPointee<1>(expected_source2), Return(0)));
+    EXPECT_CALL(mock, sd_event_source_unref(expected_source2))
+        .WillOnce(Return(nullptr));
+    EXPECT_CALL(mock,
+                sd_event_source_set_enabled(
+                    expected_source2, static_cast<int>(source::Enabled::Off)))
+        .WillOnce(Return(0))
+        .WillOnce(Return(0));
+    TestTimer local_timer(*event, nullptr);
+
+    // Move assign
+    local_timer = std::move(*timer);
+    timer.reset();
+
+    // Move construct
+    timer = std::make_unique<TestTimer>(std::move(local_timer));
+
+    // handler_userdata should have been updated and the callback should work
+    const milliseconds new_time(90);
+    expectNow(new_time);
+    expectSetTime(new_time + interval);
+    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+    EXPECT_EQ(1, called);
 }
 
 TEST_F(TimerTest, SetValuesExpiredTimer)

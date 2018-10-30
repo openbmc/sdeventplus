@@ -2,11 +2,42 @@
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/utility/timer.hpp>
 #include <stdexcept>
+#include <utility>
 
 namespace sdeventplus
 {
 namespace utility
 {
+
+template <ClockId Id>
+Timer<Id>::Timer(Timer&& other) :
+    expired(std::move(other.expired)),
+    initialized(std::move(other.initialized)),
+    callback(std::move(other.callback)), clock(std::move(other.clock)),
+    interval(std::move(other.interval)), timeSource(std::move(other.timeSource))
+{
+    timeSource.set_callback(std::bind(&Timer::internalCallback, this,
+                                      std::placeholders::_1,
+                                      std::placeholders::_2));
+}
+
+template <ClockId Id>
+Timer<Id>& Timer<Id>::operator=(Timer&& other)
+{
+    if (this != &other)
+    {
+        expired = std::move(other.expired);
+        initialized = std::move(other.initialized);
+        callback = std::move(other.callback);
+        clock = std::move(other.clock);
+        interval = std::move(other.interval);
+        timeSource = std::move(other.timeSource);
+        timeSource.set_callback(std::bind(&Timer::internalCallback, this,
+                                          std::placeholders::_1,
+                                          std::placeholders::_2));
+    }
+    return *this;
+}
 
 template <ClockId Id>
 Timer<Id>::Timer(const Event& event, Callback&& callback,
