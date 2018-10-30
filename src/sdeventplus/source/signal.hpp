@@ -33,6 +33,12 @@ class Signal : public Base
      */
     Signal(const Event& event, int sig, Callback&& callback);
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on event dispatch
+     */
+    void set_callback(Callback&& callback);
+
     /** @brief Gets the signum watched by the source
      *
      *  @throws SdEventError for underlying sd_event errors

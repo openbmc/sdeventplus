@@ -40,6 +40,12 @@ class Time : public Base
     Time(const Event& event, TimePoint time, Accuracy accuracy,
          Callback&& callback);
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on event dispatch
+     */
+    void set_callback(Callback&& callback);
+
     /** @brief Gets the absolute time when the time source expires
      *
      *  @throws SdEventError for underlying sd_event errors

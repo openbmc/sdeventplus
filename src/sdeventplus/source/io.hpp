@@ -32,6 +32,12 @@ class IO : public Base
      */
     IO(const Event& event, int fd, uint32_t events, Callback&& callback);
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on event dispatch
+     */
+    void set_callback(Callback&& callback);
+
     /** @brief Gets the file descriptor tied to the source
      *
      *  @throws SdEventError for underlying sd_event errors

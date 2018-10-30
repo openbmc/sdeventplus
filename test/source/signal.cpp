@@ -92,6 +92,10 @@ TEST_F(SignalTest, ConstructSuccess)
     EXPECT_EQ(1, completions);
     EXPECT_EQ(expected_si, return_si);
 
+    signal.set_callback(std::bind([]() {}));
+    EXPECT_EQ(0, handler(nullptr, expected_si, &signal));
+    EXPECT_EQ(1, completions);
+
     expect_destruct();
 }
 

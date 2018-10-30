@@ -90,6 +90,11 @@ TEST_F(TimeTest, ConstructSuccess)
     EXPECT_EQ(Time<id>::TimePoint(std::chrono::microseconds(2000100)),
               saved_time);
 
+    time.set_callback(std::bind([]() {}));
+    EXPECT_EQ(0, handler(nullptr, 0, userdata));
+    EXPECT_EQ(Time<id>::TimePoint(std::chrono::microseconds(2000100)),
+              saved_time);
+
     expect_time_destroy(expected_event, expected_source);
 }
 

@@ -7,6 +7,11 @@ namespace sdeventplus
 namespace source
 {
 
+void EventBase::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
 EventBase::EventBase(const char* name, CreateFunc create, const Event& event,
                      Callback&& callback) :
     Base(event, create_source(name, create, event), std::false_type()),

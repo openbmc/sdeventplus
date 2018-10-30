@@ -14,6 +14,11 @@ Signal::Signal(const Event& event, int sig, Callback&& callback) :
 {
 }
 
+void Signal::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
 int Signal::get_signal() const
 {
     int r = event.getSdEvent()->sd_event_source_get_signal(source.get());

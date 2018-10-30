@@ -21,6 +21,12 @@ class EventBase : public Base
   public:
     using Callback = std::function<void(EventBase& source)>;
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on event dispatch
+     */
+    void set_callback(Callback&& callback);
+
   protected:
     using CreateFunc = decltype(&internal::SdEvent::sd_event_add_exit);
 

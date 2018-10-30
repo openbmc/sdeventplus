@@ -92,6 +92,10 @@ TEST_F(IOTest, ConstructSuccess)
     EXPECT_EQ(5, return_fd);
     EXPECT_EQ(EPOLLIN, return_revents);
 
+    io.set_callback(std::bind([]() {}));
+    EXPECT_EQ(0, handler(nullptr, 5, EPOLLIN, &io));
+    EXPECT_EQ(1, completions);
+
     expect_destruct();
 }
 

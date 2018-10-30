@@ -13,6 +13,11 @@ IO::IO(const Event& event, int fd, uint32_t events, Callback&& callback) :
 {
 }
 
+void IO::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
 int IO::get_fd() const
 {
     int r = event.getSdEvent()->sd_event_source_get_io_fd(source.get());

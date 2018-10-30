@@ -20,6 +20,12 @@ Time<Id>::Time(const Event& event, TimePoint time, Accuracy accuracy,
 }
 
 template <ClockId Id>
+void Time<Id>::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
+template <ClockId Id>
 typename Time<Id>::TimePoint Time<Id>::get_time() const
 {
     uint64_t usec;

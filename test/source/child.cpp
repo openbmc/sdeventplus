@@ -91,6 +91,10 @@ TEST_F(ChildTest, ConstructSuccess)
     EXPECT_EQ(1, completions);
     EXPECT_EQ(expected_si, return_si);
 
+    child.set_callback(std::bind([]() {}));
+    EXPECT_EQ(0, handler(nullptr, expected_si, &child));
+    EXPECT_EQ(1, completions);
+
     expect_destruct();
 }
 

@@ -31,6 +31,12 @@ class Child : public Base
      */
     Child(const Event& event, pid_t pid, int options, Callback&& callback);
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on event dispatch
+     */
+    void set_callback(Callback&& callback);
+
     /** @brief Gets the pid of the child process being watched
      *
      *  @return The child pid

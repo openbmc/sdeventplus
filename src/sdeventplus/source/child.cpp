@@ -14,6 +14,11 @@ Child::Child(const Event& event, pid_t pid, int options, Callback&& callback) :
 {
 }
 
+void Child::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
 pid_t Child::get_pid() const
 {
     pid_t pid;

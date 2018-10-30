@@ -83,6 +83,10 @@ TEST_F(EventTest, DeferConstruct)
     EXPECT_EQ(0, handler(nullptr, &defer));
     EXPECT_EQ(1, completions);
 
+    defer.set_callback(std::bind([]() {}));
+    EXPECT_EQ(0, handler(nullptr, &defer));
+    EXPECT_EQ(1, completions);
+
     expect_destruct();
 }
 
