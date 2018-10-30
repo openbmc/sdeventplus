@@ -55,6 +55,12 @@ Timer<Id>::Timer(const Event& event, Callback&& callback,
 }
 
 template <ClockId Id>
+void Timer<Id>::set_callback(Callback&& callback)
+{
+    this->callback = std::move(callback);
+}
+
+template <ClockId Id>
 const Event& Timer<Id>::get_event() const
 {
     return timeSource.get_event();

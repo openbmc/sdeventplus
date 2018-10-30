@@ -61,6 +61,12 @@ class Timer
           typename source::Time<Id>::Accuracy accuracy =
               std::chrono::milliseconds{1});
 
+    /** @brief Sets the callback
+     *
+     *  @param[in] callback - The function executed on timer elapse
+     */
+    void set_callback(Callback&& callback);
+
     /** @brief Gets the associated Event object
      *
      *  @return The Event

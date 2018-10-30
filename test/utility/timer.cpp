@@ -379,6 +379,13 @@ TEST_F(TimerTest, CallbackMove)
     expectSetTime(new_time + interval);
     EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
     EXPECT_EQ(1, called);
+
+    // update the callback and make sure it still works
+    timer->set_callback(std::bind([]() {}));
+    expectNow(new_time);
+    expectSetTime(new_time + interval);
+    EXPECT_EQ(0, handler(nullptr, 0, handler_userdata));
+    EXPECT_EQ(1, called);
 }
 
 TEST_F(TimerTest, SetValuesExpiredTimer)
