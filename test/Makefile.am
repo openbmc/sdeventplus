@@ -21,11 +21,6 @@ exception_SOURCES = exception.cpp
 exception_CPPFLAGS = $(gtest_cppflags)
 exception_LDADD = $(gtest_ldadd)
 
-check_PROGRAMS += internal/sdref
-internal_sdref_SOURCES = internal/sdref.cpp
-internal_sdref_CPPFLAGS = $(gtest_cppflags)
-internal_sdref_LDADD = $(gtest_ldadd)
-
 check_PROGRAMS += internal/utils
 internal_utils_SOURCES = internal/utils.cpp
 internal_utils_CPPFLAGS = $(gtest_cppflags)

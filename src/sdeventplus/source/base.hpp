@@ -5,8 +5,8 @@
 #include <cstdio>
 #include <functional>
 #include <sdeventplus/event.hpp>
-#include <sdeventplus/internal/sdref.hpp>
 #include <sdeventplus/internal/utils.hpp>
+#include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
 
@@ -112,7 +112,6 @@ class Base
 
   protected:
     Event event;
-    internal::SdRef<sd_event_source> source;
 
     /** @brief Constructs a basic event source wrapper
      *         Adds a reference to the source
@@ -175,6 +174,14 @@ class Base
     }
 
   private:
+    static sd_event_source* ref(sd_event_source* const& source,
+                                const internal::SdEvent*& sdevent);
+    static void drop(sd_event_source*&& source,
+                     const internal::SdEvent*& sdevent);
+
+    stdplus::Copyable<sd_event_source*, const internal::SdEvent*>::Handle<drop,
+                                                                          ref>
+        source;
     Callback prepare;
 
     /** @brief A helper used to make sure the userdata for the sd-event

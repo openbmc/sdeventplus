@@ -39,6 +39,9 @@ AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 AX_APPEND_COMPILE_FLAGS([-Wall -Wextra -Wpedantic], [CFLAGS])
 AX_APPEND_COMPILE_FLAGS([-Wall -Wextra -Wpedantic], [CXXFLAGS])
 
+# We require stdplus unconditionally
+AX_PKG_CHECK_MODULES([STDPLUS], [stdplus])
+
 # We require systemd unconditionally
 AX_PKG_CHECK_MODULES([SYSTEMD], [libsystemd >= 218])
 

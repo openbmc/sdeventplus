@@ -16,9 +16,6 @@ libsdeventplus_la_SOURCES += sdeventplus/exception.cpp
 nobase_include_HEADERS += sdeventplus/internal/sdevent.hpp
 libsdeventplus_la_SOURCES += sdeventplus/internal/sdevent.cpp
 
-nobase_include_HEADERS += sdeventplus/internal/sdref.hpp
-libsdeventplus_la_SOURCES += sdeventplus/internal/sdref.cpp
-
 nobase_include_HEADERS += sdeventplus/internal/utils.hpp
 
 nobase_include_HEADERS += sdeventplus/source/base.hpp

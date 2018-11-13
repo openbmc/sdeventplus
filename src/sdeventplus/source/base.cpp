@@ -20,7 +20,7 @@ Base::~Base()
 
 sd_event_source* Base::get() const
 {
-    return source.get();
+    return source.value();
 }
 
 const Event& Base::get_event() const
@@ -119,17 +119,13 @@ void Base::set_enabled(Enabled enabled) const
 }
 
 Base::Base(const Event& event, sd_event_source* source) :
-    event(event),
-    source(source, &internal::SdEvent::sd_event_source_ref,
-           &internal::SdEvent::sd_event_source_unref, event.getSdEvent())
+    event(event), source(source, event.getSdEvent())
 {
     set_userdata();
 }
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
-    event(event), source(source, &internal::SdEvent::sd_event_source_ref,
-                         &internal::SdEvent::sd_event_source_unref,
-                         std::false_type(), event.getSdEvent())
+    event(event), source(std::move(source), event.getSdEvent())
 {
     set_userdata();
 }
@@ -159,6 +155,17 @@ Base& Base::operator=(Base&& other)
         set_userdata();
     }
     return *this;
+}
+
+sd_event_source* Base::ref(sd_event_source* const& source,
+                           const internal::SdEvent*& sdevent)
+{
+    return sdevent->sd_event_source_ref(source);
+}
+
+void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent)
+{
+    sdevent->sd_event_source_unref(source);
 }
 
 int Base::prepareCallback(sd_event_source* source, void* userdata)

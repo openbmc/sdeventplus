@@ -2,8 +2,8 @@
 
 #include <optional>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/sdref.hpp>
 #include <sdeventplus/internal/utils.hpp>
+#include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-event.h>
 
 namespace sdeventplus
@@ -146,8 +146,13 @@ class Event
     bool set_watchdog(bool b) const;
 
   private:
+    static sd_event* ref(sd_event* const& event,
+                         const internal::SdEvent*& sdevent);
+    static void drop(sd_event*&& event, const internal::SdEvent*& sdevent);
+
     const internal::SdEvent* sdevent;
-    internal::SdRef<sd_event> event;
+    stdplus::Copyable<sd_event*, const internal::SdEvent*>::Handle<drop, ref>
+        event;
 };
 
 } // namespace sdeventplus

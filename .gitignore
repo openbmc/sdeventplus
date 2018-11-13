@@ -49,7 +49,6 @@ Makefile.in
 /test/clock
 /test/event
 /test/exception
-/test/internal/sdref
 /test/internal/utils
 /test/source/base
 /test/source/child

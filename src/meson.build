@@ -1,4 +1,5 @@
 libsystemd = dependency('libsystemd')
+stdplus = dependency('stdplus')
 
 sdeventplus = library(
   'sdeventplus',
@@ -7,7 +8,6 @@ sdeventplus = library(
     'sdeventplus/event.cpp',
     'sdeventplus/exception.cpp',
     'sdeventplus/internal/sdevent.cpp',
-    'sdeventplus/internal/sdref.cpp',
     'sdeventplus/source/base.cpp',
     'sdeventplus/source/child.cpp',
     'sdeventplus/source/event.cpp',
@@ -19,7 +19,10 @@ sdeventplus = library(
   include_directories: includes,
   implicit_include_directories: false,
   version: meson.project_version(),
-  dependencies: libsystemd,
+  dependencies: [
+    libsystemd,
+    stdplus
+  ],
   install: true)
 
 import('pkgconfig').generate(
@@ -37,7 +40,6 @@ install_headers(
 
 install_headers(
   'sdeventplus/internal/sdevent.hpp',
-  'sdeventplus/internal/sdref.hpp',
   'sdeventplus/internal/utils.hpp',
   subdir: 'sdeventplus/internal')
 
