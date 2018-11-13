@@ -9,16 +9,14 @@ namespace sdeventplus
 {
 
 Event::Event(sd_event* event, const internal::SdEvent* sdevent) :
-    sdevent(sdevent), event(event, &internal::SdEvent::sd_event_ref,
-                            &internal::SdEvent::sd_event_unref, sdevent)
+    sdevent(sdevent), event(event, sdevent)
 {
 }
 
 Event::Event(sd_event* event, std::false_type,
              const internal::SdEvent* sdevent) :
     sdevent(sdevent),
-    event(event, &internal::SdEvent::sd_event_ref,
-          &internal::SdEvent::sd_event_unref, std::false_type(), sdevent)
+    event(std::move(event), sdevent)
 {
 }
 
@@ -46,7 +44,7 @@ Event Event::get_default(const internal::SdEvent* sdevent)
 
 sd_event* Event::get() const
 {
-    return event.get();
+    return event.value();
 }
 
 const internal::SdEvent* Event::getSdEvent() const
@@ -146,6 +144,16 @@ bool Event::set_watchdog(bool b) const
         throw SdEventError(-r, "sd_event_set_watchdog");
     }
     return r;
+}
+
+sd_event* Event::ref(sd_event* const& event, const internal::SdEvent*& sdevent)
+{
+    return sdevent->sd_event_ref(event);
+}
+
+void Event::drop(sd_event*&& event, const internal::SdEvent*& sdevent)
+{
+    sdevent->sd_event_unref(event);
 }
 
 } // namespace sdeventplus

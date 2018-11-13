@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
+#include <optional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
@@ -93,8 +94,8 @@ class BaseTest : public testing::Test
             .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
         BaseImpl mover(std::move(other));
         EXPECT_EQ(&mover, userdata);
-        EXPECT_EQ(nullptr, other.get());
-        EXPECT_EQ(nullptr, other.get_event().get());
+        EXPECT_THROW(other.get(), std::bad_optional_access);
+        EXPECT_THROW(other.get_event().get(), std::bad_optional_access);
         EXPECT_FALSE(other.get_prepare());
 
         expect_base_destruct(mover.get_event(), mover.get());
@@ -160,8 +161,8 @@ TEST_F(BaseTest, MoveConstruct)
         .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     BaseImpl source2(std::move(*source1));
     EXPECT_EQ(&source2, userdata);
-    EXPECT_EQ(nullptr, source1->get());
-    EXPECT_EQ(nullptr, source1->get_event().get());
+    EXPECT_THROW(source1->get(), std::bad_optional_access);
+    EXPECT_THROW(source1->get_event().get(), std::bad_optional_access);
     EXPECT_FALSE(source1->get_prepare());
     EXPECT_EQ(expected_source, source2.get());
     EXPECT_EQ(expected_event, source2.get_event().get());
@@ -199,8 +200,8 @@ TEST_F(BaseTest, MoveAssignEmpty)
         *source2 = std::move(*source1);
         EXPECT_EQ(source2.get(), userdata);
     }
-    EXPECT_EQ(nullptr, source1->get());
-    EXPECT_EQ(nullptr, source1->get_event().get());
+    EXPECT_THROW(source1->get(), std::bad_optional_access);
+    EXPECT_THROW(source1->get_event().get(), std::bad_optional_access);
     EXPECT_FALSE(source1->get_prepare());
     EXPECT_EQ(expected_source, source2->get());
     EXPECT_EQ(expected_event, source2->get_event().get());
@@ -232,8 +233,8 @@ TEST_F(BaseTest, MoveAssignExisting)
         *source2 = std::move(*source1);
         EXPECT_EQ(source2.get(), userdata);
     }
-    EXPECT_EQ(nullptr, source1->get());
-    EXPECT_EQ(nullptr, source1->get_event().get());
+    EXPECT_THROW(source1->get(), std::bad_optional_access);
+    EXPECT_THROW(source1->get_event().get(), std::bad_optional_access);
     EXPECT_FALSE(source1->get_prepare());
     EXPECT_EQ(expected_source, source2->get());
     EXPECT_EQ(expected_event, source2->get_event().get());

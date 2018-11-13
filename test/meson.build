@@ -5,7 +5,6 @@ tests = [
   'clock',
   'event',
   'exception',
-  'internal/sdref',
   'internal/utils',
   'source/base',
   'source/child',
