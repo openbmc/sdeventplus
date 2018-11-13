@@ -21,7 +21,7 @@ void Signal::set_callback(Callback&& callback)
 
 int Signal::get_signal() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_signal(source.get());
+    int r = event.getSdEvent()->sd_event_source_get_signal(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_signal");

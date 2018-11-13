@@ -56,7 +56,7 @@ const internal::SdEvent* Event::getSdEvent() const
 
 int Event::prepare() const
 {
-    int r = sdevent->sd_event_prepare(event.get());
+    int r = sdevent->sd_event_prepare(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_prepare");
@@ -68,7 +68,7 @@ int Event::wait(MaybeTimeout timeout) const
 {
     // An unsigned -1 timeout value means infinity in sd_event
     uint64_t timeout_usec = timeout ? timeout->count() : -1;
-    int r = sdevent->sd_event_wait(event.get(), timeout_usec);
+    int r = sdevent->sd_event_wait(get(), timeout_usec);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_wait");
@@ -78,7 +78,7 @@ int Event::wait(MaybeTimeout timeout) const
 
 int Event::dispatch() const
 {
-    int r = sdevent->sd_event_dispatch(event.get());
+    int r = sdevent->sd_event_dispatch(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_dispatch");
@@ -90,7 +90,7 @@ int Event::run(MaybeTimeout timeout) const
 {
     // An unsigned -1 timeout value means infinity in sd_event
     uint64_t timeout_usec = timeout ? timeout->count() : -1;
-    int r = sdevent->sd_event_run(event.get(), timeout_usec);
+    int r = sdevent->sd_event_run(get(), timeout_usec);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_run");
@@ -100,7 +100,7 @@ int Event::run(MaybeTimeout timeout) const
 
 int Event::loop() const
 {
-    int r = sdevent->sd_event_loop(event.get());
+    int r = sdevent->sd_event_loop(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_loop");
@@ -110,7 +110,7 @@ int Event::loop() const
 
 void Event::exit(int code) const
 {
-    int r = sdevent->sd_event_exit(event.get(), code);
+    int r = sdevent->sd_event_exit(get(), code);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_exit");
@@ -120,7 +120,7 @@ void Event::exit(int code) const
 int Event::get_exit_code() const
 {
     int code;
-    int r = sdevent->sd_event_get_exit_code(event.get(), &code);
+    int r = sdevent->sd_event_get_exit_code(get(), &code);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_get_exit_code");
@@ -130,7 +130,7 @@ int Event::get_exit_code() const
 
 bool Event::get_watchdog() const
 {
-    int r = sdevent->sd_event_get_watchdog(event.get());
+    int r = sdevent->sd_event_get_watchdog(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_get_watchdog");
@@ -140,7 +140,7 @@ bool Event::get_watchdog() const
 
 bool Event::set_watchdog(bool b) const
 {
-    int r = sdevent->sd_event_set_watchdog(event.get(), b);
+    int r = sdevent->sd_event_set_watchdog(get(), b);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_set_watchdog");

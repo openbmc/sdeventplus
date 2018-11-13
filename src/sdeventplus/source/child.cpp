@@ -22,8 +22,7 @@ void Child::set_callback(Callback&& callback)
 pid_t Child::get_pid() const
 {
     pid_t pid;
-    int r =
-        event.getSdEvent()->sd_event_source_get_child_pid(source.get(), &pid);
+    int r = event.getSdEvent()->sd_event_source_get_child_pid(get(), &pid);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_child_pid");

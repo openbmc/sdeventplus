@@ -29,7 +29,7 @@ template <ClockId Id>
 typename Time<Id>::TimePoint Time<Id>::get_time() const
 {
     uint64_t usec;
-    int r = event.getSdEvent()->sd_event_source_get_time(source.get(), &usec);
+    int r = event.getSdEvent()->sd_event_source_get_time(get(), &usec);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_time");
@@ -41,7 +41,7 @@ template <ClockId Id>
 void Time<Id>::set_time(TimePoint time) const
 {
     int r = event.getSdEvent()->sd_event_source_set_time(
-        source.get(), SdEventDuration(time.time_since_epoch()).count());
+        get(), SdEventDuration(time.time_since_epoch()).count());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_time");
@@ -52,8 +52,7 @@ template <ClockId Id>
 typename Time<Id>::Accuracy Time<Id>::get_accuracy() const
 {
     uint64_t usec;
-    int r = event.getSdEvent()->sd_event_source_get_time_accuracy(source.get(),
-                                                                  &usec);
+    int r = event.getSdEvent()->sd_event_source_get_time_accuracy(get(), &usec);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_time_accuracy");
@@ -65,7 +64,7 @@ template <ClockId Id>
 void Time<Id>::set_accuracy(Accuracy accuracy) const
 {
     int r = event.getSdEvent()->sd_event_source_set_time_accuracy(
-        source.get(), SdEventDuration(accuracy).count());
+        get(), SdEventDuration(accuracy).count());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_time_accuracy");
