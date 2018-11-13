@@ -6,7 +6,7 @@
 #include <functional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
-#include <stdplus/handle/copyable.hpp>
+#include <stdplus/handle/managed.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
 
@@ -114,15 +114,6 @@ class Base
     Event event;
 
     /** @brief Constructs a basic event source wrapper
-     *         Adds a reference to the source
-     *
-     *  @param[in] event  - The event associated with the source
-     *  @param[in] source - The underlying sd_event_source wrapped
-     *  @throws SdEventError for underlying sd_event errors
-     */
-    Base(const Event& event, sd_event_source* source);
-
-    /** @brief Constructs a basic event source wrapper
      *         Owns the passed reference to the source
      *         This ownership is exception safe and will properly free the
      *         source in the case of an exception during construction
@@ -174,13 +165,10 @@ class Base
     }
 
   private:
-    static sd_event_source* ref(sd_event_source* const& source,
-                                const internal::SdEvent*& sdevent);
     static void drop(sd_event_source*&& source,
                      const internal::SdEvent*& sdevent);
 
-    stdplus::Copyable<sd_event_source*, const internal::SdEvent*>::Handle<drop,
-                                                                          ref>
+    stdplus::Managed<sd_event_source*, const internal::SdEvent*>::Handle<drop>
         source;
     Callback prepare;
 
