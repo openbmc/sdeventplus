@@ -6,7 +6,7 @@
 #include <functional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
-#include <stdplus/handle/copyable.hpp>
+#include <stdplus/handle/managed.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
 
@@ -174,13 +174,10 @@ class Base
     }
 
   private:
-    static sd_event_source* ref(sd_event_source* const& source,
-                                const internal::SdEvent*& sdevent);
     static void drop(sd_event_source*&& source,
                      const internal::SdEvent*& sdevent);
 
-    stdplus::Copyable<sd_event_source*, const internal::SdEvent*>::Handle<drop,
-                                                                          ref>
+    stdplus::Managed<sd_event_source*, const internal::SdEvent*>::Handle<drop>
         source;
     Callback prepare;
 

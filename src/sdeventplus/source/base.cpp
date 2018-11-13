@@ -118,12 +118,6 @@ void Base::set_enabled(Enabled enabled) const
     }
 }
 
-Base::Base(const Event& event, sd_event_source* source) :
-    event(event), source(source, event.getSdEvent())
-{
-    set_userdata();
-}
-
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
     event(event), source(std::move(source), event.getSdEvent())
 {
@@ -155,12 +149,6 @@ Base& Base::operator=(Base&& other)
         set_userdata();
     }
     return *this;
-}
-
-sd_event_source* Base::ref(sd_event_source* const& source,
-                           const internal::SdEvent*& sdevent)
-{
-    return sdevent->sd_event_source_ref(source);
 }
 
 void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent)

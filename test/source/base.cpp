@@ -30,9 +30,6 @@ using UniqueEvent = std::unique_ptr<Event, std::function<void(Event*)>>;
 class BaseImpl : public Base
 {
   public:
-    BaseImpl(const Event& event, sd_event_source* source) : Base(event, source)
-    {
-    }
     BaseImpl(const Event& event, sd_event_source* source, std::false_type) :
         Base(event, source, std::false_type())
     {
@@ -114,25 +111,6 @@ class BaseTest : public testing::Test
             .WillOnce(Return(nullptr));
     }
 };
-
-TEST_F(BaseTest, NewBaseRef)
-{
-    EXPECT_CALL(mock, sd_event_ref(expected_event))
-        .WillOnce(Return(expected_event));
-    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
-        .WillOnce(Return(expected_source));
-    void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
-    BaseImpl source(*event, expected_source);
-    EXPECT_EQ(&source, userdata);
-    EXPECT_EQ(expected_source, source.get());
-    EXPECT_NE(event.get(), &source.get_event());
-    EXPECT_EQ(expected_event, source.get_event().get());
-    EXPECT_FALSE(source.get_prepare());
-
-    expect_base_destruct(*event, expected_source);
-}
 
 TEST_F(BaseTest, NewBaseNoRef)
 {
