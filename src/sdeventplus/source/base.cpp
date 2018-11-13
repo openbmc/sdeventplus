@@ -31,7 +31,7 @@ const Event& Base::get_event() const
 const char* Base::get_description() const
 {
     const char* description;
-    int r = event.getSdEvent()->sd_event_source_get_description(source.get(),
+    int r = event.getSdEvent()->sd_event_source_get_description(get(),
                                                                 &description);
     if (r < 0)
     {
@@ -42,8 +42,8 @@ const char* Base::get_description() const
 
 void Base::set_description(const char* description) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_description(source.get(),
-                                                                description);
+    int r =
+        event.getSdEvent()->sd_event_source_set_description(get(), description);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_description");
@@ -53,7 +53,7 @@ void Base::set_description(const char* description) const
 void Base::set_prepare(Callback&& callback)
 {
     int r = event.getSdEvent()->sd_event_source_set_prepare(
-        source.get(), callback ? prepareCallback : nullptr);
+        get(), callback ? prepareCallback : nullptr);
     if (r < 0)
     {
         prepare = nullptr;
@@ -69,7 +69,7 @@ const Base::Callback& Base::get_prepare() const
 
 bool Base::get_pending() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_pending(source.get());
+    int r = event.getSdEvent()->sd_event_source_get_pending(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_pending");
@@ -80,8 +80,7 @@ bool Base::get_pending() const
 int64_t Base::get_priority() const
 {
     int64_t priority;
-    int r = event.getSdEvent()->sd_event_source_get_priority(source.get(),
-                                                             &priority);
+    int r = event.getSdEvent()->sd_event_source_get_priority(get(), &priority);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_priority");
@@ -91,8 +90,7 @@ int64_t Base::get_priority() const
 
 void Base::set_priority(int64_t priority) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_priority(source.get(),
-                                                             priority);
+    int r = event.getSdEvent()->sd_event_source_set_priority(get(), priority);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_priority");
@@ -102,8 +100,7 @@ void Base::set_priority(int64_t priority) const
 Enabled Base::get_enabled() const
 {
     int enabled;
-    int r =
-        event.getSdEvent()->sd_event_source_get_enabled(source.get(), &enabled);
+    int r = event.getSdEvent()->sd_event_source_get_enabled(get(), &enabled);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_enabled");
@@ -114,7 +111,7 @@ Enabled Base::get_enabled() const
 void Base::set_enabled(Enabled enabled) const
 {
     int r = event.getSdEvent()->sd_event_source_set_enabled(
-        source.get(), static_cast<int>(enabled));
+        get(), static_cast<int>(enabled));
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_enabled");
@@ -172,7 +169,7 @@ int Base::prepareCallback(sd_event_source* source, void* userdata)
 
 void Base::set_userdata()
 {
-    event.getSdEvent()->sd_event_source_set_userdata(source.get(), this);
+    event.getSdEvent()->sd_event_source_set_userdata(get(), this);
 }
 
 } // namespace source

@@ -20,7 +20,7 @@ void IO::set_callback(Callback&& callback)
 
 int IO::get_fd() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_io_fd(source.get());
+    int r = event.getSdEvent()->sd_event_source_get_io_fd(get());
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_io_fd");
@@ -30,7 +30,7 @@ int IO::get_fd() const
 
 void IO::set_fd(int fd) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_io_fd(source.get(), fd);
+    int r = event.getSdEvent()->sd_event_source_set_io_fd(get(), fd);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_io_fd");
@@ -40,8 +40,7 @@ void IO::set_fd(int fd) const
 uint32_t IO::get_events() const
 {
     uint32_t events;
-    int r = event.getSdEvent()->sd_event_source_get_io_events(source.get(),
-                                                              &events);
+    int r = event.getSdEvent()->sd_event_source_get_io_events(get(), &events);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_io_events");
@@ -51,8 +50,7 @@ uint32_t IO::get_events() const
 
 void IO::set_events(uint32_t events) const
 {
-    int r =
-        event.getSdEvent()->sd_event_source_set_io_events(source.get(), events);
+    int r = event.getSdEvent()->sd_event_source_set_io_events(get(), events);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_set_io_events");
@@ -62,8 +60,7 @@ void IO::set_events(uint32_t events) const
 uint32_t IO::get_revents() const
 {
     uint32_t revents;
-    int r = event.getSdEvent()->sd_event_source_get_io_revents(source.get(),
-                                                               &revents);
+    int r = event.getSdEvent()->sd_event_source_get_io_revents(get(), &revents);
     if (r < 0)
     {
         throw SdEventError(-r, "sd_event_source_get_io_revents");
