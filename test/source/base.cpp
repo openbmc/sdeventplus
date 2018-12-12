@@ -327,7 +327,7 @@ TEST_F(BaseMethodTest, SetPrepareError)
 {
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(0));
-    base->set_prepare(std::move([](Base&) {}));
+    base->set_prepare([](Base&) {});
     EXPECT_TRUE(base->get_prepare());
 
     Base::Callback callback = [](Base&) {};
@@ -342,7 +342,7 @@ TEST_F(BaseMethodTest, SetPrepareNull)
 {
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, testing::_))
         .WillOnce(Return(0));
-    base->set_prepare(std::move([](Base&) {}));
+    base->set_prepare([](Base&) {});
     EXPECT_TRUE(base->get_prepare());
 
     EXPECT_CALL(mock, sd_event_source_set_prepare(expected_source, nullptr))
