@@ -216,7 +216,14 @@ TEST_F(SdRefTest, MoveSelf)
     EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wself-move"
+#endif
     event = std::move(event);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
     EXPECT_TRUE(event);
     EXPECT_EQ(expected_event, event.get());
     EXPECT_CALL(mock, sd_event_unref(expected_event))
