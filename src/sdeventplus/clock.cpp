@@ -1,5 +1,6 @@
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/exception.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <utility>
 
@@ -20,12 +21,9 @@ template <ClockId Id>
 typename Clock<Id>::time_point Clock<Id>::now() const
 {
     uint64_t now;
-    int r = event.getSdEvent()->sd_event_now(event.get(),
-                                             static_cast<clockid_t>(Id), &now);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_now");
-    }
+    internal::callCheck("sd_event_now", &internal::SdEvent::sd_event_now,
+                        event.getSdEvent(), event.get(),
+                        static_cast<clockid_t>(Id), &now);
     return time_point(SdEventDuration(now));
 }
 

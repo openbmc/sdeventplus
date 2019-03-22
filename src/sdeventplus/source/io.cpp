@@ -1,3 +1,5 @@
+#include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/io.hpp>
 #include <type_traits>
 #include <utility>
@@ -20,51 +22,40 @@ void IO::set_callback(Callback&& callback)
 
 int IO::get_fd() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_io_fd(get());
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_io_fd");
-    }
-    return r;
+    return internal::callCheck("sd_event_source_get_io_fd",
+                               &internal::SdEvent::sd_event_source_get_io_fd,
+                               event.getSdEvent(), get());
 }
 
 void IO::set_fd(int fd) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_io_fd(get(), fd);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_io_fd");
-    }
+    internal::callCheck("sd_event_source_set_io_fd",
+                        &internal::SdEvent::sd_event_source_set_io_fd,
+                        event.getSdEvent(), get(), fd);
 }
 
 uint32_t IO::get_events() const
 {
     uint32_t events;
-    int r = event.getSdEvent()->sd_event_source_get_io_events(get(), &events);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_io_events");
-    }
+    internal::callCheck("sd_event_source_get_io_events",
+                        &internal::SdEvent::sd_event_source_get_io_events,
+                        event.getSdEvent(), get(), &events);
     return events;
 }
 
 void IO::set_events(uint32_t events) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_io_events(get(), events);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_io_events");
-    }
+    internal::callCheck("sd_event_source_set_io_events",
+                        &internal::SdEvent::sd_event_source_set_io_events,
+                        event.getSdEvent(), get(), events);
 }
 
 uint32_t IO::get_revents() const
 {
     uint32_t revents;
-    int r = event.getSdEvent()->sd_event_source_get_io_revents(get(), &revents);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_io_revents");
-    }
+    internal::callCheck("sd_event_source_get_io_revents",
+                        &internal::SdEvent::sd_event_source_get_io_revents,
+                        event.getSdEvent(), get(), &revents);
     return revents;
 }
 
@@ -76,12 +67,9 @@ const IO::Callback& IO::get_callback() const
 sd_event_source* IO::create_source(const Event& event, int fd, uint32_t events)
 {
     sd_event_source* source;
-    int r = event.getSdEvent()->sd_event_add_io(event.get(), &source, fd,
-                                                events, ioCallback, nullptr);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_add_io");
-    }
+    internal::callCheck("sd_event_add_io", &internal::SdEvent::sd_event_add_io,
+                        event.getSdEvent(), event.get(), &source, fd, events,
+                        ioCallback, nullptr);
     return source;
 }
 

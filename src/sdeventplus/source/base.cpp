@@ -1,6 +1,6 @@
 #include <functional>
-#include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <type_traits>
 #include <utility>
@@ -31,35 +31,34 @@ const Event& Base::get_event() const
 const char* Base::get_description() const
 {
     const char* description;
-    int r = event.getSdEvent()->sd_event_source_get_description(get(),
-                                                                &description);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_description");
-    }
+    internal::callCheck("sd_event_source_get_description",
+                        &internal::SdEvent::sd_event_source_get_description,
+                        event.getSdEvent(), get(), &description);
     return description;
 }
 
 void Base::set_description(const char* description) const
 {
-    int r =
-        event.getSdEvent()->sd_event_source_set_description(get(), description);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_description");
-    }
+    internal::callCheck("sd_event_source_set_description",
+                        &internal::SdEvent::sd_event_source_set_description,
+                        event.getSdEvent(), get(), description);
 }
 
 void Base::set_prepare(Callback&& callback)
 {
-    int r = event.getSdEvent()->sd_event_source_set_prepare(
-        get(), callback ? prepareCallback : nullptr);
-    if (r < 0)
+    try
+    {
+        internal::callCheck("sd_event_source_set_prepare",
+                            &internal::SdEvent::sd_event_source_set_prepare,
+                            event.getSdEvent(), get(),
+                            callback ? prepareCallback : nullptr);
+        prepare = std::move(callback);
+    }
+    catch (...)
     {
         prepare = nullptr;
-        throw SdEventError(-r, "sd_event_source_set_prepare");
+        throw;
     }
-    prepare = std::move(callback);
 }
 
 const Base::Callback& Base::get_prepare() const
@@ -69,53 +68,41 @@ const Base::Callback& Base::get_prepare() const
 
 bool Base::get_pending() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_pending(get());
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_pending");
-    }
-    return r;
+    return internal::callCheck("sd_event_source_get_pending",
+                               &internal::SdEvent::sd_event_source_get_pending,
+                               event.getSdEvent(), get());
 }
 
 int64_t Base::get_priority() const
 {
     int64_t priority;
-    int r = event.getSdEvent()->sd_event_source_get_priority(get(), &priority);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_priority");
-    }
+    internal::callCheck("sd_event_source_get_priority",
+                        &internal::SdEvent::sd_event_source_get_priority,
+                        event.getSdEvent(), get(), &priority);
     return priority;
 }
 
 void Base::set_priority(int64_t priority) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_priority(get(), priority);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_priority");
-    }
+    internal::callCheck("sd_event_source_set_priority",
+                        &internal::SdEvent::sd_event_source_set_priority,
+                        event.getSdEvent(), get(), priority);
 }
 
 Enabled Base::get_enabled() const
 {
     int enabled;
-    int r = event.getSdEvent()->sd_event_source_get_enabled(get(), &enabled);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_enabled");
-    }
+    internal::callCheck("sd_event_source_get_enabled",
+                        &internal::SdEvent::sd_event_source_get_enabled,
+                        event.getSdEvent(), get(), &enabled);
     return static_cast<Enabled>(enabled);
 }
 
 void Base::set_enabled(Enabled enabled) const
 {
-    int r = event.getSdEvent()->sd_event_source_set_enabled(
-        get(), static_cast<int>(enabled));
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_set_enabled");
-    }
+    internal::callCheck("sd_event_source_set_enabled",
+                        &internal::SdEvent::sd_event_source_set_enabled,
+                        event.getSdEvent(), get(), static_cast<int>(enabled));
 }
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :

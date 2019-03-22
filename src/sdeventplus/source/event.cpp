@@ -1,4 +1,5 @@
 #include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/event.hpp>
 #include <utility>
 
@@ -28,12 +29,8 @@ sd_event_source* EventBase::create_source(const char* name, CreateFunc create,
                                           const Event& event)
 {
     sd_event_source* source;
-    int r = (event.getSdEvent()->*create)(event.get(), &source, eventCallback,
-                                          nullptr);
-    if (r < 0)
-    {
-        throw SdEventError(-r, name);
-    }
+    internal::callCheck(name, create, event.getSdEvent(), event.get(), &source,
+                        eventCallback, nullptr);
     return source;
 }
 

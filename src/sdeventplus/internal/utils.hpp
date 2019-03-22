@@ -6,6 +6,8 @@
 #include <exception>
 #include <sdeventplus/exception.hpp>
 #include <stdexcept>
+#include <stdplus/util/cexec.hpp>
+#include <utility>
 
 namespace sdeventplus
 {
@@ -44,6 +46,20 @@ inline int performCallback(const char* name, Func func, Args... args)
         fprintf(stderr, "sdeventplus: %s: Unknown error\n", name);
         return -ENOSYS;
     }
+}
+
+/** @brief Constructs an SdEventError for stdplus cexec
+ */
+inline SdEventError makeError(int error, const char* msg)
+{
+    return SdEventError(error, msg);
+}
+
+template <typename... Args>
+inline auto callCheck(const char* msg, Args&&... args)
+{
+    return stdplus::util::callCheckRet<makeError, Args...>(
+        msg, std::forward<Args>(args)...);
 }
 
 } // namespace internal
