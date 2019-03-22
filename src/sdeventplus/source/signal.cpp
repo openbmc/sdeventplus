@@ -1,4 +1,5 @@
-#include <sdeventplus/exception.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/signal.hpp>
 #include <type_traits>
 #include <utility>
@@ -21,12 +22,9 @@ void Signal::set_callback(Callback&& callback)
 
 int Signal::get_signal() const
 {
-    int r = event.getSdEvent()->sd_event_source_get_signal(get());
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_signal");
-    }
-    return r;
+    return internal::callCheck("sd_event_source_get_signal",
+                               &internal::SdEvent::sd_event_source_get_signal,
+                               event.getSdEvent(), get());
 }
 
 const Signal::Callback& Signal::get_callback() const
@@ -37,12 +35,9 @@ const Signal::Callback& Signal::get_callback() const
 sd_event_source* Signal::create_source(const Event& event, int sig)
 {
     sd_event_source* source;
-    int r = event.getSdEvent()->sd_event_add_signal(event.get(), &source, sig,
-                                                    signalCallback, nullptr);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_add_signal");
-    }
+    internal::callCheck(
+        "sd_event_add_signal", &internal::SdEvent::sd_event_add_signal,
+        event.getSdEvent(), event.get(), &source, sig, signalCallback, nullptr);
     return source;
 }
 

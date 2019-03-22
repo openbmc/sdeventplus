@@ -1,4 +1,5 @@
-#include <sdeventplus/exception.hpp>
+#include <sdeventplus/internal/sdevent.hpp>
+#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/child.hpp>
 #include <type_traits>
 #include <utility>
@@ -22,11 +23,9 @@ void Child::set_callback(Callback&& callback)
 pid_t Child::get_pid() const
 {
     pid_t pid;
-    int r = event.getSdEvent()->sd_event_source_get_child_pid(get(), &pid);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_source_get_child_pid");
-    }
+    internal::callCheck("sd_event_source_get_child_pid",
+                        &internal::SdEvent::sd_event_source_get_child_pid,
+                        event.getSdEvent(), get(), &pid);
     return pid;
 }
 
@@ -39,12 +38,10 @@ sd_event_source* Child::create_source(const Event& event, pid_t pid,
                                       int options)
 {
     sd_event_source* source;
-    int r = event.getSdEvent()->sd_event_add_child(
-        event.get(), &source, pid, options, childCallback, nullptr);
-    if (r < 0)
-    {
-        throw SdEventError(-r, "sd_event_add_child");
-    }
+    internal::callCheck("sd_event_add_child",
+                        &internal::SdEvent::sd_event_add_child,
+                        event.getSdEvent(), event.get(), &source, pid, options,
+                        childCallback, nullptr);
     return source;
 }
 
