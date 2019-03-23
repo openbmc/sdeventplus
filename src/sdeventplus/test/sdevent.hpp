@@ -94,6 +94,10 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD1(sd_event_source_get_signal, int(sd_event_source*));
     MOCK_CONST_METHOD2(sd_event_source_get_child_pid,
                        int(sd_event_source*, pid_t*));
+    MOCK_CONST_METHOD2(sd_event_source_set_destroy_callback,
+                       int(sd_event_source*, sd_event_destroy_t));
+    MOCK_CONST_METHOD2(sd_event_source_get_destroy_callback,
+                       int(sd_event_source*, sd_event_destroy_t*));
 };
 
 } // namespace test

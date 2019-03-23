@@ -107,6 +107,10 @@ class SdEvent
     virtual int sd_event_source_get_signal(sd_event_source* source) const = 0;
     virtual int sd_event_source_get_child_pid(sd_event_source* source,
                                               pid_t* pid) const = 0;
+    virtual int sd_event_source_set_destroy_callback(
+        sd_event_source* source, sd_event_destroy_t callback) const = 0;
+    virtual int sd_event_source_get_destroy_callback(
+        sd_event_source* source, sd_event_destroy_t* callback) const = 0;
 };
 
 /** @class SdEventImpl
@@ -212,6 +216,10 @@ class SdEventImpl : public SdEvent
     int sd_event_source_get_signal(sd_event_source* source) const override;
     int sd_event_source_get_child_pid(sd_event_source* source,
                                       pid_t* pid) const override;
+    int sd_event_source_set_destroy_callback(
+        sd_event_source* source, sd_event_destroy_t callback) const override;
+    int sd_event_source_get_destroy_callback(
+        sd_event_source* source, sd_event_destroy_t* callback) const override;
 };
 
 /** @brief Default instantiation of sd_event
