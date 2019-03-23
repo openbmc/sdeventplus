@@ -1,5 +1,5 @@
 sdeventplus_deps = [
-  dependency('libsystemd', version: '>=239'),
+  dependency('libsystemd', version: '>=240'),
   dependency('stdplus'),
 ]
 
