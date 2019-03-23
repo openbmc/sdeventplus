@@ -20,7 +20,7 @@ if not has_function2
 endif
 
 sdeventplus_deps = [
-  dependency('libsystemd', version: '>=239'),
+  dependency('libsystemd', version: '>=240'),
   dependency('stdplus', fallback: ['stdplus', 'stdplus']),
   function2_dep,
 ]
