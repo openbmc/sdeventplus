@@ -1,4 +1,4 @@
-libsystemd = dependency('libsystemd', version: '>=239')
+libsystemd = dependency('libsystemd', version: '>=240')
 stdplus = dependency('stdplus')
 
 sdeventplus = library(
