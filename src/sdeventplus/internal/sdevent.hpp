@@ -111,6 +111,9 @@ class SdEvent
         sd_event_source* source, sd_event_destroy_t callback) const = 0;
     virtual int sd_event_source_get_destroy_callback(
         sd_event_source* source, sd_event_destroy_t* callback) const = 0;
+    virtual int sd_event_source_set_floating(sd_event_source* source,
+                                             int b) const = 0;
+    virtual int sd_event_source_get_floating(sd_event_source* source) const = 0;
 };
 
 /** @class SdEventImpl
@@ -220,6 +223,9 @@ class SdEventImpl : public SdEvent
         sd_event_source* source, sd_event_destroy_t callback) const override;
     int sd_event_source_get_destroy_callback(
         sd_event_source* source, sd_event_destroy_t* callback) const override;
+    int sd_event_source_set_floating(sd_event_source* source,
+                                     int b) const override;
+    int sd_event_source_get_floating(sd_event_source* source) const override;
 };
 
 /** @brief Default instantiation of sd_event
