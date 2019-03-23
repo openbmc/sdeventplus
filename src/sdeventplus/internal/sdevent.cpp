@@ -249,6 +249,18 @@ int SdEventImpl::sd_event_source_get_child_pid(sd_event_source* source,
     return ::sd_event_source_get_child_pid(source, pid);
 }
 
+int SdEventImpl::sd_event_source_set_destroy_callback(
+    sd_event_source* source, sd_event_destroy_t callback) const
+{
+    return ::sd_event_source_set_destroy_callback(source, callback);
+}
+
+int SdEventImpl::sd_event_source_get_destroy_callback(
+    sd_event_source* source, sd_event_destroy_t* callback) const
+{
+    return ::sd_event_source_get_destroy_callback(source, callback);
+}
+
 SdEventImpl sdevent_impl;
 
 } // namespace internal
