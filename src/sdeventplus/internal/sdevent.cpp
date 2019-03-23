@@ -261,6 +261,17 @@ int SdEventImpl::sd_event_source_get_destroy_callback(
     return ::sd_event_source_get_destroy_callback(source, callback);
 }
 
+int SdEventImpl::sd_event_source_set_floating(sd_event_source* source,
+                                              int b) const
+{
+    return ::sd_event_source_set_floating(source, b);
+}
+
+int SdEventImpl::sd_event_source_get_floating(sd_event_source* source) const
+{
+    return ::sd_event_source_get_floating(source);
+}
+
 SdEventImpl sdevent_impl;
 
 } // namespace internal
