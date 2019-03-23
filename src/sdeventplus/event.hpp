@@ -3,6 +3,7 @@
 #include <optional>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
+#include <sdeventplus/types.hpp>
 #include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-event.h>
 
@@ -32,8 +33,8 @@ class Event
 
     /** @brief Constructs a new event from sd_event
      *         Does not take a reference on the passed in sd_event
-     *         NOTE: This will still take a reference during future copies
-     *         Useful for first creation of an sd_event
+     *  @note This will still take a reference during future copies
+     *        Useful for first creation of an sd_event
      *
      *  @param[in] event   - The sd_event to wrap
      *  @param[in]         - Denotes no reference taken during construction
@@ -42,6 +43,17 @@ class Event
      */
     Event(sd_event* event, std::false_type,
           const internal::SdEvent* sdevent = &internal::sdevent_impl);
+
+    /** @brief Constructs a new non-owning event from an event
+     *         Does not take a reference on the passed in sd_event
+     *         Does not release the reference it is given
+     *  @note This will still take a reference during future copies
+     *        Intended only to be used internally by sd_event
+     *
+     *  @param[in] other - The other Event to copy
+     *  @param[in]       - Denotes no reference taken or release
+     */
+    Event(const Event& other, sdeventplus::internal::NoOwn);
 
     /** @brief Create a wrapped event around sd_event_new()
      *
@@ -147,11 +159,13 @@ class Event
 
   private:
     static sd_event* ref(sd_event* const& event,
-                         const internal::SdEvent*& sdevent);
-    static void drop(sd_event*&& event, const internal::SdEvent*& sdevent);
+                         const internal::SdEvent*& sdevent, bool& owned);
+    static void drop(sd_event*&& event, const internal::SdEvent*& sdevent,
+                     bool& owned);
 
     const internal::SdEvent* sdevent;
-    stdplus::Copyable<sd_event*, const internal::SdEvent*>::Handle<drop, ref>
+    stdplus::Copyable<sd_event*, const internal::SdEvent*, bool>::Handle<drop,
+                                                                         ref>
         event;
 };
 
