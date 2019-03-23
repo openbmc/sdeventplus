@@ -43,6 +43,40 @@ TEST_F(EventTest, NewEventNoRef)
     EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
 }
 
+TEST_F(EventTest, CopyEventNoOwn)
+{
+    Event event(expected_event, std::false_type(), &mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
+
+    Event event_noown(event, sdeventplus::internal::NoOwn());
+    EXPECT_EQ(&mock, event_noown.getSdEvent());
+    EXPECT_EQ(expected_event, event_noown.get());
+
+    EXPECT_CALL(mock, sd_event_unref(expected_event)).WillOnce(Return(nullptr));
+}
+
+TEST_F(EventTest, CopyEventNoOwnCopy)
+{
+    Event event(expected_event, std::false_type(), &mock);
+    EXPECT_EQ(&mock, event.getSdEvent());
+    EXPECT_EQ(expected_event, event.get());
+
+    Event event_noown(event, sdeventplus::internal::NoOwn());
+    EXPECT_EQ(&mock, event_noown.getSdEvent());
+    EXPECT_EQ(expected_event, event_noown.get());
+
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    Event event2(event_noown);
+    EXPECT_EQ(&mock, event2.getSdEvent());
+    EXPECT_EQ(expected_event, event2.get());
+
+    EXPECT_CALL(mock, sd_event_unref(expected_event))
+        .WillOnce(Return(nullptr))
+        .WillOnce(Return(nullptr));
+}
+
 TEST_F(EventTest, GetNewEvent)
 {
     EXPECT_CALL(mock, sd_event_new(testing::_))
