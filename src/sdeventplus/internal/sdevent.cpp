@@ -127,6 +127,11 @@ sd_event_source*
     return ::sd_event_source_unref(source);
 }
 
+void* SdEventImpl::sd_event_source_get_userdata(sd_event_source* source) const
+{
+    return ::sd_event_source_get_userdata(source);
+}
+
 void* SdEventImpl::sd_event_source_set_userdata(sd_event_source* source,
                                                 void* userdata) const
 {
