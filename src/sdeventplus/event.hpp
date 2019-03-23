@@ -43,6 +43,17 @@ class Event
     Event(sd_event* event, std::false_type,
           const internal::SdEvent* sdevent = &internal::sdevent_impl);
 
+    /** @brief Constructs a new non-owning event from an event
+     *         Does not take a reference on the passed in sd_event
+     *         Does not release the reference it is given
+     *         NOTE: This will still take a reference during future copies
+     *         Intended only to be used internally by sdevent
+     *
+     *  @param[in] other - The other Event to copy
+     *  @param[in]       - Denotes no reference taken or release
+     */
+    Event(const Event& other, std::true_type);
+
     /** @brief Create a wrapped event around sd_event_new()
      *
      *  @param[in] sdevent - Optional underlying sd_event implementation
@@ -147,11 +158,13 @@ class Event
 
   private:
     static sd_event* ref(sd_event* const& event,
-                         const internal::SdEvent*& sdevent);
-    static void drop(sd_event*&& event, const internal::SdEvent*& sdevent);
+                         const internal::SdEvent*& sdevent, bool& owned);
+    static void drop(sd_event*&& event, const internal::SdEvent*& sdevent,
+                     bool& owned);
 
     const internal::SdEvent* sdevent;
-    stdplus::Copyable<sd_event*, const internal::SdEvent*>::Handle<drop, ref>
+    stdplus::Copyable<sd_event*, const internal::SdEvent*, bool>::Handle<drop,
+                                                                         ref>
         event;
 };
 
