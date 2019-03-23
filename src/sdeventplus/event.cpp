@@ -4,19 +4,25 @@
 #include <sdeventplus/internal/utils.hpp>
 #include <systemd/sd-event.h>
 #include <type_traits>
+#include <utility>
 
 namespace sdeventplus
 {
 
 Event::Event(sd_event* event, const internal::SdEvent* sdevent) :
-    sdevent(sdevent), event(event, sdevent)
+    sdevent(sdevent), event(event, sdevent, true)
 {
 }
 
 Event::Event(sd_event* event, std::false_type,
              const internal::SdEvent* sdevent) :
     sdevent(sdevent),
-    event(std::move(event), sdevent)
+    event(std::move(event), sdevent, true)
+{
+}
+
+Event::Event(const Event& other, std::true_type) :
+    sdevent(other.sdevent), event(other.get(), other.getSdEvent(), false)
 {
 }
 
@@ -112,14 +118,20 @@ bool Event::set_watchdog(bool b) const
                                sdevent, get(), b);
 }
 
-sd_event* Event::ref(sd_event* const& event, const internal::SdEvent*& sdevent)
+sd_event* Event::ref(sd_event* const& event, const internal::SdEvent*& sdevent,
+                     bool& owned)
 {
+    owned = true;
     return sdevent->sd_event_ref(event);
 }
 
-void Event::drop(sd_event*&& event, const internal::SdEvent*& sdevent)
+void Event::drop(sd_event*&& event, const internal::SdEvent*& sdevent,
+                 bool& owned)
 {
-    sdevent->sd_event_unref(event);
+    if (owned)
+    {
+        sdevent->sd_event_unref(event);
+    }
 }
 
 } // namespace sdeventplus
