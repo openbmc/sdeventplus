@@ -8,7 +8,7 @@ meson.get_compiler('cpp').has_header_symbol(
   required: true)
 
 sdeventplus_deps = [
-  dependency('libsystemd', version: '>=239'),
+  dependency('libsystemd', version: '>=240'),
   dependency('stdplus'),
   function2,
 ]
