@@ -5,17 +5,27 @@
 
 #include <chrono>
 #include <cstdio>
+#include <functional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
+#include <sdeventplus/source/signal.hpp>
 #include <sdeventplus/utility/timer.hpp>
+#include <stdplus/signal.hpp>
 #include <string>
 
 using sdeventplus::Clock;
 using sdeventplus::ClockId;
 using sdeventplus::Event;
+using sdeventplus::source::Signal;
 
 constexpr auto clockId = ClockId::RealTime;
 using Timer = sdeventplus::utility::Timer<clockId>;
+
+void intCb(Signal& signal, const struct signalfd_siginfo*)
+{
+    printf("Exiting\n");
+    signal.get_event().exit(0);
+}
 
 int main(int argc, char* argv[])
 {
@@ -31,5 +41,7 @@ int main(int argc, char* argv[])
     auto event = Event::get_default();
     Timer timer(event, [](Timer&) { printf("Beat\n"); },
                 std::chrono::seconds{interval});
+    stdplus::signal::block(SIGINT);
+    Signal signal(event, SIGINT, intCb);
     return event.loop();
 }
