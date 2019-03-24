@@ -42,6 +42,6 @@ int main(int argc, char* argv[])
     Timer timer(event, [](Timer&) { printf("Beat\n"); },
                 std::chrono::seconds{interval});
     stdplus::signal::block(SIGINT);
-    Signal signal(event, SIGINT, intCb);
+    Signal(event, SIGINT, intCb).set_floating(true);
     return event.loop();
 }
