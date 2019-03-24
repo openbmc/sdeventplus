@@ -46,6 +46,6 @@ int main(int argc, char* argv[])
     Time time(event, Clock(event).now(), std::chrono::seconds{1},
               std::move(hbFunc));
     stdplus::signal::block(SIGINT);
-    Signal signal(event, SIGINT, intCb);
+    Signal(event, SIGINT, intCb).set_floating(true);
     return event.loop();
 }
