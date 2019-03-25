@@ -121,6 +121,7 @@ class Base
      *
      *  @param[in] event  - The event associated with the source
      *  @param[in] source - The underlying sd_event_source wrapped
+     *  @param[in]        - Signifies that ownership is being transfered
      *  @throws SdEventError for underlying sd_event errors
      */
     Base(const Event& event, sd_event_source* source, std::false_type);
