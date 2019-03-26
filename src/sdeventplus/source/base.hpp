@@ -9,6 +9,7 @@
 #include <stdplus/handle/managed.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
+#include <utility>
 
 namespace sdeventplus
 {
@@ -152,7 +153,7 @@ class Base
     template <typename Callback, class Source,
               const Callback& (Source::*getter)() const, typename... Args>
     static int sourceCallback(const char* name, sd_event_source*,
-                              void* userdata, Args... args)
+                              void* userdata, Args&&... args)
     {
         if (userdata == nullptr)
         {
@@ -161,7 +162,8 @@ class Base
         }
         Source* source = reinterpret_cast<Source*>(userdata);
         return internal::performCallback(name, (source->*getter)(),
-                                         std::ref(*source), args...);
+                                         std::ref(*source),
+                                         std::forward<Args>(args)...);
     }
 
   private:
