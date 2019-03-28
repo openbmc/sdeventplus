@@ -18,6 +18,7 @@ sdeventplus = library(
   ],
   include_directories: includes,
   implicit_include_directories: false,
+  version: meson.project_version(),
   dependencies: libsystemd,
   install: true)
 
