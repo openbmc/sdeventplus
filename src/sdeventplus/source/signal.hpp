@@ -1,6 +1,6 @@
 #pragma once
 
-#include <functional>
+#include <function2/function2.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sys/signalfd.h>
@@ -18,8 +18,8 @@ class Signal : public Base
 {
   public:
     /** @brief Type of the user provided callback function */
-    using Callback =
-        std::function<void(Signal& source, const struct signalfd_siginfo* si)>;
+    using Callback = fu2::unique_function<void(
+        Signal& source, const struct signalfd_siginfo* si)>;
 
     /** @brief Creates a new signal event source on the provided event loop
      *         This type of source defaults to Enabled::On, executing the
@@ -53,7 +53,7 @@ class Signal : public Base
      *
      *  @return A reference to the callback
      */
-    const Callback& get_callback() const;
+    Callback& get_callback();
 
     /** @brief Creates a new signal source attached to the Event
      *
