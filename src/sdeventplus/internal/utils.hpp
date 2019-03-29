@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstdio>
 #include <exception>
+#include <functional>
 #include <sdeventplus/exception.hpp>
 #include <stdexcept>
 #include <stdplus/util/cexec.hpp>
@@ -23,12 +24,12 @@ namespace internal
  *  @details A generic wrapper that turns exceptions into
  *           error messages and return codes.
  */
-template <typename Func, typename... Args>
-inline int performCallback(const char* name, Func func, Args... args)
+template <typename... Args>
+inline int performCallback(const char* name, Args&&... args)
 {
     try
     {
-        func(args...);
+        std::invoke(std::forward<Args>(args)...);
         return 0;
     }
     catch (const std::system_error& e)
