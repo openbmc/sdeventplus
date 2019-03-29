@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <function2/function2.hpp>
 #include <functional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/internal/utils.hpp>
@@ -25,7 +26,7 @@ class Time : public Base
     /** @brief Type used to define the accuracy of the time source */
     using Accuracy = SdEventDuration;
     /** @brief Type of the user provided callback function */
-    using Callback = std::function<void(Time& source, TimePoint time)>;
+    using Callback = fu2::unique_function<void(Time& source, TimePoint time)>;
 
     /** @brief Creates a new time event source on the provided event loop
      *         This type of source defaults to Enabled::Oneshot, and needs to be
@@ -81,7 +82,7 @@ class Time : public Base
      *
      *  @return A reference to the callback
      */
-    const Callback& get_callback() const;
+    Callback& get_callback();
 
     /** @brief Creates a new time source attached to the Event
      *
