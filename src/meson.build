@@ -1,6 +1,28 @@
+# Function2 might not have a pkg-config. It is header only so just make
+# sure we can access the needed symbols from the header.
+function2_dep = dependency('function2', required: false)
+has_function2 = meson.get_compiler('cpp').has_header_symbol(
+  'function2/function2.hpp',
+  'fu2::unique_function',
+  dependencies: function2_dep,
+  required: false)
+if not has_function2
+  function2_proj = import('cmake').subproject(
+    'function2',
+    cmake_options: [
+	  '-DBUILD_TESTING=OFF',
+    ],
+    required: false)
+  assert(function2_proj.found(), 'function2 is required')
+  if function2_proj.found()
+    function2_dep = function2_proj.dependency('function2')
+  endif
+endif
+
 sdeventplus_deps = [
   dependency('libsystemd', version: '>=239'),
   dependency('stdplus', fallback: ['stdplus', 'stdplus']),
+  function2_dep,
 ]
 
 sdeventplus_headers = include_directories('.')

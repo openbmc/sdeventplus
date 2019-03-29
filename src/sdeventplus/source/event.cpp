@@ -20,7 +20,7 @@ EventBase::EventBase(const char* name, CreateFunc create, const Event& event,
 {
 }
 
-const EventBase::Callback& EventBase::get_callback() const
+EventBase::Callback& EventBase::get_callback()
 {
     return callback;
 }
