@@ -1,6 +1,16 @@
+# Function2 might not have a pkg-config. It is header only so just make
+# sure we can access the needed symbols from the header.
+function2 = dependency('function2', required: false)
+meson.get_compiler('cpp').has_header_symbol(
+  'function2/function2.hpp',
+  'fu2::unique_function',
+  dependencies: function2,
+  required: true)
+
 sdeventplus_deps = [
   dependency('libsystemd', version: '>=239'),
   dependency('stdplus'),
+  function2,
 ]
 
 sdeventplus_headers = include_directories('.')

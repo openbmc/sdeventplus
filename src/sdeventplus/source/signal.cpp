@@ -27,7 +27,7 @@ int Signal::get_signal() const
                                event.getSdEvent(), get());
 }
 
-const Signal::Callback& Signal::get_callback() const
+Signal::Callback& Signal::get_callback()
 {
     return callback;
 }
