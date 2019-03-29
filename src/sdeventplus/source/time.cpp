@@ -64,7 +64,7 @@ void Time<Id>::set_accuracy(Accuracy accuracy) const
 }
 
 template <ClockId Id>
-const typename Time<Id>::Callback& Time<Id>::get_callback() const
+typename Time<Id>::Callback& Time<Id>::get_callback()
 {
     return callback;
 }
