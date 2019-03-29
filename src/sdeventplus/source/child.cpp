@@ -29,7 +29,7 @@ pid_t Child::get_pid() const
     return pid;
 }
 
-const Child::Callback& Child::get_callback() const
+Child::Callback& Child::get_callback()
 {
     return callback;
 }
