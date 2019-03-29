@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
+#include <function2/function2.hpp>
 #include <functional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
@@ -34,7 +35,7 @@ enum class Enabled
 class Base
 {
   public:
-    using Callback = std::function<void(Base& source)>;
+    using Callback = fu2::unique_function<void(Base& source)>;
 
     virtual ~Base();
 
@@ -139,7 +140,7 @@ class Base
      *  @return A reference to the callback, this should be checked to make sure
      *          the callback is valid as there is no guarantee
      */
-    const Callback& get_prepare() const;
+    Callback& get_prepare();
 
     /** @brief A helper for subclasses to trivially wrap a c++ style callback
      *         to be called from the sd-event c library
@@ -150,8 +151,8 @@ class Base
      *  @param[in] args...  - Extra arguments to pass to the callaback
      *  @return An negative errno on error, or 0 on success
      */
-    template <typename Callback, class Source,
-              const Callback& (Source::*getter)() const, typename... Args>
+    template <typename Callback, class Source, Callback& (Source::*getter)(),
+              typename... Args>
     static int sourceCallback(const char* name, sd_event_source*,
                               void* userdata, Args&&... args)
     {

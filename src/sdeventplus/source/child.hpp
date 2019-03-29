@@ -1,5 +1,6 @@
 #pragma once
 
+#include <function2/function2.hpp>
 #include <functional>
 #include <sdeventplus/source/base.hpp>
 #include <signal.h>
@@ -16,7 +17,8 @@ namespace source
 class Child : public Base
 {
   public:
-    using Callback = std::function<void(Child& source, const siginfo_t* si)>;
+    using Callback =
+        fu2::unique_function<void(Child& source, const siginfo_t* si)>;
 
     /** @brief Adds a new child source handler to the Event
      *         This type of source defaults to Enabled::Oneshot, and needs to be
@@ -51,7 +53,7 @@ class Child : public Base
      *
      *  @return A reference to the callback
      */
-    const Callback& get_callback() const;
+    Callback& get_callback();
 
     /** @brief Creates a new child source attached to the Event
      *

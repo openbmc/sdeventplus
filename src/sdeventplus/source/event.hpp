@@ -1,5 +1,6 @@
 #pragma once
 
+#include <function2/function2.hpp>
 #include <functional>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/base.hpp>
@@ -19,7 +20,7 @@ namespace source
 class EventBase : public Base
 {
   public:
-    using Callback = std::function<void(EventBase& source)>;
+    using Callback = fu2::unique_function<void(EventBase& source)>;
 
     /** @brief Sets the callback
      *
@@ -50,7 +51,7 @@ class EventBase : public Base
      *
      *  @return A reference to the callback
      */
-    const Callback& get_callback() const;
+    Callback& get_callback();
 
     /** @brief Creates a new source attached to the Event
      *
