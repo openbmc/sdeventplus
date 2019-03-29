@@ -59,7 +59,7 @@ uint32_t IO::get_revents() const
     return revents;
 }
 
-const IO::Callback& IO::get_callback() const
+IO::Callback& IO::get_callback()
 {
     return callback;
 }

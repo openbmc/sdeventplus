@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <function2/function2.hpp>
 #include <functional>
 #include <sdeventplus/source/base.hpp>
 #include <systemd/sd-event.h>
@@ -17,7 +18,7 @@ namespace source
 class IO : public Base
 {
   public:
-    using Callback = std::function<void(IO&, int fd, uint32_t revents)>;
+    using Callback = fu2::unique_function<void(IO&, int fd, uint32_t revents)>;
 
     /** @brief Adds a new IO source handler to the Event
      *         This type of source defaults to Enabled::On, executing the
@@ -83,7 +84,7 @@ class IO : public Base
      *
      *  @return A reference to the callback
      */
-    const Callback& get_callback() const;
+    Callback& get_callback();
 
     /** @brief Creates a new IO source attached to the Event
      *
