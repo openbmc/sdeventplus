@@ -61,7 +61,7 @@ void Base::set_prepare(Callback&& callback)
     }
 }
 
-const Base::Callback& Base::get_prepare() const
+Base::Callback& Base::get_prepare()
 {
     return prepare;
 }
