@@ -34,6 +34,12 @@ class Time : public Base
     /** @brief Type of the user provided callback function */
     using Callback = fu2::unique_function<void(Time& source, TimePoint time)>;
 
+    Time(Time&& other) = default;
+    Time& operator=(Time&& other) = default;
+    Time(const Time& other);
+    Time& operator=(const Time& other);
+    virtual ~Time() = default;
+
     /** @brief Creates a new time event source on the provided event loop
      *         This type of source defaults to Enabled::Oneshot, and needs to be
      *         reconfigured upon each callback.

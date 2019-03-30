@@ -10,6 +10,16 @@ namespace sdeventplus
 namespace source
 {
 
+Signal::Signal(const Signal& other) : Base(other)
+{
+}
+
+Signal& Signal::operator=(const Signal& other)
+{
+    static_cast<Base&>(*this) = other;
+    return *this;
+}
+
 Signal::Signal(const Event& event, int sig, Callback&& callback) :
     Base(event, create_source(event, sig), std::false_type())
 {

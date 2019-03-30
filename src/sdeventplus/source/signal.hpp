@@ -27,6 +27,12 @@ class Signal : public Base
     using Callback = fu2::unique_function<void(
         Signal& source, const struct signalfd_siginfo* si)>;
 
+    Signal(Signal&& other) = default;
+    Signal& operator=(Signal&& other) = default;
+    Signal(const Signal& other);
+    Signal& operator=(const Signal& other);
+    virtual ~Signal() = default;
+
     /** @brief Creates a new signal event source on the provided event loop
      *         This type of source defaults to Enabled::On, executing the
      *         callback for each signal observed. You are required to block

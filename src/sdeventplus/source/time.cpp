@@ -12,6 +12,18 @@ namespace source
 {
 
 template <ClockId Id>
+Time<Id>::Time(const Time<Id>& other) : Base(other)
+{
+}
+
+template <ClockId Id>
+Time<Id>& Time<Id>::operator=(const Time<Id>& other)
+{
+    static_cast<Base&>(*this) = other;
+    return *this;
+}
+
+template <ClockId Id>
 Time<Id>::Time(const Event& event, TimePoint time, Accuracy accuracy,
                Callback&& callback) :
     Base(event, create_source(event, time, accuracy), std::false_type())

@@ -10,6 +10,16 @@ namespace sdeventplus
 namespace source
 {
 
+Child::Child(const Child& other) : Base(other)
+{
+}
+
+Child& Child::operator=(const Child& other)
+{
+    static_cast<Base&>(*this) = other;
+    return *this;
+}
+
 Child::Child(const Event& event, pid_t pid, int options, Callback&& callback) :
     Base(event, create_source(event, pid, options), std::false_type())
 {

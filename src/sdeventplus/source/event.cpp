@@ -9,6 +9,16 @@ namespace sdeventplus
 namespace source
 {
 
+EventBase::EventBase(const EventBase& other) : Base(other)
+{
+}
+
+EventBase& EventBase::operator=(const EventBase& other)
+{
+    static_cast<Base&>(*this) = other;
+    return *this;
+}
+
 void EventBase::set_callback(Callback&& callback)
 {
     get_userdata().callback = std::move(callback);

@@ -27,6 +27,12 @@ class EventBase : public Base
   public:
     using Callback = fu2::unique_function<void(EventBase& source)>;
 
+    EventBase(EventBase&& other) = default;
+    EventBase& operator=(EventBase&& other) = default;
+    EventBase(const EventBase& other);
+    EventBase& operator=(const EventBase& other);
+    virtual ~EventBase() = default;
+
     /** @brief Sets the callback
      *
      *  @param[in] callback - The function executed on event dispatch

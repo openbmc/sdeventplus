@@ -9,6 +9,16 @@ namespace sdeventplus
 namespace source
 {
 
+IO::IO(const IO& other) : Base(other)
+{
+}
+
+IO& IO::operator=(const IO& other)
+{
+    static_cast<Base&>(*this) = other;
+    return *this;
+}
+
 IO::IO(const Event& event, int fd, uint32_t events, Callback&& callback) :
     Base(event, create_source(event, fd, events), std::false_type())
 {
