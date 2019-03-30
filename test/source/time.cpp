@@ -21,6 +21,7 @@ namespace
 
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
@@ -47,13 +48,8 @@ class TimeTest : public testing::Test
 
     void expect_time_destroy(sd_event* event, sd_event_source* source)
     {
-        {
-            testing::InSequence sequence;
-            EXPECT_CALL(mock, sd_event_source_set_enabled(source, SD_EVENT_OFF))
-                .WillOnce(Return(0));
-            EXPECT_CALL(mock, sd_event_source_unref(source))
-                .WillOnce(Return(nullptr));
-        }
+        EXPECT_CALL(mock, sd_event_source_unref(source))
+            .WillOnce(Return(nullptr));
         EXPECT_CALL(mock, sd_event_unref(event)).WillOnce(Return(nullptr));
     }
 };
@@ -77,12 +73,23 @@ TEST_F(TimeTest, ConstructSuccess)
                                   2000000, 50000, testing::_, nullptr))
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<5>(&handler),
                         Return(0)));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     Time<id> time(*event, expected_time, expected_accuracy,
                   std::move(callback));
     EXPECT_FALSE(callback);
+    EXPECT_NE(&time, userdata);
     EXPECT_EQ(expected_event, time.get_event().get());
     EXPECT_EQ(expected_source, time.get());
 
@@ -96,6 +103,7 @@ TEST_F(TimeTest, ConstructSuccess)
               saved_time);
 
     expect_time_destroy(expected_event, expected_source);
+    destroy(userdata);
 }
 
 TEST_F(TimeTest, ConstructError)
@@ -120,6 +128,8 @@ class TimeMethodTest : public TimeTest
   protected:
     static constexpr ClockId id = ClockId::BootTime;
     std::unique_ptr<Time<id>> time;
+    sd_event_destroy_t destroy;
+    void* userdata;
 
     void SetUp()
     {
@@ -129,9 +139,17 @@ class TimeMethodTest : public TimeTest
                                             CLOCK_BOOTTIME, 2000000, 50000,
                                             testing::_, nullptr))
             .WillOnce(DoAll(SetArgPointee<1>(expected_source), Return(0)));
-        EXPECT_CALL(mock,
-                    sd_event_source_set_userdata(expected_source, testing::_))
-            .WillOnce(Return(nullptr));
+        {
+            testing::InSequence seq;
+            EXPECT_CALL(mock, sd_event_source_set_destroy_callback(
+                                  expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+            EXPECT_CALL(
+                mock, sd_event_source_set_userdata(expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+            EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+                .WillRepeatedly(ReturnPointee(&userdata));
+        }
         time = std::make_unique<Time<id>>(
             *event, Time<id>::TimePoint(std::chrono::seconds{2}),
             std::chrono::milliseconds{50},
@@ -142,6 +160,8 @@ class TimeMethodTest : public TimeTest
     {
         expect_time_destroy(expected_event, expected_source);
         time.reset();
+        reinterpret_cast<Time<id>*>(userdata)->set_callback(nullptr);
+        destroy(userdata);
     }
 };
 

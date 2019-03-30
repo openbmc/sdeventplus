@@ -1,3 +1,4 @@
+#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/event.hpp>
@@ -10,19 +11,31 @@ namespace source
 
 void EventBase::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
+}
+
+EventBase::EventBase(const EventBase& other, std::true_type) :
+    Base(other, std::true_type())
+{
 }
 
 EventBase::EventBase(const char* name, CreateFunc create, const Event& event,
                      Callback&& callback) :
-    Base(event, create_source(name, create, event), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(name, create, event), std::false_type())
 {
+    set_userdata(std::make_unique<EventBase>(*this, std::true_type()));
+    set_callback(std::move(callback));
+}
+
+EventBase& EventBase::get_userdata() const
+{
+    return *reinterpret_cast<EventBase*>(
+        event.getSdEvent()->sd_event_source_get_userdata(get()));
 }
 
 EventBase::Callback& EventBase::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 sd_event_source* EventBase::create_source(const char* name, CreateFunc create,

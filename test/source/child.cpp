@@ -21,6 +21,7 @@ namespace
 
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
@@ -47,14 +48,8 @@ class ChildTest : public testing::Test
 
     void expect_destruct()
     {
-        {
-            testing::InSequence sequence;
-            EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source,
-                                                          SD_EVENT_OFF))
-                .WillOnce(Return(0));
-            EXPECT_CALL(mock, sd_event_source_unref(expected_source))
-                .WillOnce(Return(nullptr));
-        }
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
         EXPECT_CALL(mock, sd_event_unref(expected_event))
             .WillOnce(Return(nullptr));
     }
@@ -72,9 +67,19 @@ TEST_F(ChildTest, ConstructSuccess)
                                          options, testing::_, nullptr))
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<4>(&handler),
                         Return(0)));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     int completions = 0;
     const siginfo_t* return_si;
     Child::Callback callback = [&](Child&, const siginfo_t* si) {
@@ -83,7 +88,7 @@ TEST_F(ChildTest, ConstructSuccess)
     };
     Child child(*event, pid, options, std::move(callback));
     EXPECT_FALSE(callback);
-    EXPECT_EQ(&child, userdata);
+    EXPECT_NE(&child, userdata);
     EXPECT_EQ(0, completions);
 
     const siginfo_t* expected_si = reinterpret_cast<siginfo_t*>(865);
@@ -96,6 +101,7 @@ TEST_F(ChildTest, ConstructSuccess)
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(ChildTest, ConstructError)
@@ -120,6 +126,8 @@ class ChildMethodTest : public ChildTest
 {
   protected:
     std::unique_ptr<Child> child;
+    sd_event_destroy_t destroy;
+    void* userdata;
 
     void SetUp()
     {
@@ -131,9 +139,17 @@ class ChildMethodTest : public ChildTest
         EXPECT_CALL(mock, sd_event_add_child(expected_event, testing::_, pid,
                                              options, testing::_, nullptr))
             .WillOnce(DoAll(SetArgPointee<1>(expected_source), Return(0)));
-        EXPECT_CALL(mock,
-                    sd_event_source_set_userdata(expected_source, testing::_))
-            .WillOnce(Return(nullptr));
+        {
+            testing::InSequence seq;
+            EXPECT_CALL(mock, sd_event_source_set_destroy_callback(
+                                  expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+            EXPECT_CALL(
+                mock, sd_event_source_set_userdata(expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+            EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+                .WillRepeatedly(ReturnPointee(&userdata));
+        }
         child = std::make_unique<Child>(*event, pid, options,
                                         [](Child&, const siginfo_t*) {});
     }
@@ -142,6 +158,8 @@ class ChildMethodTest : public ChildTest
     {
         expect_destruct();
         child.reset();
+        reinterpret_cast<Child*>(userdata)->set_callback(nullptr);
+        destroy(userdata);
     }
 };
 

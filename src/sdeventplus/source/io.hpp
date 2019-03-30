@@ -5,6 +5,7 @@
 #include <functional>
 #include <sdeventplus/source/base.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
@@ -29,9 +30,18 @@ class IO : public Base
      *  @param[in] events   - The event mask passed which determines triggers
      *                        See epoll_ctl(2) for more info on the mask
      *  @param[in] callback - The function executed on event dispatch
-     *  @throws SdEventError for underlying sd_event errors
      */
     IO(const Event& event, int fd, uint32_t events, Callback&& callback);
+
+    /** @brief Constructs a non-owning io source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     */
+    IO(const IO& event, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -79,6 +89,12 @@ class IO : public Base
 
   private:
     Callback callback;
+
+    /** @brief Returns a reference to the source owned io
+     *
+     *  @return A reference to the io
+     */
+    IO& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *

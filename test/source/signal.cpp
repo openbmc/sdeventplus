@@ -21,6 +21,7 @@ namespace
 
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
@@ -47,14 +48,8 @@ class SignalTest : public testing::Test
 
     void expect_destruct()
     {
-        {
-            testing::InSequence sequence;
-            EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source,
-                                                          SD_EVENT_OFF))
-                .WillOnce(Return(0));
-            EXPECT_CALL(mock, sd_event_source_unref(expected_source))
-                .WillOnce(Return(nullptr));
-        }
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
         EXPECT_CALL(mock, sd_event_unref(expected_event))
             .WillOnce(Return(nullptr));
     }
@@ -71,9 +66,19 @@ TEST_F(SignalTest, ConstructSuccess)
                                           testing::_, nullptr))
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<3>(&handler),
                         Return(0)));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     int completions = 0;
     const struct signalfd_siginfo* return_si;
     Signal::Callback callback = [&](Signal&,
@@ -83,7 +88,7 @@ TEST_F(SignalTest, ConstructSuccess)
     };
     Signal signal(*event, sig, std::move(callback));
     EXPECT_FALSE(callback);
-    EXPECT_EQ(&signal, userdata);
+    EXPECT_NE(&signal, userdata);
     EXPECT_EQ(0, completions);
 
     const struct signalfd_siginfo* expected_si =
@@ -97,6 +102,7 @@ TEST_F(SignalTest, ConstructSuccess)
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(SignalTest, ConstructError)
@@ -120,6 +126,8 @@ class SignalMethodTest : public SignalTest
 {
   protected:
     std::unique_ptr<Signal> signal;
+    sd_event_destroy_t destroy;
+    void* userdata;
 
     void SetUp()
     {
@@ -130,9 +138,17 @@ class SignalMethodTest : public SignalTest
         EXPECT_CALL(mock, sd_event_add_signal(expected_event, testing::_, sig,
                                               testing::_, nullptr))
             .WillOnce(DoAll(SetArgPointee<1>(expected_source), Return(0)));
-        EXPECT_CALL(mock,
-                    sd_event_source_set_userdata(expected_source, testing::_))
-            .WillOnce(Return(nullptr));
+        {
+            testing::InSequence seq;
+            EXPECT_CALL(mock, sd_event_source_set_destroy_callback(
+                                  expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+            EXPECT_CALL(
+                mock, sd_event_source_set_userdata(expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+            EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+                .WillRepeatedly(ReturnPointee(&userdata));
+        }
         signal = std::make_unique<Signal>(
             *event, sig, [](Signal&, const struct signalfd_siginfo*) {});
     }
@@ -141,6 +157,8 @@ class SignalMethodTest : public SignalTest
     {
         expect_destruct();
         signal.reset();
+        reinterpret_cast<Signal*>(userdata)->set_callback(nullptr);
+        destroy(userdata);
     }
 };
 

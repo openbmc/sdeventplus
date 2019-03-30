@@ -4,6 +4,7 @@
 #include <functional>
 #include <sdeventplus/source/base.hpp>
 #include <signal.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
@@ -29,9 +30,18 @@ class Child : public Base
      *  @param[in] options  - An OR-ed mask that determines triggers
      *                        See waitid(2) for further information
      *  @param[in] callback - The function executed on event dispatch
-     *  @throws SdEventError for underlying sd_event errors
      */
     Child(const Event& event, pid_t pid, int options, Callback&& callback);
+
+    /** @brief Constructs a non-owning child source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     */
+    Child(const Child& other, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -48,6 +58,12 @@ class Child : public Base
 
   private:
     Callback callback;
+
+    /** @brief Returns a reference to the source owned child
+     *
+     *  @return A reference to the child
+     */
+    Child& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *

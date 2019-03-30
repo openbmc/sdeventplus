@@ -7,6 +7,7 @@
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
@@ -40,6 +41,17 @@ class Time : public Base
      */
     Time(const Event& event, TimePoint time, Accuracy accuracy,
          Callback&& callback);
+
+    /** @brief Constructs a non-owning time source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    Time(const Time& other, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -77,6 +89,12 @@ class Time : public Base
 
   private:
     Callback callback;
+
+    /** @brief Returns a reference to the source owned time
+     *
+     *  @return A reference to the time
+     */
+    Time& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *

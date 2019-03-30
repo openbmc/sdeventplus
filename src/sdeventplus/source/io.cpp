@@ -10,14 +10,19 @@ namespace source
 {
 
 IO::IO(const Event& event, int fd, uint32_t events, Callback&& callback) :
-    Base(event, create_source(event, fd, events), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(event, fd, events), std::false_type())
+{
+    set_userdata(std::make_unique<IO>(*this, std::true_type()));
+    set_callback(std::move(callback));
+}
+
+IO::IO(const IO& other, std::true_type) : Base(other, std::true_type())
 {
 }
 
 void IO::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
 }
 
 int IO::get_fd() const
@@ -59,9 +64,15 @@ uint32_t IO::get_revents() const
     return revents;
 }
 
+IO& IO::get_userdata() const
+{
+    return *reinterpret_cast<IO*>(
+        event.getSdEvent()->sd_event_source_get_userdata(get()));
+}
+
 IO::Callback& IO::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 sd_event_source* IO::create_source(const Event& event, int fd, uint32_t events)

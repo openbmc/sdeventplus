@@ -1,3 +1,4 @@
+#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/child.hpp>
@@ -10,14 +11,19 @@ namespace source
 {
 
 Child::Child(const Event& event, pid_t pid, int options, Callback&& callback) :
-    Base(event, create_source(event, pid, options), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(event, pid, options), std::false_type())
+{
+    set_userdata(std::make_unique<Child>(*this, std::true_type()));
+    set_callback(std::move(callback));
+}
+
+Child::Child(const Child& other, std::true_type) : Base(other, std::true_type())
 {
 }
 
 void Child::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
 }
 
 pid_t Child::get_pid() const
@@ -29,9 +35,15 @@ pid_t Child::get_pid() const
     return pid;
 }
 
+Child& Child::get_userdata() const
+{
+    return *reinterpret_cast<Child*>(
+        event.getSdEvent()->sd_event_source_get_userdata(get()));
+}
+
 Child::Callback& Child::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 sd_event_source* Child::create_source(const Event& event, pid_t pid,

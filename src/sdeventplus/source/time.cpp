@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <memory>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
@@ -14,15 +14,22 @@ namespace source
 template <ClockId Id>
 Time<Id>::Time(const Event& event, TimePoint time, Accuracy accuracy,
                Callback&& callback) :
-    Base(event, create_source(event, time, accuracy), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(event, time, accuracy), std::false_type())
+{
+    set_userdata(std::make_unique<Time>(*this, std::true_type()));
+    set_callback(std::move(callback));
+}
+
+template <ClockId Id>
+Time<Id>::Time(const Time<Id>& other, std::true_type) :
+    Base(other, std::true_type())
 {
 }
 
 template <ClockId Id>
 void Time<Id>::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
 }
 
 template <ClockId Id>
@@ -64,9 +71,16 @@ void Time<Id>::set_accuracy(Accuracy accuracy) const
 }
 
 template <ClockId Id>
+Time<Id>& Time<Id>::get_userdata() const
+{
+    return *reinterpret_cast<Time<Id>*>(
+        event.getSdEvent()->sd_event_source_get_userdata(get()));
+}
+
+template <ClockId Id>
 typename Time<Id>::Callback& Time<Id>::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 template <ClockId Id>
