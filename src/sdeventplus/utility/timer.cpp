@@ -26,6 +26,15 @@ Timer<Id>& Timer<Id>::operator=(Timer&& other)
 {
     if (this != &other)
     {
+        try
+        {
+            timeSource.set_enabled(source::Enabled::Off);
+        }
+        catch (std::bad_optional_access&)
+        {
+            // This is normal for a moved object
+        }
+
         expired = std::move(other.expired);
         initialized = std::move(other.initialized);
         callback = std::move(other.callback);
@@ -52,6 +61,19 @@ Timer<Id>::Timer(const Event& event, Callback&& callback,
                          std::placeholders::_2))
 {
     setEnabled(interval.has_value());
+}
+
+template <ClockId Id>
+Timer<Id>::~Timer()
+{
+    try
+    {
+        timeSource.set_enabled(source::Enabled::Off);
+    }
+    catch (std::bad_optional_access&)
+    {
+        // This is normal for a moved object
+    }
 }
 
 template <ClockId Id>
