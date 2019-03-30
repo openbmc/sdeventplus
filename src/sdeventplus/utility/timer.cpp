@@ -2,6 +2,7 @@
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/utility/timer.hpp>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 namespace sdeventplus
@@ -10,76 +11,34 @@ namespace utility
 {
 
 template <ClockId Id>
-Timer<Id>::Timer(Timer&& other) :
-    expired(std::move(other.expired)),
-    initialized(std::move(other.initialized)),
-    callback(std::move(other.callback)), clock(std::move(other.clock)),
-    interval(std::move(other.interval)), timeSource(std::move(other.timeSource))
-{
-    timeSource.set_callback(std::bind(&Timer::internalCallback, this,
-                                      std::placeholders::_1,
-                                      std::placeholders::_2));
-}
-
-template <ClockId Id>
-Timer<Id>& Timer<Id>::operator=(Timer&& other)
-{
-    if (this != &other)
-    {
-        try
-        {
-            timeSource.set_enabled(source::Enabled::Off);
-        }
-        catch (std::bad_optional_access&)
-        {
-            // This is normal for a moved object
-        }
-
-        expired = std::move(other.expired);
-        initialized = std::move(other.initialized);
-        callback = std::move(other.callback);
-        clock = std::move(other.clock);
-        interval = std::move(other.interval);
-        timeSource = std::move(other.timeSource);
-        timeSource.set_callback(std::bind(&Timer::internalCallback, this,
-                                          std::placeholders::_1,
-                                          std::placeholders::_2));
-    }
-    return *this;
-}
-
-template <ClockId Id>
 Timer<Id>::Timer(const Event& event, Callback&& callback,
                  std::optional<Duration> interval,
                  typename source::Time<Id>::Accuracy accuracy) :
-    expired(false),
-    initialized(interval.has_value()), callback(std::move(callback)),
-    clock(event), interval(interval),
-    timeSource(event, clock.now() + interval.value_or(Duration::zero()),
-               accuracy,
-               std::bind(&Timer::internalCallback, this, std::placeholders::_1,
-                         std::placeholders::_2))
+    userdata(nullptr),
+    timeSource(event,
+               Clock<Id>(event).now() + interval.value_or(Duration::zero()),
+               accuracy, nullptr)
 {
+    auto timerData = std::make_unique<detail::TimerData<Id>>(
+        *this, std::move(callback), interval);
+    userdata = timerData.get();
+    timerData->userdata = timerData.get();
+    timeSource.set_callback(
+        std::bind(&Timer::internalCallback, std::move(timerData),
+                  std::placeholders::_1, std::placeholders::_2));
     setEnabled(interval.has_value());
 }
 
 template <ClockId Id>
-Timer<Id>::~Timer()
+Timer<Id>::Timer(const Timer<Id>& other, std::true_type) :
+    userdata(other.userdata), timeSource(other.timeSource, std::true_type())
 {
-    try
-    {
-        timeSource.set_enabled(source::Enabled::Off);
-    }
-    catch (std::bad_optional_access&)
-    {
-        // This is normal for a moved object
-    }
 }
 
 template <ClockId Id>
 void Timer<Id>::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    userdata->callback = std::move(callback);
 }
 
 template <ClockId Id>
@@ -91,7 +50,7 @@ const Event& Timer<Id>::get_event() const
 template <ClockId Id>
 bool Timer<Id>::hasExpired() const
 {
-    return expired;
+    return userdata->expired;
 }
 
 template <ClockId Id>
@@ -103,7 +62,7 @@ bool Timer<Id>::isEnabled() const
 template <ClockId Id>
 std::optional<typename Timer<Id>::Duration> Timer<Id>::getInterval() const
 {
-    return interval;
+    return userdata->interval;
 }
 
 template <ClockId Id>
@@ -115,7 +74,7 @@ typename Timer<Id>::Duration Timer<Id>::getRemaining() const
     }
 
     auto end = timeSource.get_time();
-    auto now = clock.now();
+    auto now = userdata->clock.now();
     if (end < now)
     {
         return Duration{0};
@@ -126,7 +85,7 @@ typename Timer<Id>::Duration Timer<Id>::getRemaining() const
 template <ClockId Id>
 void Timer<Id>::setEnabled(bool enabled)
 {
-    if (enabled && !initialized)
+    if (enabled && !userdata->initialized)
     {
         throw std::runtime_error("Timer was never initialized");
     }
@@ -137,46 +96,46 @@ void Timer<Id>::setEnabled(bool enabled)
 template <ClockId Id>
 void Timer<Id>::setRemaining(Duration remaining)
 {
-    timeSource.set_time(clock.now() + remaining);
-    initialized = true;
+    timeSource.set_time(userdata->clock.now() + remaining);
+    userdata->initialized = true;
 }
 
 template <ClockId Id>
 void Timer<Id>::resetRemaining()
 {
-    setRemaining(interval.value());
+    setRemaining(userdata->interval.value());
 }
 
 template <ClockId Id>
 void Timer<Id>::setInterval(std::optional<Duration> interval)
 {
-    this->interval = interval;
+    userdata->interval = interval;
 }
 
 template <ClockId Id>
 void Timer<Id>::clearExpired()
 {
-    expired = false;
+    userdata->expired = false;
 }
 
 template <ClockId Id>
 void Timer<Id>::restart(std::optional<Duration> interval)
 {
     clearExpired();
-    initialized = false;
+    userdata->initialized = false;
     setInterval(interval);
-    if (interval)
+    if (userdata->interval)
     {
         resetRemaining();
     }
-    setEnabled(interval.has_value());
+    setEnabled(userdata->interval.has_value());
 }
 
 template <ClockId Id>
 void Timer<Id>::restartOnce(Duration remaining)
 {
     clearExpired();
-    initialized = false;
+    userdata->initialized = false;
     setInterval(std::nullopt);
     setRemaining(remaining);
     setEnabled(true);
@@ -186,9 +145,9 @@ template <ClockId Id>
 void Timer<Id>::internalCallback(source::Time<Id>&,
                                  typename source::Time<Id>::TimePoint)
 {
-    expired = true;
-    initialized = false;
-    if (interval)
+    userdata->expired = true;
+    userdata->initialized = false;
+    if (userdata->interval)
     {
         resetRemaining();
     }
@@ -197,9 +156,9 @@ void Timer<Id>::internalCallback(source::Time<Id>&,
         setEnabled(false);
     }
 
-    if (callback)
+    if (userdata->callback)
     {
-        callback(*this);
+        userdata->callback(*userdata);
     }
 }
 
@@ -208,6 +167,23 @@ template class Timer<ClockId::Monotonic>;
 template class Timer<ClockId::BootTime>;
 template class Timer<ClockId::RealTimeAlarm>;
 template class Timer<ClockId::BootTimeAlarm>;
+
+namespace detail
+{
+
+template <ClockId Id>
+TimerData<Id>::TimerData(const Timer<Id>& base,
+                         typename Timer<Id>::Callback&& callback,
+                         std::optional<typename Timer<Id>::Duration> interval) :
+    Timer<Id>(base, std::true_type()),
+    expired(false), initialized(interval.has_value()),
+    callback(std::move(callback)),
+    clock(Event(base.timeSource.get_event(), std::true_type())),
+    interval(interval)
+{
+}
+
+} // namespace detail
 
 } // namespace utility
 } // namespace sdeventplus

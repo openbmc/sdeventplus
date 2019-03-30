@@ -6,11 +6,18 @@
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/time.hpp>
+#include <type_traits>
 
 namespace sdeventplus
 {
 namespace utility
 {
+
+namespace detail
+{
+template <ClockId Id>
+class TimerData;
+} // namespace detail
 
 /** @class Timer<Id>
  *  @brief A simple, repeating timer around an sd_event time source
@@ -37,12 +44,6 @@ class Timer
      */
     using Callback = fu2::unique_function<void(Timer<Id>&)>;
 
-    Timer(const Timer& other) = delete;
-    Timer(Timer&& other);
-    Timer& operator=(const Timer& other) = delete;
-    Timer& operator=(Timer&& other);
-    virtual ~Timer();
-
     /** @brief Creates a new timer on the given event loop.
      *         This timer is created enabled by default if passed an interval.
      *
@@ -60,6 +61,8 @@ class Timer
           std::optional<Duration> interval = std::nullopt,
           typename source::Time<Id>::Accuracy accuracy =
               std::chrono::milliseconds{1});
+
+    Timer(const Timer& timer, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -156,17 +159,11 @@ class Timer
      */
     void restartOnce(Duration remaining);
 
-  private:
-    /** @brief Tracks the expiration status of the timer */
-    bool expired;
-    /** @brief Tracks whether or not the expiration timeout is valid */
-    bool initialized;
-    /** @brief User defined callback run on each expiration */
-    Callback callback;
-    /** @brief Clock used for updating the time source */
-    Clock<Id> clock;
-    /** @brief Interval between each timer expiration */
-    std::optional<Duration> interval;
+  protected:
+    /** @brief Reference to the heap allocated Timer.
+     *         Lifetime and ownership is managed by the timeSource
+     */
+    detail::TimerData<Id>* userdata;
     /** @brief Underlying sd_event time source that backs the timer */
     source::Time<Id> timeSource;
 
@@ -175,7 +172,35 @@ class Timer
      */
     void internalCallback(source::Time<Id>&,
                           typename source::Time<Id>::TimePoint);
+
+    friend detail::TimerData<Id>;
 };
 
+namespace detail
+{
+
+template <ClockId Id>
+class TimerData : public Timer<Id>
+{
+  private:
+    /** @brief Tracks the expiration status of the timer */
+    bool expired;
+    /** @brief Tracks whether or not the expiration timeout is valid */
+    bool initialized;
+    /** @brief User defined callback run on each expiration */
+    typename Timer<Id>::Callback callback;
+    /** @brief Clock used for updating the time source */
+    Clock<Id> clock;
+    /** @brief Interval between each timer expiration */
+    std::optional<typename Timer<Id>::Duration> interval;
+
+  public:
+    TimerData(const Timer<Id>& base, typename Timer<Id>::Callback&& callback,
+              std::optional<typename Timer<Id>::Duration> interval);
+
+    friend Timer<Id>;
+};
+
+} // namespace detail
 } // namespace utility
 } // namespace sdeventplus
