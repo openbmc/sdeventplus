@@ -94,7 +94,6 @@ class TimerTest : public testing::Test
     {
         if (timer)
         {
-            expectSetEnabled(source::Enabled::Off);
             timer.reset();
             handler_destroy(handler_userdata);
         }
@@ -377,7 +376,6 @@ TEST_F(TimerTest, CallbackMove)
     EXPECT_CALL(mock,
                 sd_event_source_set_enabled(
                     expected_source2, static_cast<int>(source::Enabled::Off)))
-        .WillOnce(Return(0))
         .WillOnce(Return(0));
     TestTimer local_timer(*event, nullptr);
 
