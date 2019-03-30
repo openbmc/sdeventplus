@@ -20,6 +20,7 @@ namespace
 
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
@@ -46,14 +47,8 @@ class EventTest : public testing::Test
 
     void expect_destruct()
     {
-        {
-            testing::InSequence sequence;
-            EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source,
-                                                          SD_EVENT_OFF))
-                .WillOnce(Return(0));
-            EXPECT_CALL(mock, sd_event_source_unref(expected_source))
-                .WillOnce(Return(nullptr));
-        }
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
         EXPECT_CALL(mock, sd_event_unref(expected_event))
             .WillOnce(Return(nullptr));
     }
@@ -63,9 +58,19 @@ TEST_F(EventTest, DeferConstruct)
 {
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     sd_event_handler_t handler;
     EXPECT_CALL(mock, sd_event_add_defer(expected_event, testing::_, testing::_,
                                          nullptr))
@@ -76,27 +81,38 @@ TEST_F(EventTest, DeferConstruct)
         completions++;
     };
     Defer defer(*event, std::move(callback));
-    EXPECT_EQ(&defer, userdata);
+    EXPECT_NE(&defer, userdata);
     EXPECT_FALSE(callback);
     EXPECT_EQ(0, completions);
 
-    EXPECT_EQ(0, handler(nullptr, &defer));
+    EXPECT_EQ(0, handler(nullptr, userdata));
     EXPECT_EQ(1, completions);
 
     defer.set_callback(std::bind([]() {}));
-    EXPECT_EQ(0, handler(nullptr, &defer));
+    EXPECT_EQ(0, handler(nullptr, userdata));
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(EventTest, PostConstruct)
 {
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     sd_event_handler_t handler;
     EXPECT_CALL(mock, sd_event_add_post(expected_event, testing::_, testing::_,
                                         nullptr))
@@ -107,23 +123,34 @@ TEST_F(EventTest, PostConstruct)
         completions++;
     };
     Post post(*event, std::move(callback));
-    EXPECT_EQ(&post, userdata);
+    EXPECT_NE(&post, userdata);
     EXPECT_FALSE(callback);
     EXPECT_EQ(0, completions);
 
-    EXPECT_EQ(0, handler(nullptr, &post));
+    EXPECT_EQ(0, handler(nullptr, userdata));
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(EventTest, ExitConstruct)
 {
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     sd_event_handler_t handler;
     EXPECT_CALL(mock, sd_event_add_exit(expected_event, testing::_, testing::_,
                                         nullptr))
@@ -134,14 +161,15 @@ TEST_F(EventTest, ExitConstruct)
         completions++;
     };
     Exit exit(*event, std::move(callback));
-    EXPECT_EQ(&exit, userdata);
+    EXPECT_NE(&exit, userdata);
     EXPECT_FALSE(callback);
     EXPECT_EQ(0, completions);
 
-    EXPECT_EQ(0, handler(nullptr, &exit));
+    EXPECT_EQ(0, handler(nullptr, userdata));
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(EventTest, ConstructFailure)

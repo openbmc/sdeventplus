@@ -1,3 +1,4 @@
+#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/event.hpp>
@@ -10,19 +11,30 @@ namespace source
 
 void EventBase::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
+}
+
+EventBase::EventBase(const EventBase& other, std::true_type) :
+    Base(other, std::true_type())
+{
 }
 
 EventBase::EventBase(const char* name, CreateFunc create, const Event& event,
                      Callback&& callback) :
-    Base(event, create_source(name, create, event), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(name, create, event), std::false_type())
 {
+    set_userdata(
+        std::make_unique<detail::EventBaseData>(*this, std::move(callback)));
+}
+
+detail::EventBaseData& EventBase::get_userdata() const
+{
+    return static_cast<detail::EventBaseData&>(Base::get_userdata());
 }
 
 EventBase::Callback& EventBase::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 sd_event_source* EventBase::create_source(const char* name, CreateFunc create,
@@ -36,9 +48,22 @@ sd_event_source* EventBase::create_source(const char* name, CreateFunc create,
 
 int EventBase::eventCallback(sd_event_source* source, void* userdata)
 {
-    return sourceCallback<Callback, EventBase, &EventBase::get_callback>(
-        "eventCallback", source, userdata);
+    return sourceCallback<Callback, detail::EventBaseData,
+                          &EventBase::get_callback>("eventCallback", source,
+                                                    userdata);
 }
+
+namespace detail
+{
+
+EventBaseData::EventBaseData(const EventBase& base,
+                             EventBase::Callback&& callback) :
+    EventBase(base, std::true_type()),
+    BaseData(base), callback(std::move(callback))
+{
+}
+
+} // namespace detail
 
 Defer::Defer(const Event& event, Callback&& callback) :
     EventBase("sd_event_add_defer", &internal::SdEvent::sd_event_add_defer,

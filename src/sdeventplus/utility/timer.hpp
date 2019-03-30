@@ -41,7 +41,7 @@ class Timer
     Timer(Timer&& other);
     Timer& operator=(const Timer& other) = delete;
     Timer& operator=(Timer&& other);
-    virtual ~Timer() = default;
+    virtual ~Timer();
 
     /** @brief Creates a new timer on the given event loop.
      *         This timer is created enabled by default if passed an interval.

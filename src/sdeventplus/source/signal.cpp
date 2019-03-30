@@ -1,3 +1,4 @@
+#include <memory>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/signal.hpp>
@@ -10,14 +11,20 @@ namespace source
 {
 
 Signal::Signal(const Event& event, int sig, Callback&& callback) :
-    Base(event, create_source(event, sig), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(event, sig), std::false_type())
+{
+    set_userdata(
+        std::make_unique<detail::SignalData>(*this, std::move(callback)));
+}
+
+Signal::Signal(const Signal& other, std::true_type) :
+    Base(other, std::true_type())
 {
 }
 
 void Signal::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
 }
 
 int Signal::get_signal() const
@@ -27,9 +34,14 @@ int Signal::get_signal() const
                                event.getSdEvent(), get());
 }
 
+detail::SignalData& Signal::get_userdata() const
+{
+    return static_cast<detail::SignalData&>(Base::get_userdata());
+}
+
 Signal::Callback& Signal::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 sd_event_source* Signal::create_source(const Event& event, int sig)
@@ -44,9 +56,20 @@ sd_event_source* Signal::create_source(const Event& event, int sig)
 int Signal::signalCallback(sd_event_source* source,
                            const struct signalfd_siginfo* si, void* userdata)
 {
-    return sourceCallback<Callback, Signal, &Signal::get_callback>(
+    return sourceCallback<Callback, detail::SignalData, &Signal::get_callback>(
         "signalCallback", source, userdata, si);
 }
+
+namespace detail
+{
+
+SignalData::SignalData(const Signal& base, Signal::Callback&& callback) :
+    Signal(base, std::true_type()), BaseData(base),
+    callback(std::move(callback))
+{
+}
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus
