@@ -3,11 +3,17 @@
 #include <function2/function2.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <signal.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
 namespace source
 {
+
+namespace detail
+{
+class ChildData;
+} // namespace detail
 
 /** @class Child
  *  @brief A wrapper around the sd_event_source child type
@@ -28,9 +34,18 @@ class Child : public Base
      *  @param[in] options  - An OR-ed mask that determines triggers
      *                        See waitid(2) for further information
      *  @param[in] callback - The function executed on event dispatch
-     *  @throws SdEventError for underlying sd_event errors
      */
     Child(const Event& event, pid_t pid, int options, Callback&& callback);
+
+    /** @brief Constructs a non-owning child source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     */
+    Child(const Child& other, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -46,7 +61,11 @@ class Child : public Base
     pid_t get_pid() const;
 
   private:
-    Callback callback;
+    /** @brief Returns a reference to the source owned child
+     *
+     *  @return A reference to the child
+     */
+    detail::ChildData& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *
@@ -74,6 +93,22 @@ class Child : public Base
     static int childCallback(sd_event_source* source, const siginfo_t* si,
                              void* userdata);
 };
+
+namespace detail
+{
+
+class ChildData : public Child, public BaseData
+{
+  private:
+    Child::Callback callback;
+
+  public:
+    ChildData(const Child& base, Child::Callback&& callback);
+
+    friend Child;
+};
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus

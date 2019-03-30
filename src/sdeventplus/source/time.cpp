@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <memory>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
@@ -14,15 +14,22 @@ namespace source
 template <ClockId Id>
 Time<Id>::Time(const Event& event, TimePoint time, Accuracy accuracy,
                Callback&& callback) :
-    Base(event, create_source(event, time, accuracy), std::false_type()),
-    callback(std::move(callback))
+    Base(event, create_source(event, time, accuracy), std::false_type())
+{
+    set_userdata(
+        std::make_unique<detail::TimeData<Id>>(*this, std::move(callback)));
+}
+
+template <ClockId Id>
+Time<Id>::Time(const Time<Id>& other, std::true_type) :
+    Base(other, std::true_type())
 {
 }
 
 template <ClockId Id>
 void Time<Id>::set_callback(Callback&& callback)
 {
-    this->callback = std::move(callback);
+    get_userdata().callback = std::move(callback);
 }
 
 template <ClockId Id>
@@ -64,9 +71,15 @@ void Time<Id>::set_accuracy(Accuracy accuracy) const
 }
 
 template <ClockId Id>
+detail::TimeData<Id>& Time<Id>::get_userdata() const
+{
+    return static_cast<detail::TimeData<Id>&>(Base::get_userdata());
+}
+
+template <ClockId Id>
 typename Time<Id>::Callback& Time<Id>::get_callback()
 {
-    return callback;
+    return get_userdata().callback;
 }
 
 template <ClockId Id>
@@ -86,7 +99,7 @@ template <ClockId Id>
 int Time<Id>::timeCallback(sd_event_source* source, uint64_t usec,
                            void* userdata)
 {
-    return sourceCallback<Callback, Time, &Time::get_callback>(
+    return sourceCallback<Callback, detail::TimeData<Id>, &Time::get_callback>(
         "timeCallback", source, userdata, TimePoint(SdEventDuration(usec)));
 }
 
@@ -95,6 +108,19 @@ template class Time<ClockId::Monotonic>;
 template class Time<ClockId::BootTime>;
 template class Time<ClockId::RealTimeAlarm>;
 template class Time<ClockId::BootTimeAlarm>;
+
+namespace detail
+{
+
+template <ClockId Id>
+TimeData<Id>::TimeData(const Time<Id>& base,
+                       typename Time<Id>::Callback&& callback) :
+    Time<Id>(base, std::true_type()),
+    BaseData(base), callback(std::move(callback))
+{
+}
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus
