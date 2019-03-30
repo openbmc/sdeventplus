@@ -162,6 +162,39 @@ class IOMethodTest : public IOTest
     }
 };
 
+TEST_F(IOMethodTest, Copy)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    auto io2 = std::make_unique<IO>(*io);
+    {
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        IO io3(*io);
+
+        expect_destruct();
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        *io2 = io3;
+
+        expect_destruct();
+    }
+
+    // Delete the original IO
+    io2.swap(io);
+    expect_destruct();
+    io2.reset();
+
+    // Make sure our new copy can still access data
+    io->set_callback(nullptr);
+}
+
 TEST_F(IOMethodTest, GetFdSuccess)
 {
     const int fd = 5;

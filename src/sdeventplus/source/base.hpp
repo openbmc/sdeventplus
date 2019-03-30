@@ -8,7 +8,7 @@
 #include <memory>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
-#include <stdplus/handle/managed.hpp>
+#include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
 #include <utility>
@@ -45,6 +45,8 @@ class Base
 
     Base(Base&& other) = default;
     Base& operator=(Base&& other) = default;
+    Base(const Base& other) = default;
+    Base& operator=(const Base& other) = default;
     virtual ~Base() = default;
 
     /** @brief Gets the underlying sd_event_source
@@ -192,11 +194,13 @@ class Base
     }
 
   private:
+    static sd_event_source* ref(sd_event_source* const& source,
+                                const internal::SdEvent*& sdevent, bool& owned);
     static void drop(sd_event_source*&& source,
                      const internal::SdEvent*& sdevent, bool& owned);
 
-    stdplus::Managed<sd_event_source*, const internal::SdEvent*,
-                     bool>::Handle<drop>
+    stdplus::Copyable<sd_event_source*, const internal::SdEvent*,
+                      bool>::Handle<drop, ref>
         source;
 
     /** @brief A wrapper around deleting the heap allocated base class
