@@ -3,12 +3,19 @@
 #include <function2/function2.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/base.hpp>
+#include <sdeventplus/types.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
 namespace source
 {
+
+namespace detail
+{
+class EventBaseData;
+} // namespace detail
 
 /** @class EventBase
  *  @brief A wrapper around the sd_event_source defer type
@@ -27,6 +34,17 @@ class EventBase : public Base
      */
     void set_callback(Callback&& callback);
 
+    /** @brief Constructs a non-owning event source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+	 *  @internal
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     */
+    EventBase(const EventBase& other, sdeventplus::internal::NoOwn);
+
   protected:
     using CreateFunc = decltype(&internal::SdEvent::sd_event_add_exit);
 
@@ -38,13 +56,16 @@ class EventBase : public Base
      *  @param[in] create - The SdEvent function called to create the source
      *  @param[in] event  - The event to attach the handler
      *  @param[in] callback - The function executed on event dispatch
-     *  @throws SdEventError for underlying sd_event errors
      */
     EventBase(const char* name, CreateFunc create, const Event& event,
               Callback&& callback);
 
   private:
-    Callback callback;
+    /** @brief Returns a reference to the source owned event
+     *
+     *  @return A reference to the event
+     */
+    detail::EventBaseData& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *
@@ -71,6 +92,22 @@ class EventBase : public Base
      */
     static int eventCallback(sd_event_source* source, void* userdata);
 };
+
+namespace detail
+{
+
+class EventBaseData : public EventBase, public BaseData
+{
+  private:
+    EventBase::Callback callback;
+
+  public:
+    EventBaseData(const EventBase& base, EventBase::Callback&& callback);
+
+    friend EventBase;
+};
+
+} // namespace detail
 
 class Defer : public EventBase
 {

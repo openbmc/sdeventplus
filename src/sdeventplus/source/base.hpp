@@ -5,8 +5,10 @@
 #include <cstdio>
 #include <function2/function2.hpp>
 #include <functional>
+#include <memory>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
+#include <sdeventplus/types.hpp>
 #include <stdplus/handle/managed.hpp>
 #include <systemd/sd-bus.h>
 #include <type_traits>
@@ -28,6 +30,11 @@ enum class Enabled
     OneShot = SD_EVENT_ONESHOT,
 };
 
+namespace detail
+{
+class BaseData;
+} // namespace detail
+
 /** @class Base
  *  @brief The base class for all sources implementing common source methods
  *         Not instantiated directly by end users
@@ -37,7 +44,9 @@ class Base
   public:
     using Callback = fu2::unique_function<void(Base& source)>;
 
-    virtual ~Base();
+    Base(Base&& other) = default;
+    Base& operator=(Base&& other) = default;
+    virtual ~Base() = default;
 
     /** @brief Gets the underlying sd_event_source
      *
@@ -123,17 +132,33 @@ class Base
      *  @param[in] event  - The event associated with the source
      *  @param[in] source - The underlying sd_event_source wrapped
      *  @param[in]        - Signifies that ownership is being transfered
-     *  @throws SdEventError for underlying sd_event errors
      */
     Base(const Event& event, sd_event_source* source, std::false_type);
 
-    // We can't ever copy an event_source because the callback
-    // data has to be unique.
-    Base(const Base& other) = delete;
-    Base& operator=(const Base& other) = delete;
-    // We don't want to allow any kind of slicing.
-    Base(Base&& other);
-    Base& operator=(Base&& other);
+    /** @brief Constructs a basic non-owning event source wrapper
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *  @internal
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     */
+    Base(const Base& other, sdeventplus::internal::NoOwn);
+
+    /** @brief Sets the userdata of the source to the passed in source
+     *         This needs to be called by all source implementors.
+     *
+     *  @param[in] data - The data stored in the userdata slot.
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    void set_userdata(std::unique_ptr<detail::BaseData> data) const;
+
+    /** @brief Get the heap allocated version of the Base
+     *
+     *  @return A reference to the Base
+     */
+    detail::BaseData& get_userdata() const;
 
     /** @brief Returns a reference to the prepare callback executed for this
      *         source
@@ -152,8 +177,7 @@ class Base
      *  @param[in] args...  - Extra arguments to pass to the callaback
      *  @return An negative errno on error, or 0 on success
      */
-    template <typename Callback, class Source, Callback& (Source::*getter)(),
-              typename... Args>
+    template <typename Callback, class Data, auto getter, typename... Args>
     static int sourceCallback(const char* name, sd_event_source*,
                               void* userdata, Args&&... args)
     {
@@ -162,26 +186,27 @@ class Base
             fprintf(stderr, "sdeventplus: %s: Missing userdata\n", name);
             return -EINVAL;
         }
-        Source* source = reinterpret_cast<Source*>(userdata);
-        return internal::performCallback(name, (source->*getter)(),
-                                         std::ref(*source),
+        Data& data =
+            static_cast<Data&>(*reinterpret_cast<detail::BaseData*>(userdata));
+        Callback& callback = std::invoke(getter, data);
+        return internal::performCallback(name, callback, std::ref(data),
                                          std::forward<Args>(args)...);
     }
 
   private:
     static void drop(sd_event_source*&& source,
-                     const internal::SdEvent*& sdevent);
+                     const internal::SdEvent*& sdevent, bool& owned);
 
-    stdplus::Managed<sd_event_source*, const internal::SdEvent*>::Handle<drop>
+    stdplus::Managed<sd_event_source*, const internal::SdEvent*,
+                     bool>::Handle<drop>
         source;
-    Callback prepare;
 
-    /** @brief A helper used to make sure the userdata for the sd-event
-     *         callback is set to the current source c++ object
+    /** @brief A wrapper around deleting the heap allocated base class
+     *         This is needed for calls from sd_event destroy callbacks.
      *
-     *  @throws SdEventError for underlying sd_event errors
+     * @param[in] userdata - The provided userdata for the source
      */
-    void set_userdata();
+    static void destroy_userdata(void* userdata);
 
     /** @brief A wrapper around the callback that can be called from sd-event
      *
@@ -191,6 +216,22 @@ class Base
      */
     static int prepareCallback(sd_event_source* source, void* userdata);
 };
+
+namespace detail
+{
+
+class BaseData : public Base
+{
+  private:
+    Base::Callback prepare;
+
+  public:
+    BaseData(const Base& base);
+
+    friend Base;
+};
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus

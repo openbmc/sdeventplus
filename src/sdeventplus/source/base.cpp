@@ -2,21 +2,13 @@
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
-#include <type_traits>
+#include <sdeventplus/types.hpp>
 #include <utility>
 
 namespace sdeventplus
 {
 namespace source
 {
-
-Base::~Base()
-{
-    if (source)
-    {
-        set_enabled(Enabled::Off);
-    }
-}
 
 sd_event_source* Base::get() const
 {
@@ -52,18 +44,13 @@ void Base::set_prepare(Callback&& callback)
                             &internal::SdEvent::sd_event_source_set_prepare,
                             event.getSdEvent(), get(),
                             callback ? prepareCallback : nullptr);
-        prepare = std::move(callback);
+        get_userdata().prepare = std::move(callback);
     }
     catch (...)
     {
-        prepare = nullptr;
+        get_userdata().prepare = nullptr;
         throw;
     }
-}
-
-Base::Callback& Base::get_prepare()
-{
-    return prepare;
 }
 
 bool Base::get_pending() const
@@ -106,41 +93,48 @@ void Base::set_enabled(Enabled enabled) const
 }
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
-    event(event), source(std::move(source), event.getSdEvent())
+    event(event), source(std::move(source), event.getSdEvent(), true)
 {
-    set_userdata();
 }
 
-Base::Base(Base&& other) :
-    event(std::move(other.event)), source(std::move(other.source)),
-    prepare(std::move(other.prepare))
+Base::Base(const Base& other, sdeventplus::internal::NoOwn) :
+    event(other.get_event(), sdeventplus::internal::NoOwn()),
+    source(other.get(), event.getSdEvent(), false)
 {
-    set_userdata();
 }
 
-Base& Base::operator=(Base&& other)
+void Base::set_userdata(std::unique_ptr<detail::BaseData> data) const
 {
-    if (this != &other)
+    internal::callCheck(
+        "sd_event_source_set_destroy_callback",
+        &internal::SdEvent::sd_event_source_set_destroy_callback,
+        event.getSdEvent(), get(), &Base::destroy_userdata);
+    event.getSdEvent()->sd_event_source_set_userdata(get(), data.release());
+}
+
+detail::BaseData& Base::get_userdata() const
+{
+    return *reinterpret_cast<detail::BaseData*>(
+        event.getSdEvent()->sd_event_source_get_userdata(get()));
+}
+
+Base::Callback& Base::get_prepare()
+{
+    return get_userdata().prepare;
+}
+
+void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent,
+                bool& owned)
+{
+    if (owned)
     {
-        // We need to make sure our current event is not triggered
-        // after it gets deleted in the move
-        if (source)
-        {
-            set_enabled(Enabled::Off);
-        }
-
-        event = std::move(other.event);
-        source = std::move(other.source);
-        prepare = std::move(other.prepare);
-
-        set_userdata();
+        sdevent->sd_event_source_unref(source);
     }
-    return *this;
 }
 
-void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent)
+void Base::destroy_userdata(void* userdata)
 {
-    sdevent->sd_event_source_unref(source);
+    delete static_cast<Base*>(userdata);
 }
 
 int Base::prepareCallback(sd_event_source* source, void* userdata)
@@ -149,10 +143,14 @@ int Base::prepareCallback(sd_event_source* source, void* userdata)
                                                               source, userdata);
 }
 
-void Base::set_userdata()
+namespace detail
 {
-    event.getSdEvent()->sd_event_source_set_userdata(get(), this);
+
+BaseData::BaseData(const Base& base) : Base(base, sdeventplus::internal::NoOwn())
+{
 }
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus

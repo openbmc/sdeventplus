@@ -23,6 +23,7 @@ using std::chrono::microseconds;
 using std::chrono::milliseconds;
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 using TestTimer = Timer<testClock>;
@@ -54,6 +55,7 @@ class TimerTest : public testing::Test
     const milliseconds starting_time2{30};
     sd_event_time_handler_t handler = nullptr;
     void* handler_userdata;
+    sd_event_destroy_t handler_destroy;
     std::unique_ptr<Event> event;
     std::unique_ptr<TestTimer> timer;
     std::function<void()> callback;
@@ -94,6 +96,7 @@ class TimerTest : public testing::Test
         {
             expectSetEnabled(source::Enabled::Off);
             timer.reset();
+            handler_destroy(handler_userdata);
         }
     }
 
@@ -116,10 +119,15 @@ class TimerTest : public testing::Test
         event = std::make_unique<Event>(expected_event, &mock);
         EXPECT_CALL(mock, sd_event_source_unref(expected_source))
             .WillRepeatedly(Return(nullptr));
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillRepeatedly(DoAll(SaveArg<1>(&handler_destroy), Return(0)));
         EXPECT_CALL(mock,
                     sd_event_source_set_userdata(expected_source, testing::_))
             .WillRepeatedly(
                 DoAll(SaveArg<1>(&handler_userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&handler_userdata));
 
         // Having a callback proxy allows us to update the test callback
         // dynamically, without changing it inside the timer
@@ -349,9 +357,16 @@ TEST_F(TimerTest, CallbackMove)
     callback = [&]() { ++called; };
 
     expectNow(starting_time2);
+    sd_event_destroy_t local_destroy;
+    EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source2,
+                                                           testing::_))
+        .WillOnce(DoAll(SaveArg<1>(&local_destroy), Return(0)));
+    void* local_userdata;
     EXPECT_CALL(mock,
                 sd_event_source_set_userdata(expected_source2, testing::_))
-        .WillOnce(Return(nullptr));
+        .WillOnce(DoAll(SaveArg<1>(&local_userdata), Return(nullptr)));
+    EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source2))
+        .WillRepeatedly(ReturnPointee(&local_userdata));
     EXPECT_CALL(mock, sd_event_add_time(expected_event, testing::_,
                                         static_cast<clockid_t>(testClock),
                                         microseconds(starting_time2).count(),
@@ -368,6 +383,7 @@ TEST_F(TimerTest, CallbackMove)
 
     // Move assign
     local_timer = std::move(*timer);
+    local_destroy(local_userdata);
     timer.reset();
 
     // Move construct
