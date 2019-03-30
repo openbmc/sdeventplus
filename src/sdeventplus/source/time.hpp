@@ -6,11 +6,18 @@
 #include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <systemd/sd-event.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
 namespace source
 {
+
+namespace detail
+{
+template <ClockId Id>
+class TimeData;
+} // namespace detail
 
 /** @class Time<ClockId>
  *  @brief A wrapper around the sd_event_source time type
@@ -39,6 +46,17 @@ class Time : public Base
      */
     Time(const Event& event, TimePoint time, Accuracy accuracy,
          Callback&& callback);
+
+    /** @brief Constructs a non-owning time source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    Time(const Time& other, std::true_type);
 
     /** @brief Sets the callback
      *
@@ -75,7 +93,11 @@ class Time : public Base
     void set_accuracy(Accuracy accuracy) const;
 
   private:
-    Callback callback;
+    /** @brief Returns a reference to the source owned time
+     *
+     *  @return A reference to the time
+     */
+    detail::TimeData<Id>& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *
@@ -103,6 +125,23 @@ class Time : public Base
     static int timeCallback(sd_event_source* source, uint64_t usec,
                             void* userdata);
 };
+
+namespace detail
+{
+
+template <ClockId Id>
+class TimeData : public Time<Id>, public BaseData
+{
+  private:
+    typename Time<Id>::Callback callback;
+
+  public:
+    TimeData(const Time<Id>& base, typename Time<Id>::Callback&& callback);
+
+    friend Time<Id>;
+};
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus

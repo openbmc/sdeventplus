@@ -4,11 +4,17 @@
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sys/signalfd.h>
+#include <type_traits>
 
 namespace sdeventplus
 {
 namespace source
 {
+
+namespace detail
+{
+class SignalData;
+} // namespace detail
 
 /** @class Signal
  *  @brief A wrapper around the sd_event_source signal type
@@ -33,6 +39,17 @@ class Signal : public Base
      */
     Signal(const Event& event, int sig, Callback&& callback);
 
+    /** @brief Constructs a non-owning signal source handler
+     *         Does not own the passed reference to the source because
+     *         this is meant to be used only as a reference inside an event
+     *         source.
+     *
+     *  @param[in] other - The source wrapper to copy
+     *  @param[in]       - Signifies that this new copy is non-owning
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    Signal(const Signal& other, std::true_type);
+
     /** @brief Sets the callback
      *
      *  @param[in] callback - The function executed on event dispatch
@@ -47,7 +64,11 @@ class Signal : public Base
     int get_signal() const;
 
   private:
-    Callback callback;
+    /** @brief Returns a reference to the source owned signal
+     *
+     *  @return A reference to the signal
+     */
+    detail::SignalData& get_userdata() const;
 
     /** @brief Returns a reference to the callback executed for this source
      *
@@ -75,6 +96,22 @@ class Signal : public Base
                               const struct signalfd_siginfo* si,
                               void* userdata);
 };
+
+namespace detail
+{
+
+class SignalData : public Signal, public BaseData
+{
+  private:
+    Signal::Callback callback;
+
+  public:
+    SignalData(const Signal& base, Signal::Callback&& callback);
+
+    friend Signal;
+};
+
+} // namespace detail
 
 } // namespace source
 } // namespace sdeventplus
