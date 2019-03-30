@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <functional>
+#include <function2/function2.hpp>
 #include <optional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
@@ -35,7 +35,7 @@ class Timer
     /** @brief Type of the user provided callback function when the
      *         timer elapses.
      */
-    using Callback = std::function<void(Timer<Id>&)>;
+    using Callback = fu2::unique_function<void(Timer<Id>&)>;
 
     Timer(const Timer& other) = delete;
     Timer(Timer&& other);
