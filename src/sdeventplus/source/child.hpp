@@ -21,6 +21,12 @@ class Child : public Base
     using Callback =
         fu2::unique_function<void(Child& source, const siginfo_t* si)>;
 
+    Child(Child&& other) = default;
+    Child& operator=(Child&& other) = default;
+    Child(const Child& other);
+    Child& operator=(const Child& other);
+    virtual ~Child() = default;
+
     /** @brief Adds a new child source handler to the Event
      *         This type of source defaults to Enabled::Oneshot, and needs to be
      *         reconfigured upon each callback.

@@ -10,6 +10,20 @@ namespace sdeventplus
 namespace source
 {
 
+Base::Base(const Base& other) : event(other.event), source(other.source)
+{
+}
+
+Base& Base::operator=(const Base& other)
+{
+    if (this != &other)
+    {
+        event = other.event;
+        source = other.source;
+    }
+    return *this;
+}
+
 sd_event_source* Base::get() const
 {
     return source.value();
@@ -115,6 +129,13 @@ void Base::set_userdata(std::unique_ptr<Base> data) const
 Base::Callback& Base::get_prepare()
 {
     return get_userdata().prepare;
+}
+
+sd_event_source* Base::ref(sd_event_source* const& source,
+                           const internal::SdEvent*& sdevent, bool& owned)
+{
+    owned = true;
+    return sdevent->sd_event_source_ref(source);
 }
 
 void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent,

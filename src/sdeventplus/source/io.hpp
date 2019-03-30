@@ -21,6 +21,12 @@ class IO : public Base
   public:
     using Callback = fu2::unique_function<void(IO&, int fd, uint32_t revents)>;
 
+    IO(IO&& other) = default;
+    IO& operator=(IO&& other) = default;
+    IO(const IO& other);
+    IO& operator=(const IO& other);
+    virtual ~IO() = default;
+
     /** @brief Adds a new IO source handler to the Event
      *         This type of source defaults to Enabled::On, executing the
      *         callback for each IO epoll event observed.
