@@ -20,6 +20,7 @@ namespace
 
 using testing::DoAll;
 using testing::Return;
+using testing::ReturnPointee;
 using testing::SaveArg;
 using testing::SetArgPointee;
 
@@ -46,14 +47,8 @@ class IOTest : public testing::Test
 
     void expect_destruct()
     {
-        {
-            testing::InSequence sequence;
-            EXPECT_CALL(mock, sd_event_source_set_enabled(expected_source,
-                                                          SD_EVENT_OFF))
-                .WillOnce(Return(0));
-            EXPECT_CALL(mock, sd_event_source_unref(expected_source))
-                .WillOnce(Return(nullptr));
-        }
+        EXPECT_CALL(mock, sd_event_source_unref(expected_source))
+            .WillOnce(Return(nullptr));
         EXPECT_CALL(mock, sd_event_unref(expected_event))
             .WillOnce(Return(nullptr));
     }
@@ -71,9 +66,19 @@ TEST_F(IOTest, ConstructSuccess)
                                       testing::_, nullptr))
         .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<4>(&handler),
                         Return(0)));
+    sd_event_destroy_t destroy;
     void* userdata;
-    EXPECT_CALL(mock, sd_event_source_set_userdata(expected_source, testing::_))
-        .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
     int completions = 0;
     int return_fd;
     uint32_t return_revents;
@@ -84,19 +89,20 @@ TEST_F(IOTest, ConstructSuccess)
     };
     IO io(*event, fd, events, std::move(callback));
     EXPECT_FALSE(callback);
-    EXPECT_EQ(&io, userdata);
+    EXPECT_NE(&io, userdata);
     EXPECT_EQ(0, completions);
 
-    EXPECT_EQ(0, handler(nullptr, 5, EPOLLIN, &io));
+    EXPECT_EQ(0, handler(nullptr, 5, EPOLLIN, userdata));
     EXPECT_EQ(1, completions);
     EXPECT_EQ(5, return_fd);
     EXPECT_EQ(EPOLLIN, return_revents);
 
     io.set_callback(std::bind([]() {}));
-    EXPECT_EQ(0, handler(nullptr, 5, EPOLLIN, &io));
+    EXPECT_EQ(0, handler(nullptr, 5, EPOLLIN, userdata));
     EXPECT_EQ(1, completions);
 
     expect_destruct();
+    destroy(userdata);
 }
 
 TEST_F(IOTest, ConstructError)
@@ -120,6 +126,8 @@ class IOMethodTest : public IOTest
 {
   protected:
     std::unique_ptr<IO> io;
+    sd_event_destroy_t destroy;
+    void* userdata;
 
     void SetUp()
     {
@@ -131,9 +139,17 @@ class IOMethodTest : public IOTest
         EXPECT_CALL(mock, sd_event_add_io(expected_event, testing::_, fd,
                                           events, testing::_, nullptr))
             .WillOnce(DoAll(SetArgPointee<1>(expected_source), Return(0)));
-        EXPECT_CALL(mock,
-                    sd_event_source_set_userdata(expected_source, testing::_))
-            .WillOnce(Return(nullptr));
+        {
+            testing::InSequence seq;
+            EXPECT_CALL(mock, sd_event_source_set_destroy_callback(
+                                  expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+            EXPECT_CALL(
+                mock, sd_event_source_set_userdata(expected_source, testing::_))
+                .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+            EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+                .WillRepeatedly(ReturnPointee(&userdata));
+        }
         io =
             std::make_unique<IO>(*event, fd, events, [](IO&, int, uint32_t) {});
     }
@@ -142,6 +158,7 @@ class IOMethodTest : public IOTest
     {
         expect_destruct();
         io.reset();
+        destroy(userdata);
     }
 };
 
