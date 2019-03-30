@@ -162,6 +162,39 @@ class SignalMethodTest : public SignalTest
     }
 };
 
+TEST_F(SignalMethodTest, Copy)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    auto signal2 = std::make_unique<Signal>(*signal);
+    {
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        Signal signal3(*signal);
+
+        expect_destruct();
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        *signal2 = signal3;
+
+        expect_destruct();
+    }
+
+    // Delete the original signal
+    signal2.swap(signal);
+    expect_destruct();
+    signal2.reset();
+
+    // Make sure our new copy can still access data
+    signal->set_callback(nullptr);
+}
+
 TEST_F(SignalMethodTest, GetSignalSuccess)
 {
     const int sig = SIGTERM;

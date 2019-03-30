@@ -165,6 +165,39 @@ class TimeMethodTest : public TimeTest
     }
 };
 
+TEST_F(TimeMethodTest, Copy)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    auto time2 = std::make_unique<Time<id>>(*time);
+    {
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        Time<id> time3(*time);
+
+        expect_time_destroy(expected_event, expected_source);
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        *time2 = time3;
+
+        expect_time_destroy(expected_event, expected_source);
+    }
+
+    // Delete the original time
+    time2.swap(time);
+    expect_time_destroy(expected_event, expected_source);
+    time2.reset();
+
+    // Make sure our new copy can still access data
+    time->set_callback(nullptr);
+}
+
 TEST_F(TimeMethodTest, SetTimeSuccess)
 {
     EXPECT_CALL(mock, sd_event_source_set_time(expected_source, 1000000))

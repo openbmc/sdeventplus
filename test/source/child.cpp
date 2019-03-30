@@ -163,6 +163,39 @@ class ChildMethodTest : public ChildTest
     }
 };
 
+TEST_F(ChildMethodTest, Copy)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    auto child2 = std::make_unique<Child>(*child);
+    {
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        Child child3(*child);
+
+        expect_destruct();
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        *child2 = child3;
+
+        expect_destruct();
+    }
+
+    // Delete the original child
+    child2.swap(child);
+    expect_destruct();
+    child2.reset();
+
+    // Make sure our new copy can still access data
+    child->set_callback(nullptr);
+}
+
 TEST_F(ChildMethodTest, GetPidSuccess)
 {
     const pid_t pid = 32;

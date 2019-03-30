@@ -186,6 +186,63 @@ TEST_F(EventTest, ConstructFailure)
     EXPECT_EQ(0, completions);
 }
 
+TEST_F(EventTest, CopyConstruct)
+{
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    sd_event_destroy_t destroy;
+    void* userdata;
+    {
+        testing::InSequence seq;
+        EXPECT_CALL(mock, sd_event_source_set_destroy_callback(expected_source,
+                                                               testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&destroy), Return(0)));
+        EXPECT_CALL(mock,
+                    sd_event_source_set_userdata(expected_source, testing::_))
+            .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
+        EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
+            .WillRepeatedly(ReturnPointee(&userdata));
+    }
+    sd_event_handler_t handler;
+    EXPECT_CALL(mock, sd_event_add_exit(expected_event, testing::_, testing::_,
+                                        nullptr))
+        .WillOnce(DoAll(SetArgPointee<1>(expected_source), SaveArg<2>(&handler),
+                        Return(0)));
+    auto exit = std::make_unique<Exit>(*event, [](EventBase&) {});
+
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    auto exit2 = std::make_unique<Exit>(*exit);
+    {
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        Exit exit3(*exit);
+
+        expect_destruct();
+        EXPECT_CALL(mock, sd_event_ref(expected_event))
+            .WillOnce(Return(expected_event));
+        EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+            .WillOnce(Return(expected_source));
+        *exit2 = exit3;
+
+        expect_destruct();
+    }
+
+    // Delete the original exit
+    expect_destruct();
+    exit.reset();
+
+    // Make sure our new copy can still access data
+    exit2->set_callback(nullptr);
+    expect_destruct();
+    exit2.reset();
+    destroy(userdata);
+}
+
 } // namespace
 } // namespace source
 } // namespace sdeventplus
