@@ -123,6 +123,13 @@ Base::Callback& Base::get_prepare()
     return get_userdata().prepare;
 }
 
+sd_event_source* Base::ref(sd_event_source* const& source,
+                           const internal::SdEvent*& sdevent, bool& owned)
+{
+    owned = true;
+    return sdevent->sd_event_source_ref(source);
+}
+
 void Base::drop(sd_event_source*&& source, const internal::SdEvent*& sdevent,
                 bool& owned)
 {

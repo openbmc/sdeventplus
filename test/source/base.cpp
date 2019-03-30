@@ -207,6 +207,37 @@ TEST_F(BaseTest, UserdataOutlives)
     destroy(userdata);
 }
 
+TEST_F(BaseTest, CopyCorrectness)
+{
+    std::unique_ptr<BaseImpl> base1, base2;
+    std::function<void()> destroy;
+    std::tie(base1, destroy) = make_base(*event, expected_source);
+    set_prepare_placeholder(*base1);
+    EXPECT_TRUE(base1->get_prepare());
+
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    base2 = std::make_unique<BaseImpl>(*base1);
+    EXPECT_EQ(&base1->get_prepare(), &base2->get_prepare());
+
+    empty_base(std::move(*base1));
+    EXPECT_THROW(base1->get_prepare(), std::bad_optional_access);
+    EXPECT_CALL(mock, sd_event_ref(expected_event))
+        .WillOnce(Return(expected_event));
+    EXPECT_CALL(mock, sd_event_source_ref(expected_source))
+        .WillOnce(Return(expected_source));
+    *base1 = *base2;
+    EXPECT_EQ(&base1->get_prepare(), &base2->get_prepare());
+
+    expect_base_destruct(*event, expected_source);
+    base2.reset();
+    expect_base_destruct(*event, expected_source);
+    base1.reset();
+    destroy();
+}
+
 class BaseMethodTest : public BaseTest
 {
   protected:
