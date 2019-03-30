@@ -106,6 +106,20 @@ void Base::set_enabled(Enabled enabled) const
                         event.getSdEvent(), get(), static_cast<int>(enabled));
 }
 
+bool Base::get_floating() const
+{
+    return internal::callCheck("sd_event_source_get_floating",
+                               &internal::SdEvent::sd_event_source_get_floating,
+                               event.getSdEvent(), get());
+}
+
+void Base::set_floating(bool b) const
+{
+    internal::callCheck("sd_event_source_set_floating",
+                        &internal::SdEvent::sd_event_source_set_floating,
+                        event.getSdEvent(), get(), static_cast<int>(b));
+}
+
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
     event(event), source(std::move(source), event.getSdEvent(), true)
 {

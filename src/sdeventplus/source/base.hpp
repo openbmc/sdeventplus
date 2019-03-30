@@ -117,6 +117,22 @@ class Base
      */
     void set_enabled(Enabled enabled) const;
 
+    /** @brief Determines the floating nature of the source
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return The enabled status of the source
+     */
+    bool get_floating() const;
+
+    /** @brief Sets the floating nature of the source
+     *         If set to true, the source will continue to run after the
+     *         destruction of this handle.
+     *
+     *  @param[in] b - Whether or not the source should float
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    void set_floating(bool b) const;
+
   protected:
     Event event;
 
