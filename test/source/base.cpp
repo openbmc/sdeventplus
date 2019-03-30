@@ -411,6 +411,37 @@ TEST_F(BaseMethodTest, SetEnabledError)
     EXPECT_THROW(base->set_enabled(Enabled::OneShot), SdEventError);
 }
 
+TEST_F(BaseMethodTest, GetFloatingSuccess)
+{
+    EXPECT_CALL(mock, sd_event_source_get_floating(expected_source))
+        .WillOnce(Return(2));
+    EXPECT_TRUE(base->get_floating());
+    EXPECT_CALL(mock, sd_event_source_get_floating(expected_source))
+        .WillOnce(Return(0));
+    EXPECT_FALSE(base->get_floating());
+}
+
+TEST_F(BaseMethodTest, GetFloatingError)
+{
+    EXPECT_CALL(mock, sd_event_source_get_floating(expected_source))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(base->get_floating(), SdEventError);
+}
+
+TEST_F(BaseMethodTest, SetFloatingSuccess)
+{
+    EXPECT_CALL(mock, sd_event_source_set_floating(expected_source, 1))
+        .WillOnce(Return(0));
+    base->set_floating(true);
+}
+
+TEST_F(BaseMethodTest, SetFloatingError)
+{
+    EXPECT_CALL(mock, sd_event_source_set_floating(expected_source, 1))
+        .WillOnce(Return(-EINVAL));
+    EXPECT_THROW(base->set_floating(true), SdEventError);
+}
+
 } // namespace
 } // namespace source
 } // namespace sdeventplus
