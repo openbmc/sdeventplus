@@ -14,7 +14,7 @@ sdeventplus = library(
     'sdeventplus/source/io.cpp',
     'sdeventplus/source/signal.cpp',
     'sdeventplus/source/time.cpp',
-    'sdeventplus/utility/timer.cpp'
+    'sdeventplus/utility/timer.cpp',
   ],
   include_directories: includes,
   implicit_include_directories: false,
@@ -29,8 +29,7 @@ import('pkgconfig').generate(
   name: 'sdeventplus',
   description: 'C++ systemd event wrapper',
   version: meson.project_version(),
-  libraries: [sdeventplus],
-)
+  libraries: sdeventplus)
 
 install_headers(
   'sdeventplus/clock.hpp',
