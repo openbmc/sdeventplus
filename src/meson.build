@@ -1,7 +1,11 @@
-libsystemd = dependency('libsystemd')
-stdplus = dependency('stdplus')
+sdeventplus_deps = [
+  dependency('libsystemd'),
+  dependency('stdplus'),
+]
 
-sdeventplus = library(
+sdeventplus_headers = include_directories('.')
+
+sdeventplus_lib = library(
   'sdeventplus',
   [
     'sdeventplus/clock.cpp',
@@ -16,14 +20,16 @@ sdeventplus = library(
     'sdeventplus/source/time.cpp',
     'sdeventplus/utility/timer.cpp',
   ],
-  include_directories: includes,
+  include_directories: sdeventplus_headers,
   implicit_include_directories: false,
   version: meson.project_version(),
-  dependencies: [
-    libsystemd,
-    stdplus
-  ],
+  dependencies: sdeventplus_deps,
   install: true)
+
+sdeventplus = declare_dependency(
+  dependencies: sdeventplus_deps,
+  include_directories: sdeventplus_headers,
+  link_with: sdeventplus_lib)
 
 import('pkgconfig').generate(
   name: 'sdeventplus',
