@@ -62,5 +62,6 @@ install_headers(
   subdir: 'sdeventplus/test')
 
 install_headers(
+  'sdeventplus/utility/future.hpp',
   'sdeventplus/utility/timer.hpp',
   subdir: 'sdeventplus/utility')

@@ -1,4 +1,4 @@
-#include <functional>
+#include <memory>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/utility/timer.hpp>
 #include <stdexcept>
@@ -23,9 +23,11 @@ Timer<Id>::Timer(const Event& event, Callback&& callback,
         *this, std::move(callback), interval);
     userdata = timerData.get();
     timerData->userdata = timerData.get();
-    timeSource.set_callback(
-        std::bind(&Timer::internalCallback, std::move(timerData),
-                  std::placeholders::_1, std::placeholders::_2));
+    auto cb = [timerData = std::move(timerData)](
+                  source::Time<Id>&, typename source::Time<Id>::TimePoint) {
+        timerData->internalCallback();
+    };
+    timeSource.set_callback(std::move(cb));
     setEnabled(interval.has_value());
 }
 
@@ -142,8 +144,7 @@ void Timer<Id>::restartOnce(Duration remaining)
 }
 
 template <ClockId Id>
-void Timer<Id>::internalCallback(source::Time<Id>&,
-                                 typename source::Time<Id>::TimePoint)
+void Timer<Id>::internalCallback()
 {
     userdata->expired = true;
     userdata->initialized = false;
