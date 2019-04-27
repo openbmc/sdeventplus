@@ -12,6 +12,7 @@ tests = [
   'source/io',
   'source/signal',
   'source/time',
+  'utility/future',
   'utility/timer',
 ]
 

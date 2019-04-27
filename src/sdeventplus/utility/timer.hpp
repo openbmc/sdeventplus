@@ -179,8 +179,7 @@ class Timer
     /** @brief Used as a helper to run our user defined callback on the
      *         timeSource
      */
-    void internalCallback(source::Time<Id>&,
-                          typename source::Time<Id>::TimePoint);
+    void internalCallback();
 
     friend detail::TimerData<Id>;
 };
