@@ -67,6 +67,20 @@ class IO : public Base
      */
     void set_fd(int fd) const;
 
+    /** @brief Determines if the file descriptor is owned by the source
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return True if owned, false otherwise
+     */
+    bool get_fd_own() const;
+
+    /** @brief Sets ownership of the source file descriptor
+     *
+     *  @param[in] b - Whether the source should own the file descriptor
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    void set_fd_own(bool b) const;
+
     /** @brief Gets the events mask used to determine what
      *         events trigger the callback action
      *

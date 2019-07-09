@@ -77,6 +77,9 @@ class SdEventMock : public internal::SdEvent
     MOCK_CONST_METHOD2(sd_event_source_set_enabled, int(sd_event_source*, int));
     MOCK_CONST_METHOD1(sd_event_source_get_io_fd, int(sd_event_source*));
     MOCK_CONST_METHOD2(sd_event_source_set_io_fd, int(sd_event_source*, int));
+    MOCK_CONST_METHOD1(sd_event_source_get_io_fd_own, int(sd_event_source*));
+    MOCK_CONST_METHOD2(sd_event_source_set_io_fd_own,
+                       int(sd_event_source*, int));
     MOCK_CONST_METHOD2(sd_event_source_get_io_events,
                        int(sd_event_source*, uint32_t*));
     MOCK_CONST_METHOD2(sd_event_source_set_io_events,

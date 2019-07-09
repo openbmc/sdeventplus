@@ -38,6 +38,21 @@ void IO::set_fd(int fd) const
                         event.getSdEvent(), get(), fd);
 }
 
+bool IO::get_fd_own() const
+{
+    return internal::callCheck(
+        "sd_event_source_get_io_fd_own",
+        &internal::SdEvent::sd_event_source_get_io_fd_own, event.getSdEvent(),
+        get());
+}
+
+void IO::set_fd_own(bool b) const
+{
+    internal::callCheck("sd_event_source_set_io_fd_own",
+                        &internal::SdEvent::sd_event_source_set_io_fd_own,
+                        event.getSdEvent(), get(), b);
+}
+
 uint32_t IO::get_events() const
 {
     uint32_t events;

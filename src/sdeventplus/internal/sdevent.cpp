@@ -196,6 +196,17 @@ int SdEventImpl::sd_event_source_set_io_fd(sd_event_source* source,
     return ::sd_event_source_set_io_fd(source, fd);
 }
 
+int SdEventImpl::sd_event_source_get_io_fd_own(sd_event_source* source) const
+{
+    return ::sd_event_source_get_io_fd_own(source);
+}
+
+int SdEventImpl::sd_event_source_set_io_fd_own(sd_event_source* source,
+                                               int b) const
+{
+    return ::sd_event_source_set_io_fd_own(source, b);
+}
+
 int SdEventImpl::sd_event_source_get_io_events(sd_event_source* source,
                                                uint32_t* events) const
 {
