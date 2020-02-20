@@ -1,6 +1,6 @@
 sdeventplus_deps = [
   dependency('libsystemd', version: '>=239'),
-  dependency('stdplus'),
+  dependency('stdplus', fallback: ['stdplus', 'stdplus']),
 ]
 
 sdeventplus_headers = include_directories('.')
