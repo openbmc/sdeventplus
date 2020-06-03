@@ -51,6 +51,18 @@ const Event& Timer<Id>::get_event() const
 }
 
 template <ClockId Id>
+bool Timer<Id>::get_floating() const
+{
+    return timeSource.get_floating();
+}
+
+template <ClockId Id>
+void Timer<Id>::set_floating(bool b)
+{
+    return timeSource.set_floating(b);
+}
+
+template <ClockId Id>
 bool Timer<Id>::hasExpired() const
 {
     return userdata->expired;

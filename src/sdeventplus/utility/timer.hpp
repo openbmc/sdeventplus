@@ -85,6 +85,22 @@ class Timer
      */
     const Event& get_event() const;
 
+    /** @brief Determines the floating nature of the timer
+     *
+     *  @throws SdEventError for underlying sd_event errors
+     *  @return The enabled status of the timer
+     */
+    bool get_floating() const;
+
+    /** @brief Sets the floating nature of the timer
+     *         If set to true, the timer will continue to run after the
+     *         destruction of this handle.
+     *
+     *  @param[in] b - Whether or not the timer should float
+     *  @throws SdEventError for underlying sd_event errors
+     */
+    void set_floating(bool b);
+
     /** @brief Has the timer expired since creation or reset of expiration
      *         state.
      *
