@@ -71,6 +71,7 @@ install_headers(
   'sdeventplus/clock.hpp',
   'sdeventplus/event.hpp',
   'sdeventplus/exception.hpp',
+  'sdeventplus/types.hpp',
   subdir: 'sdeventplus')
 
 install_headers(
