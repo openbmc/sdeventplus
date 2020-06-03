@@ -1,0 +1,7 @@
+Ok-To-Test+1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Verified-1: Jenkins <openbmc-ci-admin@ozlabs.org>
+Verified+1: William A. Kennington III <wak@google.com>
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/sdeventplus/+/33181
+Project: openbmc/sdeventplus
+Branch: refs/heads/master
