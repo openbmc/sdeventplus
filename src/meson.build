@@ -31,11 +31,19 @@ sdeventplus = declare_dependency(
   include_directories: sdeventplus_headers,
   link_with: sdeventplus_lib)
 
+sdeventplus_reqs = []
+foreach dep : sdeventplus_deps
+  if dep.type_name() == 'pkgconfig'
+	sdeventplus_reqs += dep
+  endif
+endforeach
+
 import('pkgconfig').generate(
   name: 'sdeventplus',
   description: 'C++ systemd event wrapper',
   version: meson.project_version(),
-  libraries: sdeventplus)
+  libraries: sdeventplus,
+  requires: sdeventplus_reqs)
 
 install_headers(
   'sdeventplus/clock.hpp',
