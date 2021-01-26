@@ -13,7 +13,7 @@ int SdEventImpl::sd_event_default(sd_event** event) const
 
 int SdEventImpl::sd_event_new(sd_event** event) const
 {
-    return ::sd_event_default(event);
+    return ::sd_event_new(event);
 }
 
 sd_event* SdEventImpl::sd_event_ref(sd_event* event) const
