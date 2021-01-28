@@ -1,0 +1,9 @@
+Ok-To-Test+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+1: Lei YU <yulei.sh@bytedance.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Thu, 28 Jan 2021 09:32:10 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/sdeventplus/+/40010
+Project: openbmc/sdeventplus
+Branch: refs/heads/master
