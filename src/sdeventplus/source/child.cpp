@@ -1,6 +1,6 @@
 #include <memory>
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/child.hpp>
 #include <sdeventplus/types.hpp>
 #include <type_traits>
@@ -31,9 +31,9 @@ void Child::set_callback(Callback&& callback)
 pid_t Child::get_pid() const
 {
     pid_t pid;
-    internal::callCheck("sd_event_source_get_child_pid",
-                        &internal::SdEvent::sd_event_source_get_child_pid,
-                        event.getSdEvent(), get(), &pid);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_child_pid",
+        event.getSdEvent()->sd_event_source_get_child_pid(get(), &pid));
     return pid;
 }
 
@@ -51,10 +51,10 @@ sd_event_source* Child::create_source(const Event& event, pid_t pid,
                                       int options)
 {
     sd_event_source* source;
-    internal::callCheck("sd_event_add_child",
-                        &internal::SdEvent::sd_event_add_child,
-                        event.getSdEvent(), event.get(), &source, pid, options,
-                        childCallback, nullptr);
+    SDEVENTPLUS_CHECK(
+        "sd_event_add_child",
+        event.getSdEvent()->sd_event_add_child(
+            event.get(), &source, pid, options, childCallback, nullptr));
     return source;
 }
 

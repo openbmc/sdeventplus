@@ -1,7 +1,7 @@
 #include <memory>
 #include <sdeventplus/clock.hpp>
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/time.hpp>
 #include <sdeventplus/types.hpp>
 #include <type_traits>
@@ -37,38 +37,37 @@ template <ClockId Id>
 typename Time<Id>::TimePoint Time<Id>::get_time() const
 {
     uint64_t usec;
-    internal::callCheck("sd_event_source_get_time",
-                        &internal::SdEvent::sd_event_source_get_time,
-                        event.getSdEvent(), get(), &usec);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_time",
+        event.getSdEvent()->sd_event_source_get_time(get(), &usec));
     return Time<Id>::TimePoint(SdEventDuration(usec));
 }
 
 template <ClockId Id>
 void Time<Id>::set_time(TimePoint time) const
 {
-    internal::callCheck("sd_event_source_set_time",
-                        &internal::SdEvent::sd_event_source_set_time,
-                        event.getSdEvent(), get(),
-                        SdEventDuration(time.time_since_epoch()).count());
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_set_time",
+        event.getSdEvent()->sd_event_source_set_time(
+            get(), SdEventDuration(time.time_since_epoch()).count()));
 }
 
 template <ClockId Id>
 typename Time<Id>::Accuracy Time<Id>::get_accuracy() const
 {
     uint64_t usec;
-    internal::callCheck("sd_event_source_get_time_accuracy",
-                        &internal::SdEvent::sd_event_source_get_time_accuracy,
-                        event.getSdEvent(), get(), &usec);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_time_accuracy",
+        event.getSdEvent()->sd_event_source_get_time_accuracy(get(), &usec));
     return SdEventDuration(usec);
 }
 
 template <ClockId Id>
 void Time<Id>::set_accuracy(Accuracy accuracy) const
 {
-    internal::callCheck("sd_event_source_set_time_accuracy",
-                        &internal::SdEvent::sd_event_source_set_time_accuracy,
-                        event.getSdEvent(), get(),
-                        SdEventDuration(accuracy).count());
+    SDEVENTPLUS_CHECK("sd_event_source_set_time_accuracy",
+                      event.getSdEvent()->sd_event_source_set_time_accuracy(
+                          get(), SdEventDuration(accuracy).count()));
 }
 
 template <ClockId Id>
@@ -88,11 +87,12 @@ sd_event_source* Time<Id>::create_source(const Event& event, TimePoint time,
                                          Accuracy accuracy)
 {
     sd_event_source* source;
-    internal::callCheck(
-        "sd_event_add_time", &internal::SdEvent::sd_event_add_time,
-        event.getSdEvent(), event.get(), &source, static_cast<clockid_t>(Id),
-        SdEventDuration(time.time_since_epoch()).count(),
-        SdEventDuration(accuracy).count(), timeCallback, nullptr);
+    SDEVENTPLUS_CHECK("sd_event_add_time",
+                      event.getSdEvent()->sd_event_add_time(
+                          event.get(), &source, static_cast<clockid_t>(Id),
+                          SdEventDuration(time.time_since_epoch()).count(),
+                          SdEventDuration(accuracy).count(), timeCallback,
+                          nullptr));
     return source;
 }
 

@@ -1,5 +1,5 @@
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/io.hpp>
 #include <sdeventplus/types.hpp>
 #include <type_traits>
@@ -28,40 +28,39 @@ void IO::set_callback(Callback&& callback)
 
 int IO::get_fd() const
 {
-    return internal::callCheck("sd_event_source_get_io_fd",
-                               &internal::SdEvent::sd_event_source_get_io_fd,
-                               event.getSdEvent(), get());
+    return SDEVENTPLUS_CHECK(
+        "sd_event_source_get_io_fd",
+        event.getSdEvent()->sd_event_source_get_io_fd(get()));
 }
 
 void IO::set_fd(int fd) const
 {
-    internal::callCheck("sd_event_source_set_io_fd",
-                        &internal::SdEvent::sd_event_source_set_io_fd,
-                        event.getSdEvent(), get(), fd);
+    SDEVENTPLUS_CHECK("sd_event_source_set_io_fd",
+                      event.getSdEvent()->sd_event_source_set_io_fd(get(), fd));
 }
 
 uint32_t IO::get_events() const
 {
     uint32_t events;
-    internal::callCheck("sd_event_source_get_io_events",
-                        &internal::SdEvent::sd_event_source_get_io_events,
-                        event.getSdEvent(), get(), &events);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_io_events",
+        event.getSdEvent()->sd_event_source_get_io_events(get(), &events));
     return events;
 }
 
 void IO::set_events(uint32_t events) const
 {
-    internal::callCheck("sd_event_source_set_io_events",
-                        &internal::SdEvent::sd_event_source_set_io_events,
-                        event.getSdEvent(), get(), events);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_set_io_events",
+        event.getSdEvent()->sd_event_source_set_io_events(get(), events));
 }
 
 uint32_t IO::get_revents() const
 {
     uint32_t revents;
-    internal::callCheck("sd_event_source_get_io_revents",
-                        &internal::SdEvent::sd_event_source_get_io_revents,
-                        event.getSdEvent(), get(), &revents);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_io_revents",
+        event.getSdEvent()->sd_event_source_get_io_revents(get(), &revents));
     return revents;
 }
 
@@ -78,9 +77,9 @@ IO::Callback& IO::get_callback()
 sd_event_source* IO::create_source(const Event& event, int fd, uint32_t events)
 {
     sd_event_source* source;
-    internal::callCheck("sd_event_add_io", &internal::SdEvent::sd_event_add_io,
-                        event.getSdEvent(), event.get(), &source, fd, events,
-                        ioCallback, nullptr);
+    SDEVENTPLUS_CHECK("sd_event_add_io", event.getSdEvent()->sd_event_add_io(
+                                             event.get(), &source, fd, events,
+                                             ioCallback, nullptr));
     return source;
 }
 

@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <function2/function2.hpp>
 #include <sdeventplus/clock.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
 #include <systemd/sd-event.h>

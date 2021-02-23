@@ -2,7 +2,6 @@
 
 #include <optional>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/types.hpp>
 #include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-event.h>
