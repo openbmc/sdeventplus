@@ -7,7 +7,6 @@
 #include <functional>
 #include <memory>
 #include <sdeventplus/event.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/types.hpp>
 #include <stdplus/handle/copyable.hpp>
 #include <systemd/sd-bus.h>
@@ -207,8 +206,19 @@ class Base
         Data& data =
             static_cast<Data&>(*reinterpret_cast<detail::BaseData*>(userdata));
         Callback& callback = std::invoke(getter, data);
-        return internal::performCallback(name, callback, std::ref(data),
-                                         std::forward<Args>(args)...);
+        try
+        {
+            std::invoke(callback, data, std::forward<Args>(args)...);
+        }
+        catch (const std::exception& e)
+        {
+            fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
+        }
+        catch (...)
+        {
+            fprintf(stderr, "sdeventplus: %s: Unknown error\n", name);
+        }
+        return 0;
     }
 
   private:
