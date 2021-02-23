@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cerrno>
 #include <chrono>
 #include <cstdio>
 #include <exception>
@@ -30,23 +29,16 @@ inline int performCallback(const char* name, Args&&... args)
     try
     {
         std::invoke(std::forward<Args>(args)...);
-        return 0;
-    }
-    catch (const std::system_error& e)
-    {
-        fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
-        return -e.code().value();
     }
     catch (const std::exception& e)
     {
         fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
-        return -ENOSYS;
     }
     catch (...)
     {
         fprintf(stderr, "sdeventplus: %s: Unknown error\n", name);
-        return -ENOSYS;
     }
+    return 0;
 }
 
 /** @brief Constructs an SdEventError for stdplus cexec

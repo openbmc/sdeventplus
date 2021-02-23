@@ -34,21 +34,21 @@ TEST(UtilsTest, PerformCallbackAcceptsMove)
 
 TEST(UtilsTest, SetPrepareSystemError)
 {
-    EXPECT_EQ(-EBUSY, performCallback("system_error", []() {
+    EXPECT_EQ(0, performCallback("system_error", []() {
         throw std::system_error(EBUSY, std::generic_category());
     }));
 }
 
 TEST(UtilsTest, SetPrepareException)
 {
-    EXPECT_EQ(-ENOSYS, performCallback("runtime_error", []() {
+    EXPECT_EQ(0, performCallback("runtime_error", []() {
         throw std::runtime_error("Exception");
     }));
 }
 
 TEST(UtilsTest, SetPrepareUnknownException)
 {
-    EXPECT_EQ(-ENOSYS,
+    EXPECT_EQ(0,
               performCallback("unknown", []() { throw static_cast<int>(1); }));
 }
 
