@@ -1,6 +1,6 @@
 #include <functional>
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
 #include <utility>
@@ -23,27 +23,26 @@ const Event& Base::get_event() const
 const char* Base::get_description() const
 {
     const char* description;
-    internal::callCheck("sd_event_source_get_description",
-                        &internal::SdEvent::sd_event_source_get_description,
-                        event.getSdEvent(), get(), &description);
+    SDEVENTPLUS_CHECK("sd_event_source_get_description",
+                      event.getSdEvent()->sd_event_source_get_description(
+                          get(), &description));
     return description;
 }
 
 void Base::set_description(const char* description) const
 {
-    internal::callCheck("sd_event_source_set_description",
-                        &internal::SdEvent::sd_event_source_set_description,
-                        event.getSdEvent(), get(), description);
+    SDEVENTPLUS_CHECK("sd_event_source_set_description",
+                      event.getSdEvent()->sd_event_source_set_description(
+                          get(), description));
 }
 
 void Base::set_prepare(Callback&& callback)
 {
     try
     {
-        internal::callCheck("sd_event_source_set_prepare",
-                            &internal::SdEvent::sd_event_source_set_prepare,
-                            event.getSdEvent(), get(),
-                            callback ? prepareCallback : nullptr);
+        SDEVENTPLUS_CHECK("sd_event_source_set_prepare",
+                          event.getSdEvent()->sd_event_source_set_prepare(
+                              get(), callback ? prepareCallback : nullptr));
         get_userdata().prepare = std::move(callback);
     }
     catch (...)
@@ -55,55 +54,55 @@ void Base::set_prepare(Callback&& callback)
 
 bool Base::get_pending() const
 {
-    return internal::callCheck("sd_event_source_get_pending",
-                               &internal::SdEvent::sd_event_source_get_pending,
-                               event.getSdEvent(), get());
+    return SDEVENTPLUS_CHECK(
+        "sd_event_source_get_pending",
+        event.getSdEvent()->sd_event_source_get_pending(get()));
 }
 
 int64_t Base::get_priority() const
 {
     int64_t priority;
-    internal::callCheck("sd_event_source_get_priority",
-                        &internal::SdEvent::sd_event_source_get_priority,
-                        event.getSdEvent(), get(), &priority);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_priority",
+        event.getSdEvent()->sd_event_source_get_priority(get(), &priority));
     return priority;
 }
 
 void Base::set_priority(int64_t priority) const
 {
-    internal::callCheck("sd_event_source_set_priority",
-                        &internal::SdEvent::sd_event_source_set_priority,
-                        event.getSdEvent(), get(), priority);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_set_priority",
+        event.getSdEvent()->sd_event_source_set_priority(get(), priority));
 }
 
 Enabled Base::get_enabled() const
 {
     int enabled;
-    internal::callCheck("sd_event_source_get_enabled",
-                        &internal::SdEvent::sd_event_source_get_enabled,
-                        event.getSdEvent(), get(), &enabled);
+    SDEVENTPLUS_CHECK(
+        "sd_event_source_get_enabled",
+        event.getSdEvent()->sd_event_source_get_enabled(get(), &enabled));
     return static_cast<Enabled>(enabled);
 }
 
 void Base::set_enabled(Enabled enabled) const
 {
-    internal::callCheck("sd_event_source_set_enabled",
-                        &internal::SdEvent::sd_event_source_set_enabled,
-                        event.getSdEvent(), get(), static_cast<int>(enabled));
+    SDEVENTPLUS_CHECK("sd_event_source_set_enabled",
+                      event.getSdEvent()->sd_event_source_set_enabled(
+                          get(), static_cast<int>(enabled)));
 }
 
 bool Base::get_floating() const
 {
-    return internal::callCheck("sd_event_source_get_floating",
-                               &internal::SdEvent::sd_event_source_get_floating,
-                               event.getSdEvent(), get());
+    return SDEVENTPLUS_CHECK(
+        "sd_event_source_get_floating",
+        event.getSdEvent()->sd_event_source_get_floating(get()));
 }
 
 void Base::set_floating(bool b) const
 {
-    internal::callCheck("sd_event_source_set_floating",
-                        &internal::SdEvent::sd_event_source_set_floating,
-                        event.getSdEvent(), get(), static_cast<int>(b));
+    SDEVENTPLUS_CHECK("sd_event_source_set_floating",
+                      event.getSdEvent()->sd_event_source_set_floating(
+                          get(), static_cast<int>(b)));
 }
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
@@ -119,10 +118,9 @@ Base::Base(const Base& other, sdeventplus::internal::NoOwn) :
 
 void Base::set_userdata(std::unique_ptr<detail::BaseData> data) const
 {
-    internal::callCheck(
-        "sd_event_source_set_destroy_callback",
-        &internal::SdEvent::sd_event_source_set_destroy_callback,
-        event.getSdEvent(), get(), &Base::destroy_userdata);
+    SDEVENTPLUS_CHECK("sd_event_source_set_destroy_callback",
+                      event.getSdEvent()->sd_event_source_set_destroy_callback(
+                          get(), &Base::destroy_userdata));
     event.getSdEvent()->sd_event_source_set_userdata(get(), data.release());
 }
 

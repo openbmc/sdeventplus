@@ -1,6 +1,6 @@
 #include <memory>
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <sdeventplus/source/signal.hpp>
 #include <sdeventplus/types.hpp>
 #include <type_traits>
@@ -30,9 +30,9 @@ void Signal::set_callback(Callback&& callback)
 
 int Signal::get_signal() const
 {
-    return internal::callCheck("sd_event_source_get_signal",
-                               &internal::SdEvent::sd_event_source_get_signal,
-                               event.getSdEvent(), get());
+    return SDEVENTPLUS_CHECK(
+        "sd_event_source_get_signal",
+        event.getSdEvent()->sd_event_source_get_signal(get()));
 }
 
 detail::SignalData& Signal::get_userdata() const
@@ -48,9 +48,9 @@ Signal::Callback& Signal::get_callback()
 sd_event_source* Signal::create_source(const Event& event, int sig)
 {
     sd_event_source* source;
-    internal::callCheck(
-        "sd_event_add_signal", &internal::SdEvent::sd_event_add_signal,
-        event.getSdEvent(), event.get(), &source, sig, signalCallback, nullptr);
+    SDEVENTPLUS_CHECK("sd_event_add_signal",
+                      event.getSdEvent()->sd_event_add_signal(
+                          event.get(), &source, sig, signalCallback, nullptr));
     return source;
 }
 

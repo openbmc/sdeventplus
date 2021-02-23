@@ -1,7 +1,7 @@
 #include <functional>
 #include <sdeventplus/event.hpp>
+#include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <sdeventplus/internal/utils.hpp>
 #include <systemd/sd-event.h>
 #include <type_traits>
 #include <utility>
@@ -29,16 +29,14 @@ Event::Event(const Event& other, sdeventplus::internal::NoOwn) :
 Event Event::get_new(const internal::SdEvent* sdevent)
 {
     sd_event* event = nullptr;
-    internal::callCheck("sd_event_new", &internal::SdEvent::sd_event_new,
-                        sdevent, &event);
+    SDEVENTPLUS_CHECK("sd_event_new", sdevent->sd_event_new(&event));
     return Event(event, std::false_type(), sdevent);
 }
 
 Event Event::get_default(const internal::SdEvent* sdevent)
 {
     sd_event* event = nullptr;
-    internal::callCheck("sd_event_default",
-                        &internal::SdEvent::sd_event_default, sdevent, &event);
+    SDEVENTPLUS_CHECK("sd_event_default", sdevent->sd_event_default(&event));
     return Event(event, std::false_type(), sdevent);
 }
 
@@ -54,68 +52,60 @@ const internal::SdEvent* Event::getSdEvent() const
 
 int Event::prepare() const
 {
-    return internal::callCheck("sd_event_prepare",
-                               &internal::SdEvent::sd_event_prepare, sdevent,
-                               get());
+    return SDEVENTPLUS_CHECK("sd_event_prepare",
+                             sdevent->sd_event_prepare(get()));
 }
 
 int Event::wait(MaybeTimeout timeout) const
 {
     // An unsigned -1 timeout value means infinity in sd_event
     uint64_t timeout_usec = timeout ? timeout->count() : -1;
-    return internal::callCheck("sd_event_wait",
-                               &internal::SdEvent::sd_event_wait, sdevent,
-                               get(), timeout_usec);
+    return SDEVENTPLUS_CHECK("sd_event_wait",
+                             sdevent->sd_event_wait(get(), timeout_usec));
 }
 
 int Event::dispatch() const
 {
-    return internal::callCheck("sd_event_dispatch",
-                               &internal::SdEvent::sd_event_dispatch, sdevent,
-                               get());
+    return SDEVENTPLUS_CHECK("sd_event_dispatch",
+                             sdevent->sd_event_dispatch(get()));
 }
 
 int Event::run(MaybeTimeout timeout) const
 {
     // An unsigned -1 timeout value means infinity in sd_event
     uint64_t timeout_usec = timeout ? timeout->count() : -1;
-    return internal::callCheck("sd_event_run", &internal::SdEvent::sd_event_run,
-                               sdevent, get(), timeout_usec);
+    return SDEVENTPLUS_CHECK("sd_event_run",
+                             sdevent->sd_event_run(get(), timeout_usec));
 }
 
 int Event::loop() const
 {
-    return internal::callCheck(
-        "sd_event_loop", &internal::SdEvent::sd_event_loop, sdevent, get());
+    return SDEVENTPLUS_CHECK("sd_event_loop", sdevent->sd_event_loop(get()));
 }
 
 void Event::exit(int code) const
 {
-    internal::callCheck("sd_event_exit", &internal::SdEvent::sd_event_exit,
-                        sdevent, get(), code);
+    SDEVENTPLUS_CHECK("sd_event_exit", sdevent->sd_event_exit(get(), code));
 }
 
 int Event::get_exit_code() const
 {
     int code;
-    internal::callCheck("sd_event_get_exit_code",
-                        &internal::SdEvent::sd_event_get_exit_code, sdevent,
-                        get(), &code);
+    SDEVENTPLUS_CHECK("sd_event_get_exit_code",
+                      sdevent->sd_event_get_exit_code(get(), &code));
     return code;
 }
 
 bool Event::get_watchdog() const
 {
-    return internal::callCheck("sd_event_get_watchdog",
-                               &internal::SdEvent::sd_event_get_watchdog,
-                               sdevent, get());
+    return SDEVENTPLUS_CHECK("sd_event_get_watchdog",
+                             sdevent->sd_event_get_watchdog(get()));
 }
 
 bool Event::set_watchdog(bool b) const
 {
-    return internal::callCheck("sd_event_set_watchdog",
-                               &internal::SdEvent::sd_event_set_watchdog,
-                               sdevent, get(), b);
+    return SDEVENTPLUS_CHECK("sd_event_set_watchdog",
+                             sdevent->sd_event_set_watchdog(get(), b));
 }
 
 sd_event* Event::ref(sd_event* const& event, const internal::SdEvent*& sdevent,

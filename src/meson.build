@@ -76,7 +76,6 @@ install_headers(
 
 install_headers(
   'sdeventplus/internal/sdevent.hpp',
-  'sdeventplus/internal/utils.hpp',
   subdir: 'sdeventplus/internal')
 
 install_headers(
