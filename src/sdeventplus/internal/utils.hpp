@@ -1,11 +1,8 @@
 #pragma once
 
 #include <chrono>
-#include <cstdio>
-#include <exception>
-#include <functional>
+#include <cstdint>
 #include <sdeventplus/exception.hpp>
-#include <stdexcept>
 #include <stdplus/util/cexec.hpp>
 #include <utility>
 
@@ -18,28 +15,6 @@ using SdEventDuration =
 
 namespace internal
 {
-
-/** @brief Handle sd_event callback exception gracefully
- *  @details A generic wrapper that turns exceptions into
- *           error messages and return codes.
- */
-template <typename... Args>
-inline int performCallback(const char* name, Args&&... args)
-{
-    try
-    {
-        std::invoke(std::forward<Args>(args)...);
-    }
-    catch (const std::exception& e)
-    {
-        fprintf(stderr, "sdeventplus: %s: %s\n", name, e.what());
-    }
-    catch (...)
-    {
-        fprintf(stderr, "sdeventplus: %s: Unknown error\n", name);
-    }
-    return 0;
-}
 
 /** @brief Constructs an SdEventError for stdplus cexec
  */

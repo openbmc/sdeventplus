@@ -25,7 +25,6 @@ tests = [
   'clock',
   'event',
   'exception',
-  'internal/utils',
   'source/base',
   'source/child',
   'source/event',
