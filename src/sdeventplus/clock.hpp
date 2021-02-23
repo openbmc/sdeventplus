@@ -5,6 +5,7 @@
 #include <ctime>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/utils.hpp>
+#include <sdeventplus/types.hpp>
 #include <type_traits>
 
 namespace sdeventplus
