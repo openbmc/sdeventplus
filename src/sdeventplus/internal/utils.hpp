@@ -1,18 +1,11 @@
 #pragma once
 
-#include <chrono>
-#include <cstdint>
 #include <sdeventplus/exception.hpp>
 #include <stdplus/util/cexec.hpp>
 #include <utility>
 
 namespace sdeventplus
 {
-
-// Defined by systemd taking uint64_t usec params
-using SdEventDuration =
-    std::chrono::duration<uint64_t, std::chrono::microseconds::period>;
-
 namespace internal
 {
 
