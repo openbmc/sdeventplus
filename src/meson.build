@@ -7,11 +7,11 @@ has_function2 = meson.get_compiler('cpp').has_header_symbol(
   dependencies: function2_dep,
   required: false)
 if not has_function2
+  function2_opts = import('cmake').subproject_options()
+  function2_opts.add_cmake_defines({'BUILD_TESTING': 'OFF'})
   function2_proj = import('cmake').subproject(
     'function2',
-    cmake_options: [
-      '-DBUILD_TESTING=OFF',
-    ],
+    options: function2_opts,
     required: false)
   assert(function2_proj.found(), 'function2 is required')
   if function2_proj.found()
