@@ -61,10 +61,9 @@ foreach dep : sdeventplus_deps
 endforeach
 
 import('pkgconfig').generate(
-  name: 'sdeventplus',
+  sdeventplus_lib,
   description: 'C++ systemd event wrapper',
   version: meson.project_version(),
-  libraries: sdeventplus_dep,
   requires: sdeventplus_reqs)
 
 install_headers(
