@@ -48,7 +48,7 @@ sdeventplus_lib = library(
   dependencies: sdeventplus_deps,
   install: true)
 
-sdeventplus = declare_dependency(
+sdeventplus_dep = declare_dependency(
   dependencies: sdeventplus_deps,
   include_directories: sdeventplus_headers,
   link_with: sdeventplus_lib)
@@ -64,7 +64,7 @@ import('pkgconfig').generate(
   name: 'sdeventplus',
   description: 'C++ systemd event wrapper',
   version: meson.project_version(),
-  libraries: sdeventplus,
+  libraries: sdeventplus_dep,
   requires: sdeventplus_reqs)
 
 install_headers(

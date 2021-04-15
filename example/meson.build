@@ -8,5 +8,5 @@ examples = [
 foreach example : examples
   executable(example, example + '.cpp',
              implicit_include_directories: false,
-             dependencies: sdeventplus)
+             dependencies: sdeventplus_dep)
 endforeach

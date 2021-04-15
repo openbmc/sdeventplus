@@ -37,5 +37,5 @@ tests = [
 foreach t : tests
   test(t, executable(t.underscorify(), t + '.cpp',
                      implicit_include_directories: false,
-                     dependencies: [sdeventplus, gtest, gmock]))
+                     dependencies: [sdeventplus_dep, gtest, gmock]))
 endforeach
