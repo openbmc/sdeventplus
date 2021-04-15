@@ -10,7 +10,7 @@ if not has_function2
   function2_proj = import('cmake').subproject(
     'function2',
     cmake_options: [
-	  '-DBUILD_TESTING=OFF',
+      '-DBUILD_TESTING=OFF',
     ],
     required: false)
   assert(function2_proj.found(), 'function2 is required')
@@ -56,7 +56,7 @@ sdeventplus_dep = declare_dependency(
 sdeventplus_reqs = []
 foreach dep : sdeventplus_deps
   if dep.type_name() == 'pkgconfig'
-	sdeventplus_reqs += dep
+    sdeventplus_reqs += dep
   endif
 endforeach
 
