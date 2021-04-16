@@ -1,0 +1,8 @@
+Code-Review+2: William A. Kennington III <wak@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Ok-To-Test+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: William A. Kennington III <wak@google.com>
+Submitted-at: Fri, 16 Apr 2021 20:14:24 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/sdeventplus/+/42297
+Project: openbmc/sdeventplus
+Branch: refs/heads/master
