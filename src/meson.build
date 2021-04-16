@@ -21,7 +21,7 @@ endif
 
 sdeventplus_deps = [
   dependency('libsystemd', version: '>=240'),
-  dependency('stdplus', fallback: ['stdplus', 'stdplus']),
+  dependency('stdplus', fallback: ['stdplus', 'stdplus_dep']),
   function2_dep,
 ]
 
