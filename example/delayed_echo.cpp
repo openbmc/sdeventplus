@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     auto ioCb = [&](IO&, int fd, uint32_t) {
         std::array<char, 4096> buffer;
-        ssize_t bytes = read(fd, buffer.data(), buffer.size());
+        ssize_t bytes = read(fd, buffer.data(), 4096);
         if (bytes <= 0)
         {
             printf("%s", content.c_str());
