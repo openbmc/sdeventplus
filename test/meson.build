@@ -31,11 +31,20 @@ tests = [
   'source/io',
   'source/signal',
   'source/time',
+  'utility/sdbus',
   'utility/timer',
 ]
 
 foreach t : tests
-  test(t, executable(t.underscorify(), t + '.cpp',
-                     implicit_include_directories: false,
-                     dependencies: [sdeventplus_dep, gtest, gmock]))
+  test(t,
+    executable(
+      t.underscorify(),
+      t + '.cpp',
+      implicit_include_directories: false,
+      dependencies: [
+        dependency('sdbusplus'),
+        sdeventplus_dep,
+        gtest,
+        gmock,
+      ]))
 endforeach

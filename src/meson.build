@@ -70,4 +70,5 @@ install_headers(
 
 install_headers(
   'sdeventplus/utility/timer.hpp',
+  'sdeventplus/utility/sdbus.hpp',
   subdir: 'sdeventplus/utility')

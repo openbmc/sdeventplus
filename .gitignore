@@ -1,2 +1,5 @@
 /build*/
-/subprojects/*/
+/subprojects/*
+!/subprojects/googletest.wrap
+!/subprojects/sdbusplus.wrap
+!/subprojects/stdplus.wrap
