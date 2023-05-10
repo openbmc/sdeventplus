@@ -1,8 +1,9 @@
-#include <functional>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <functional>
 #include <utility>
 
 namespace sdeventplus
@@ -107,14 +108,12 @@ void Base::set_floating(bool b) const
 
 Base::Base(const Event& event, sd_event_source* source, std::false_type) :
     event(event), source(std::move(source), event.getSdEvent(), true)
-{
-}
+{}
 
 Base::Base(const Base& other, sdeventplus::internal::NoOwn) :
     event(other.get_event(), sdeventplus::internal::NoOwn()),
     source(other.get(), event.getSdEvent(), false)
-{
-}
+{}
 
 void Base::set_userdata(std::unique_ptr<detail::BaseData> data) const
 {
@@ -167,8 +166,7 @@ namespace detail
 
 BaseData::BaseData(const Base& base) :
     Base(base, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 } // namespace detail
 

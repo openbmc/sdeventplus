@@ -1,11 +1,13 @@
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
-#include <optional>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/test/sdevent.hpp>
+
+#include <memory>
+#include <optional>
 #include <type_traits>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {
@@ -118,8 +120,8 @@ class EventMethodTest : public EventTest
 
     void SetUp()
     {
-        event =
-            std::make_unique<Event>(expected_event, std::false_type(), &mock);
+        event = std::make_unique<Event>(expected_event, std::false_type(),
+                                        &mock);
     }
 
     void TearDown()

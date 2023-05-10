@@ -3,14 +3,15 @@
  * each timer expiration.
  */
 
-#include <chrono>
-#include <cstdio>
-#include <functional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/signal.hpp>
 #include <sdeventplus/utility/timer.hpp>
 #include <stdplus/signal.hpp>
+
+#include <chrono>
+#include <cstdio>
+#include <functional>
 #include <string>
 
 using sdeventplus::Clock;

@@ -1,9 +1,10 @@
-#include <memory>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/time.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -24,8 +25,7 @@ Time<Id>::Time(const Event& event, TimePoint time, Accuracy accuracy,
 template <ClockId Id>
 Time<Id>::Time(const Time<Id>& other, sdeventplus::internal::NoOwn) :
     Base(other, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 template <ClockId Id>
 void Time<Id>::set_callback(Callback&& callback)
@@ -118,8 +118,7 @@ TimeData<Id>::TimeData(const Time<Id>& base,
                        typename Time<Id>::Callback&& callback) :
     Time<Id>(base, sdeventplus::internal::NoOwn()),
     BaseData(base), callback(std::move(callback))
-{
-}
+{}
 
 } // namespace detail
 

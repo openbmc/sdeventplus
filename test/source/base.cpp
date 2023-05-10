@@ -1,20 +1,23 @@
-#include <cerrno>
-#include <functional>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
-#include <optional>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <cerrno>
+#include <functional>
+#include <memory>
+#include <optional>
 #include <string>
-#include <systemd/sd-event.h>
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {
@@ -39,8 +42,7 @@ class BaseImpl : public Base
 
     BaseImpl(const BaseImpl& other, sdeventplus::internal::NoOwn) :
         Base(other, sdeventplus::internal::NoOwn())
-    {
-    }
+    {}
 
     using Base::get_prepare;
 };
@@ -50,8 +52,7 @@ class BaseImplData : public BaseImpl, public detail::BaseData
   public:
     BaseImplData(const BaseImpl& base) :
         BaseImpl(base, sdeventplus::internal::NoOwn()), BaseData(base)
-    {
-    }
+    {}
 };
 
 BaseImpl::BaseImpl(const Event& event, sd_event_source* source,
@@ -195,8 +196,8 @@ TEST_F(BaseTest, UserdataOutlives)
                     sd_event_source_set_userdata(expected_source, testing::_))
             .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     }
-    auto source =
-        std::make_unique<BaseImpl>(*event, expected_source, std::false_type());
+    auto source = std::make_unique<BaseImpl>(*event, expected_source,
+                                             std::false_type());
     EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
         .WillRepeatedly(Return(userdata));
     EXPECT_FALSE(source->get_prepare());

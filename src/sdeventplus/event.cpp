@@ -1,8 +1,10 @@
-#include <functional>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
-#include <systemd/sd-event.h>
+
+#include <functional>
 #include <type_traits>
 #include <utility>
 
@@ -11,20 +13,17 @@ namespace sdeventplus
 
 Event::Event(sd_event* event, const internal::SdEvent* sdevent) :
     sdevent(sdevent), event(event, sdevent, true)
-{
-}
+{}
 
 Event::Event(sd_event* event, std::false_type,
              const internal::SdEvent* sdevent) :
     sdevent(sdevent),
     event(std::move(event), sdevent, true)
-{
-}
+{}
 
 Event::Event(const Event& other, sdeventplus::internal::NoOwn) :
     sdevent(other.sdevent), event(other.get(), other.getSdEvent(), false)
-{
-}
+{}
 
 Event Event::get_new(const internal::SdEvent* sdevent)
 {

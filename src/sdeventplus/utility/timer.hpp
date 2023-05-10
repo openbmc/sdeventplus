@@ -1,12 +1,13 @@
 #pragma once
 
-#include <chrono>
 #include <function2/function2.hpp>
-#include <optional>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/time.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <chrono>
+#include <optional>
 
 namespace sdeventplus
 {

@@ -1,16 +1,19 @@
-#include <cerrno>
-#include <functional>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
+#include <signal.h>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/source/signal.hpp>
 #include <sdeventplus/test/sdevent.hpp>
-#include <signal.h>
-#include <systemd/sd-event.h>
+
+#include <cerrno>
+#include <functional>
+#include <memory>
 #include <type_traits>
 #include <utility>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {
@@ -81,8 +84,8 @@ TEST_F(SignalTest, ConstructSuccess)
     }
     int completions = 0;
     const struct signalfd_siginfo* return_si;
-    Signal::Callback callback = [&](Signal&,
-                                    const struct signalfd_siginfo* si) {
+    Signal::Callback callback =
+        [&](Signal&, const struct signalfd_siginfo* si) {
         return_si = si;
         completions++;
     };
@@ -113,8 +116,8 @@ TEST_F(SignalTest, ConstructError)
                                           testing::_, nullptr))
         .WillOnce(Return(-EINVAL));
     int completions = 0;
-    Signal::Callback callback = [&completions](Signal&,
-                                               const struct signalfd_siginfo*) {
+    Signal::Callback callback =
+        [&completions](Signal&, const struct signalfd_siginfo*) {
         completions++;
     };
     EXPECT_THROW(Signal(*event, sig, std::move(callback)), SdEventError);

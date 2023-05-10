@@ -2,6 +2,7 @@
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/io.hpp>
 #include <sdeventplus/types.hpp>
+
 #include <type_traits>
 #include <utility>
 
@@ -18,8 +19,7 @@ IO::IO(const Event& event, int fd, uint32_t events, Callback&& callback) :
 
 IO::IO(const IO& other, sdeventplus::internal::NoOwn) :
     Base(other, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 void IO::set_callback(Callback&& callback)
 {
@@ -96,8 +96,7 @@ namespace detail
 IOData::IOData(const IO& base, IO::Callback&& callback) :
     IO(base, sdeventplus::internal::NoOwn()), BaseData(base),
     callback(std::move(callback))
-{
-}
+{}
 
 } // namespace detail
 

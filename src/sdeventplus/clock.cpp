@@ -2,6 +2,7 @@
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
+
 #include <utility>
 
 namespace sdeventplus
@@ -9,13 +10,11 @@ namespace sdeventplus
 
 template <ClockId Id>
 Clock<Id>::Clock(const Event& event) : event(event)
-{
-}
+{}
 
 template <ClockId Id>
 Clock<Id>::Clock(Event&& event) : event(std::move(event))
-{
-}
+{}
 
 template <ClockId Id>
 typename Clock<Id>::time_point Clock<Id>::now() const

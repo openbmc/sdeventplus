@@ -1,6 +1,7 @@
-#include <gtest/gtest.h>
 #include <sdeventplus/source/event.hpp>
 #include <sdeventplus/utility/sdbus.hpp>
+
+#include <gtest/gtest.h>
 
 namespace sdeventplus::utility
 {

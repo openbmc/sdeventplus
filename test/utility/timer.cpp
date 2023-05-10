@@ -1,14 +1,17 @@
-#include <chrono>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
-#include <optional>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/test/sdevent.hpp>
 #include <sdeventplus/utility/timer.hpp>
+
+#include <chrono>
+#include <memory>
+#include <optional>
 #include <stdexcept>
-#include <systemd/sd-event.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {

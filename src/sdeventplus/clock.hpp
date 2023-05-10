@@ -1,10 +1,11 @@
 #pragma once
 
+#include <sdeventplus/event.hpp>
+#include <sdeventplus/types.hpp>
+
 #include <chrono>
 #include <cstdint>
 #include <ctime>
-#include <sdeventplus/event.hpp>
-#include <sdeventplus/types.hpp>
 #include <type_traits>
 
 namespace sdeventplus

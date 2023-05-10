@@ -1,8 +1,10 @@
 #pragma once
 
-#include <gmock/gmock.h>
-#include <sdeventplus/internal/sdevent.hpp>
 #include <systemd/sd-event.h>
+
+#include <sdeventplus/internal/sdevent.hpp>
+
+#include <gmock/gmock.h>
 
 namespace sdeventplus
 {

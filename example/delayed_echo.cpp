@@ -3,15 +3,17 @@
  * is calm for the passed in number of seconds.
  */
 
-#include <array>
-#include <chrono>
-#include <cstdio>
+#include <unistd.h>
+
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/io.hpp>
 #include <sdeventplus/utility/timer.hpp>
+
+#include <array>
+#include <chrono>
+#include <cstdio>
 #include <string>
-#include <unistd.h>
 #include <utility>
 
 using sdeventplus::Clock;

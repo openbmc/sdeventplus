@@ -1,8 +1,9 @@
-#include <memory>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/signal.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -20,8 +21,7 @@ Signal::Signal(const Event& event, int sig, Callback&& callback) :
 
 Signal::Signal(const Signal& other, sdeventplus::internal::NoOwn) :
     Base(other, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 void Signal::set_callback(Callback&& callback)
 {
@@ -67,8 +67,7 @@ namespace detail
 SignalData::SignalData(const Signal& base, Signal::Callback&& callback) :
     Signal(base, sdeventplus::internal::NoOwn()), BaseData(base),
     callback(std::move(callback))
-{
-}
+{}
 
 } // namespace detail
 

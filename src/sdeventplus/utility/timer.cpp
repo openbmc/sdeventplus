@@ -1,7 +1,8 @@
-#include <memory>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/types.hpp>
 #include <sdeventplus/utility/timer.hpp>
+
+#include <memory>
 #include <stdexcept>
 #include <utility>
 
@@ -35,8 +36,7 @@ template <ClockId Id>
 Timer<Id>::Timer(const Timer<Id>& other, sdeventplus::internal::NoOwn) :
     userdata(other.userdata),
     timeSource(other.timeSource, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 template <ClockId Id>
 void Timer<Id>::set_callback(Callback&& callback)
@@ -194,8 +194,7 @@ TimerData<Id>::TimerData(const Timer<Id>& base,
     callback(std::move(callback)),
     clock(Event(base.timeSource.get_event(), sdeventplus::internal::NoOwn())),
     interval(interval)
-{
-}
+{}
 
 } // namespace detail
 

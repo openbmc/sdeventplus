@@ -1,8 +1,9 @@
-#include <memory>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/child.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -20,8 +21,7 @@ Child::Child(const Event& event, pid_t pid, int options, Callback&& callback) :
 
 Child::Child(const Child& other, sdeventplus::internal::NoOwn) :
     Base(other, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 void Child::set_callback(Callback&& callback)
 {
@@ -71,8 +71,7 @@ namespace detail
 ChildData::ChildData(const Child& base, Child::Callback&& callback) :
     Child(base, sdeventplus::internal::NoOwn()), BaseData(base),
     callback(std::move(callback))
-{
-}
+{}
 
 } // namespace detail
 

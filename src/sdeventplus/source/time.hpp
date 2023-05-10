@@ -1,11 +1,13 @@
 #pragma once
 
-#include <cstdint>
+#include <systemd/sd-event.h>
+
 #include <function2/function2.hpp>
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
-#include <systemd/sd-event.h>
+
+#include <cstdint>
 
 namespace sdeventplus
 {

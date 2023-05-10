@@ -1,8 +1,9 @@
-#include <memory>
 #include <sdeventplus/internal/cexec.hpp>
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/source/event.hpp>
 #include <sdeventplus/types.hpp>
+
+#include <memory>
 #include <utility>
 
 namespace sdeventplus
@@ -17,8 +18,7 @@ void EventBase::set_callback(Callback&& callback)
 
 EventBase::EventBase(const EventBase& other, sdeventplus::internal::NoOwn) :
     Base(other, sdeventplus::internal::NoOwn())
-{
-}
+{}
 
 EventBase::EventBase(const char* name, CreateFunc create, const Event& event,
                      Callback&& callback) :
@@ -61,28 +61,24 @@ EventBaseData::EventBaseData(const EventBase& base,
                              EventBase::Callback&& callback) :
     EventBase(base, sdeventplus::internal::NoOwn()),
     BaseData(base), callback(std::move(callback))
-{
-}
+{}
 
 } // namespace detail
 
 Defer::Defer(const Event& event, Callback&& callback) :
     EventBase("sd_event_add_defer", &internal::SdEvent::sd_event_add_defer,
               event, std::move(callback))
-{
-}
+{}
 
 Post::Post(const Event& event, Callback&& callback) :
     EventBase("sd_event_add_post", &internal::SdEvent::sd_event_add_post, event,
               std::move(callback))
-{
-}
+{}
 
 Exit::Exit(const Event& event, Callback&& callback) :
     EventBase("sd_event_add_exit", &internal::SdEvent::sd_event_add_exit, event,
               std::move(callback))
-{
-}
+{}
 
 } // namespace source
 } // namespace sdeventplus

@@ -1,9 +1,10 @@
 #pragma once
 
+#include <signal.h>
+
 #include <function2/function2.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
-#include <signal.h>
 
 namespace sdeventplus
 {

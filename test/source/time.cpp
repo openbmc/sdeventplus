@@ -1,16 +1,19 @@
-#include <cerrno>
-#include <chrono>
-#include <functional>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
+#include <systemd/sd-event.h>
+#include <time.h>
+
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/source/time.hpp>
 #include <sdeventplus/test/sdevent.hpp>
-#include <systemd/sd-event.h>
-#include <time.h>
+
+#include <cerrno>
+#include <chrono>
+#include <functional>
+#include <memory>
 #include <utility>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {
@@ -60,8 +63,8 @@ TEST_F(TimeTest, ConstructSuccess)
     const Time<id>::TimePoint expected_time(std::chrono::seconds{2});
     const Time<id>::Accuracy expected_accuracy(std::chrono::milliseconds{50});
     Time<id>::TimePoint saved_time;
-    Time<id>::Callback callback = [&saved_time](Time<id>&,
-                                                Time<id>::TimePoint time) {
+    Time<id>::Callback callback =
+        [&saved_time](Time<id>&, Time<id>::TimePoint time) {
         saved_time = time;
     };
 

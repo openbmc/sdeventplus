@@ -1,5 +1,6 @@
-#include <sdeventplus/internal/sdevent.hpp>
 #include <systemd/sd-event.h>
+
+#include <sdeventplus/internal/sdevent.hpp>
 
 namespace sdeventplus
 {

@@ -1,9 +1,11 @@
 #pragma once
 
-#include <cstdint>
+#include <systemd/sd-event.h>
+
 #include <function2/function2.hpp>
 #include <sdeventplus/source/base.hpp>
-#include <systemd/sd-event.h>
+
+#include <cstdint>
 #include <type_traits>
 
 namespace sdeventplus

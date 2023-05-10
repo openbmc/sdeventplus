@@ -1,10 +1,12 @@
 #pragma once
 
-#include <optional>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/internal/sdevent.hpp>
 #include <sdeventplus/types.hpp>
 #include <stdplus/handle/copyable.hpp>
-#include <systemd/sd-event.h>
+
+#include <optional>
 
 namespace sdeventplus
 {

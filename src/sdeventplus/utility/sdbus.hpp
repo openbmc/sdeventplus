@@ -1,6 +1,7 @@
 #include <sdbusplus/bus.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
+
 #include <stdexcept>
 
 namespace sdeventplus::utility

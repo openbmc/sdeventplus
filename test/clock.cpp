@@ -1,13 +1,16 @@
-#include <cerrno>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/clock.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/test/sdevent.hpp>
-#include <systemd/sd-event.h>
+
+#include <cerrno>
 #include <type_traits>
 #include <utility>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {

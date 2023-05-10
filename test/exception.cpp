@@ -1,7 +1,9 @@
-#include <gtest/gtest.h>
 #include <sdeventplus/exception.hpp>
+
 #include <string>
 #include <system_error>
+
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {

@@ -1,15 +1,18 @@
-#include <cerrno>
-#include <functional>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
+#include <systemd/sd-event.h>
+
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/exception.hpp>
 #include <sdeventplus/source/io.hpp>
 #include <sdeventplus/test/sdevent.hpp>
-#include <systemd/sd-event.h>
+
+#include <cerrno>
+#include <functional>
+#include <memory>
 #include <type_traits>
 #include <utility>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace sdeventplus
 {
@@ -150,8 +153,8 @@ class IOMethodTest : public IOTest
             EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
                 .WillRepeatedly(ReturnPointee(&userdata));
         }
-        io =
-            std::make_unique<IO>(*event, fd, events, [](IO&, int, uint32_t) {});
+        io = std::make_unique<IO>(*event, fd, events,
+                                  [](IO&, int, uint32_t) {});
     }
 
     void TearDown()

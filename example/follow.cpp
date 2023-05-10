@@ -1,18 +1,20 @@
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-#include <exception>
 #include <fcntl.h>
-#include <functional>
-#include <sdeventplus/event.hpp>
-#include <sdeventplus/source/event.hpp>
-#include <sdeventplus/source/io.hpp>
-#include <sdeventplus/source/signal.hpp>
 #include <signal.h>
 #include <sys/epoll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <sdeventplus/event.hpp>
+#include <sdeventplus/source/event.hpp>
+#include <sdeventplus/source/io.hpp>
+#include <sdeventplus/source/signal.hpp>
+
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <exception>
+#include <functional>
 
 void reader(const char* fifo, sdeventplus::source::IO& source, int fd, uint32_t)
 {

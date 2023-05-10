@@ -1,10 +1,11 @@
 #pragma once
 
+#include <sys/signalfd.h>
+
 #include <function2/function2.hpp>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/source/base.hpp>
 #include <sdeventplus/types.hpp>
-#include <sys/signalfd.h>
 
 namespace sdeventplus
 {

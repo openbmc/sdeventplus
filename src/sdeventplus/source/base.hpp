@@ -1,15 +1,17 @@
 #pragma once
 
-#include <cerrno>
-#include <cstdint>
-#include <cstdio>
+#include <systemd/sd-bus.h>
+
 #include <function2/function2.hpp>
-#include <functional>
-#include <memory>
 #include <sdeventplus/event.hpp>
 #include <sdeventplus/types.hpp>
 #include <stdplus/handle/copyable.hpp>
-#include <systemd/sd-bus.h>
+
+#include <cerrno>
+#include <cstdint>
+#include <cstdio>
+#include <functional>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
