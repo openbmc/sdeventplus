@@ -1,0 +1,7 @@
+Code-Review+2: William A. Kennington III <wak@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: George Liu <liuxiwei@ieisystem.com>
+Submitted-at: Wed, 01 Nov 2023 01:54:50 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/sdeventplus/+/65997
+Project: openbmc/sdeventplus
+Branch: refs/heads/master
