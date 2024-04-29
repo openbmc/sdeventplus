@@ -59,8 +59,8 @@ namespace detail
 
 EventBaseData::EventBaseData(const EventBase& base,
                              EventBase::Callback&& callback) :
-    EventBase(base, sdeventplus::internal::NoOwn()),
-    BaseData(base), callback(std::move(callback))
+    EventBase(base, sdeventplus::internal::NoOwn()), BaseData(base),
+    callback(std::move(callback))
 {}
 
 } // namespace detail

@@ -189,9 +189,8 @@ template <ClockId Id>
 TimerData<Id>::TimerData(const Timer<Id>& base,
                          typename Timer<Id>::Callback&& callback,
                          std::optional<typename Timer<Id>::Duration> interval) :
-    Timer<Id>(base, sdeventplus::internal::NoOwn()),
-    expired(false), initialized(interval.has_value()),
-    callback(std::move(callback)),
+    Timer<Id>(base, sdeventplus::internal::NoOwn()), expired(false),
+    initialized(interval.has_value()), callback(std::move(callback)),
     clock(Event(base.timeSource.get_event(), sdeventplus::internal::NoOwn())),
     interval(interval)
 {}

@@ -116,8 +116,8 @@ namespace detail
 template <ClockId Id>
 TimeData<Id>::TimeData(const Time<Id>& base,
                        typename Time<Id>::Callback&& callback) :
-    Time<Id>(base, sdeventplus::internal::NoOwn()),
-    BaseData(base), callback(std::move(callback))
+    Time<Id>(base, sdeventplus::internal::NoOwn()), BaseData(base),
+    callback(std::move(callback))
 {}
 
 } // namespace detail

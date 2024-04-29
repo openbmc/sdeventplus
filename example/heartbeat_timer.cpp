@@ -40,9 +40,8 @@ int main(int argc, char* argv[])
     fprintf(stderr, "Beating every %u seconds\n", interval);
 
     auto event = Event::get_default();
-    Timer timer(
-        event, [](Timer&) { printf("Beat\n"); },
-        std::chrono::seconds{interval});
+    Timer timer(event, [](Timer&) { printf("Beat\n"); },
+                std::chrono::seconds{interval});
     stdplus::signal::block(SIGINT);
     Signal(event, SIGINT, intCb).set_floating(true);
     return event.loop();

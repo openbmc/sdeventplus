@@ -56,8 +56,7 @@ class BaseImplData : public BaseImpl, public detail::BaseData
 };
 
 BaseImpl::BaseImpl(const Event& event, sd_event_source* source,
-                   std::false_type) :
-    Base(event, source, std::false_type())
+                   std::false_type) : Base(event, source, std::false_type())
 {
     set_userdata(std::make_unique<BaseImplData>(*this));
 }
