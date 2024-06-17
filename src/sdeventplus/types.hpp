@@ -13,7 +13,7 @@ namespace internal
 {
 
 /* @brief Indicates that the container should not own the underlying
- *        sd_event primative */
+ *        sd_event primitive */
 struct NoOwn
 {};
 

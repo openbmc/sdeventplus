@@ -150,7 +150,7 @@ class Base
      *
      *  @param[in] event  - The event associated with the source
      *  @param[in] source - The underlying sd_event_source wrapped
-     *  @param[in]        - Signifies that ownership is being transfered
+     *  @param[in]        - Signifies that ownership is being transferred
      */
     Base(const Event& event, sd_event_source* source, std::false_type);
 
@@ -166,7 +166,7 @@ class Base
     Base(const Base& other, sdeventplus::internal::NoOwn);
 
     /** @brief Sets the userdata of the source to the passed in source
-     *         This needs to be called by all source implementors.
+     *         This needs to be called by all source implementers.
      *
      *  @param[in] data - The data stored in the userdata slot.
      *  @throws SdEventError for underlying sd_event errors
