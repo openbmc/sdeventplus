@@ -56,8 +56,7 @@ class BaseImplData : public BaseImpl, public detail::BaseData
 };
 
 BaseImpl::BaseImpl(const Event& event, sd_event_source* source,
-                   std::false_type) :
-    Base(event, source, std::false_type())
+                   std::false_type) : Base(event, source, std::false_type())
 {
     set_userdata(std::make_unique<BaseImplData>(*this));
 }
@@ -196,8 +195,8 @@ TEST_F(BaseTest, UserdataOutlives)
                     sd_event_source_set_userdata(expected_source, testing::_))
             .WillOnce(DoAll(SaveArg<1>(&userdata), Return(nullptr)));
     }
-    auto source = std::make_unique<BaseImpl>(*event, expected_source,
-                                             std::false_type());
+    auto source =
+        std::make_unique<BaseImpl>(*event, expected_source, std::false_type());
     EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
         .WillRepeatedly(Return(userdata));
     EXPECT_FALSE(source->get_prepare());

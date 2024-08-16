@@ -63,10 +63,10 @@ TEST_F(TimeTest, ConstructSuccess)
     const Time<id>::TimePoint expected_time(std::chrono::seconds{2});
     const Time<id>::Accuracy expected_accuracy(std::chrono::milliseconds{50});
     Time<id>::TimePoint saved_time;
-    Time<id>::Callback callback = [&saved_time](Time<id>&,
-                                                Time<id>::TimePoint time) {
-        saved_time = time;
-    };
+    Time<id>::Callback callback =
+        [&saved_time](Time<id>&, Time<id>::TimePoint time) {
+            saved_time = time;
+        };
 
     EXPECT_CALL(mock, sd_event_ref(expected_event))
         .WillOnce(Return(expected_event));
@@ -120,9 +120,9 @@ TEST_F(TimeTest, ConstructError)
                 sd_event_add_time(expected_event, testing::_, CLOCK_MONOTONIC,
                                   2000000, 50000, testing::_, nullptr))
         .WillOnce(Return(-ENOSYS));
-    EXPECT_THROW(
-        Time<id>(*event, expected_time, expected_accuracy, std::move(callback)),
-        SdEventError);
+    EXPECT_THROW(Time<id>(*event, expected_time, expected_accuracy,
+                          std::move(callback)),
+                 SdEventError);
     EXPECT_TRUE(callback);
 }
 

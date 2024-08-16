@@ -17,8 +17,7 @@ Event::Event(sd_event* event, const internal::SdEvent* sdevent) :
 
 Event::Event(sd_event* event, std::false_type,
              const internal::SdEvent* sdevent) :
-    sdevent(sdevent),
-    event(std::move(event), sdevent, true)
+    sdevent(sdevent), event(std::move(event), sdevent, true)
 {}
 
 Event::Event(const Event& other, sdeventplus::internal::NoOwn) :

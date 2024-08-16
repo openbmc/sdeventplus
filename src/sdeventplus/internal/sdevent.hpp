@@ -23,18 +23,16 @@ class SdEvent
     virtual int sd_event_add_io(sd_event* event, sd_event_source** source,
                                 int fd, uint32_t events, sd_event_io_handler_t,
                                 void* userdata) const = 0;
-    virtual int sd_event_add_time(sd_event* event, sd_event_source** source,
-                                  clockid_t clock, uint64_t usec,
-                                  uint64_t accuracy,
-                                  sd_event_time_handler_t callback,
-                                  void* userdata) const = 0;
+    virtual int sd_event_add_time(
+        sd_event* event, sd_event_source** source, clockid_t clock,
+        uint64_t usec, uint64_t accuracy, sd_event_time_handler_t callback,
+        void* userdata) const = 0;
     virtual int sd_event_add_signal(sd_event* event, sd_event_source** source,
                                     int sig, sd_event_signal_handler_t callback,
                                     void* userdata) const = 0;
-    virtual int sd_event_add_child(sd_event* event, sd_event_source** source,
-                                   pid_t, int options,
-                                   sd_event_child_handler_t callback,
-                                   void* userdata) const = 0;
+    virtual int sd_event_add_child(
+        sd_event* event, sd_event_source** source, pid_t, int options,
+        sd_event_child_handler_t callback, void* userdata) const = 0;
     virtual int sd_event_add_defer(sd_event* event, sd_event_source** source,
                                    sd_event_handler_t callback,
                                    void* userdata) const = 0;
@@ -69,15 +67,12 @@ class SdEvent
     virtual void* sd_event_source_set_userdata(sd_event_source* source,
                                                void* userdata) const = 0;
 
-    virtual int
-        sd_event_source_get_description(sd_event_source* source,
-                                        const char** description) const = 0;
-    virtual int
-        sd_event_source_set_description(sd_event_source* source,
-                                        const char* description) const = 0;
-    virtual int
-        sd_event_source_set_prepare(sd_event_source* source,
-                                    sd_event_handler_t callback) const = 0;
+    virtual int sd_event_source_get_description(
+        sd_event_source* source, const char** description) const = 0;
+    virtual int sd_event_source_set_description(
+        sd_event_source* source, const char* description) const = 0;
+    virtual int sd_event_source_set_prepare(
+        sd_event_source* source, sd_event_handler_t callback) const = 0;
     virtual int sd_event_source_get_pending(sd_event_source* source) const = 0;
     virtual int sd_event_source_get_priority(sd_event_source* source,
                                              int64_t* priority) const = 0;

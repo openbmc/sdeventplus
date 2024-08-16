@@ -153,8 +153,8 @@ class IOMethodTest : public IOTest
             EXPECT_CALL(mock, sd_event_source_get_userdata(expected_source))
                 .WillRepeatedly(ReturnPointee(&userdata));
         }
-        io = std::make_unique<IO>(*event, fd, events,
-                                  [](IO&, int, uint32_t) {});
+        io =
+            std::make_unique<IO>(*event, fd, events, [](IO&, int, uint32_t) {});
     }
 
     void TearDown()

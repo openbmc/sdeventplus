@@ -87,12 +87,12 @@ sd_event_source* Time<Id>::create_source(const Event& event, TimePoint time,
                                          Accuracy accuracy)
 {
     sd_event_source* source;
-    SDEVENTPLUS_CHECK("sd_event_add_time",
-                      event.getSdEvent()->sd_event_add_time(
-                          event.get(), &source, static_cast<clockid_t>(Id),
-                          SdEventDuration(time.time_since_epoch()).count(),
-                          SdEventDuration(accuracy).count(), timeCallback,
-                          nullptr));
+    SDEVENTPLUS_CHECK(
+        "sd_event_add_time",
+        event.getSdEvent()->sd_event_add_time(
+            event.get(), &source, static_cast<clockid_t>(Id),
+            SdEventDuration(time.time_since_epoch()).count(),
+            SdEventDuration(accuracy).count(), timeCallback, nullptr));
     return source;
 }
 
@@ -116,8 +116,8 @@ namespace detail
 template <ClockId Id>
 TimeData<Id>::TimeData(const Time<Id>& base,
                        typename Time<Id>::Callback&& callback) :
-    Time<Id>(base, sdeventplus::internal::NoOwn()),
-    BaseData(base), callback(std::move(callback))
+    Time<Id>(base, sdeventplus::internal::NoOwn()), BaseData(base),
+    callback(std::move(callback))
 {}
 
 } // namespace detail

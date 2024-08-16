@@ -165,8 +165,8 @@ class Event
                      bool& owned);
 
     const internal::SdEvent* sdevent;
-    stdplus::Copyable<sd_event*, const internal::SdEvent*, bool>::Handle<drop,
-                                                                         ref>
+    stdplus::Copyable<sd_event*, const internal::SdEvent*,
+                      bool>::Handle<drop, ref>
         event;
 };
 

@@ -157,8 +157,8 @@ void Base::destroy_userdata(void* userdata)
 
 int Base::prepareCallback(sd_event_source* source, void* userdata)
 {
-    return sourceCallback<Callback, Base, &Base::get_prepare>("prepareCallback",
-                                                              source, userdata);
+    return sourceCallback<Callback, Base, &Base::get_prepare>(
+        "prepareCallback", source, userdata);
 }
 
 namespace detail

@@ -27,19 +27,16 @@ sd_event* SdEventImpl::sd_event_unref(sd_event* event) const
     return ::sd_event_unref(event);
 }
 
-int SdEventImpl::sd_event_add_io(sd_event* event, sd_event_source** source,
-                                 int fd, uint32_t events,
-                                 sd_event_io_handler_t callback,
-                                 void* userdata) const
+int SdEventImpl::sd_event_add_io(
+    sd_event* event, sd_event_source** source, int fd, uint32_t events,
+    sd_event_io_handler_t callback, void* userdata) const
 {
     return ::sd_event_add_io(event, source, fd, events, callback, userdata);
 }
 
-int SdEventImpl::sd_event_add_time(sd_event* event, sd_event_source** source,
-                                   clockid_t clock, uint64_t usec,
-                                   uint64_t accuracy,
-                                   sd_event_time_handler_t callback,
-                                   void* userdata) const
+int SdEventImpl::sd_event_add_time(
+    sd_event* event, sd_event_source** source, clockid_t clock, uint64_t usec,
+    uint64_t accuracy, sd_event_time_handler_t callback, void* userdata) const
 {
     return ::sd_event_add_time(event, source, clock, usec, accuracy, callback,
                                userdata);

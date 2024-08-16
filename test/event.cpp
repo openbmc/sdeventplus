@@ -120,8 +120,8 @@ class EventMethodTest : public EventTest
 
     void SetUp()
     {
-        event = std::make_unique<Event>(expected_event, std::false_type(),
-                                        &mock);
+        event =
+            std::make_unique<Event>(expected_event, std::false_type(), &mock);
     }
 
     void TearDown()

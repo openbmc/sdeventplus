@@ -84,11 +84,11 @@ TEST_F(SignalTest, ConstructSuccess)
     }
     int completions = 0;
     const struct signalfd_siginfo* return_si;
-    Signal::Callback callback = [&](Signal&,
-                                    const struct signalfd_siginfo* si) {
-        return_si = si;
-        completions++;
-    };
+    Signal::Callback callback =
+        [&](Signal&, const struct signalfd_siginfo* si) {
+            return_si = si;
+            completions++;
+        };
     Signal signal(*event, sig, std::move(callback));
     EXPECT_FALSE(callback);
     EXPECT_NE(&signal, userdata);
@@ -116,10 +116,10 @@ TEST_F(SignalTest, ConstructError)
                                           testing::_, nullptr))
         .WillOnce(Return(-EINVAL));
     int completions = 0;
-    Signal::Callback callback = [&completions](Signal&,
-                                               const struct signalfd_siginfo*) {
-        completions++;
-    };
+    Signal::Callback callback =
+        [&completions](Signal&, const struct signalfd_siginfo*) {
+            completions++;
+        };
     EXPECT_THROW(Signal(*event, sig, std::move(callback)), SdEventError);
     EXPECT_TRUE(callback);
     EXPECT_EQ(0, completions);
