@@ -18,6 +18,6 @@ build_examples = get_option('examples')
 if build_examples
   subdir('example')
 endif
-if not build_tests.disabled()
+if build_tests.allowed()
   subdir('test')
 endif
