@@ -1,12 +1,10 @@
-examples = [
-  'delayed_echo',
-  'follow',
-  'heartbeat',
-  'heartbeat_timer',
-]
+examples = ['delayed_echo', 'follow', 'heartbeat', 'heartbeat_timer']
 
 foreach example : examples
-  executable(example, example + '.cpp',
-             implicit_include_directories: false,
-             dependencies: sdeventplus_dep)
+    executable(
+        example,
+        example + '.cpp',
+        implicit_include_directories: false,
+        dependencies: sdeventplus_dep,
+    )
 endforeach
