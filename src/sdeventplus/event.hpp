@@ -62,8 +62,8 @@ class Event
      *  @throws SdEventError for underlying sd_event errors
      *  @return A new Event
      */
-    static Event
-        get_new(const internal::SdEvent* sdevent = &internal::sdevent_impl);
+    static Event get_new(
+        const internal::SdEvent* sdevent = &internal::sdevent_impl);
 
     /** @brief Create a wrapped event around sd_event_default()
      *
@@ -71,8 +71,8 @@ class Event
      *  @throws SdEventError for underlying sd_event errors
      *  @return A new default Event
      */
-    static Event
-        get_default(const internal::SdEvent* sdevent = &internal::sdevent_impl);
+    static Event get_default(
+        const internal::SdEvent* sdevent = &internal::sdevent_impl);
 
     /** @brief Get the underlying sd_event
      *

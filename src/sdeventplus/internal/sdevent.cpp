@@ -119,8 +119,8 @@ sd_event_source* SdEventImpl::sd_event_source_ref(sd_event_source* source) const
     return ::sd_event_source_ref(source);
 }
 
-sd_event_source*
-    SdEventImpl::sd_event_source_unref(sd_event_source* source) const
+sd_event_source* SdEventImpl::sd_event_source_unref(
+    sd_event_source* source) const
 {
     return ::sd_event_source_unref(source);
 }
