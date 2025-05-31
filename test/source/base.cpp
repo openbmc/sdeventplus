@@ -86,8 +86,8 @@ class BaseTest : public testing::Test
 
     // Using a unique_ptr to make sure we don't get any superfluous moves or
     // copies.
-    std::tuple<std::unique_ptr<BaseImpl>, std::function<void()>>
-        make_base(const Event& event, sd_event_source* source)
+    std::tuple<std::unique_ptr<BaseImpl>, std::function<void()>> make_base(
+        const Event& event, sd_event_source* source)
     {
         EXPECT_CALL(mock, sd_event_ref(event.get()))
             .WillOnce(Return(event.get()));
